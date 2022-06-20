@@ -292,13 +292,13 @@ def ask_for_coords(coords):
 
 def test():
     # # PRODUCING PICKLE FILES
-    # floor_plan = input("Floor plan? : ") 
-    # batch = input("Batch? : ")
+    floor_plan = input("Floor plan? : ") 
+    batch = input("Batch? : ")
 
-    # # Grab source coordinates for BFS
-    # start_coords = [] 
-    # ask_for_coords(start_coords)
-    # test_bfs(floor_plan, batch, start_coords)
+    # Grab source coordinates for BFS
+    start_coords = [] 
+    ask_for_coords(start_coords)
+    test_bfs(floor_plan, batch, start_coords)
 
 
     # DRAWING PATHS FROM PICKLE FILES
