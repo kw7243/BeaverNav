@@ -291,7 +291,7 @@ def ask_for_coords(coords):
 
 
 def test():
-    # # PRODUCING PICKLE FILES
+    # PRODUCING PICKLE FILES
     floor_plan = input("Floor plan? : ") 
     batch = input("Batch? : ")
 
