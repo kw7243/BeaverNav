@@ -202,16 +202,16 @@ def build_sp(tree, end, start = None):
 
     return path[::-1]
 
-def apsp(image, sources):
-    """
-    Runs APSP on an image given a 
-    representative set of sources 
-    """
-    parent = {}
-    for src in sources:
-        parent[src] = bfs(image, src)
+# def apsp(image, sources):
+#     """
+#     Runs APSP on an image given a 
+#     representative set of sources 
+#     """
+#     parent = {}
+#     for src in sources:
+#         parent[src] = bfs(image, src)
     
-    return parent
+#     return parent
 
 def save_image_with_path_drawn(image_name, new_name, relevant_pixels):
     """
