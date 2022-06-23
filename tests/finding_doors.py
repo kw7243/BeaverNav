@@ -1,5 +1,6 @@
 import svg_helper_methods
 from svgpathtools import CubicBezier, Path, Line, smoothed_path, wsvg, svg2paths2
+from BeaverNav import svg_helper_methods
 svg_dir = ""
 pdf_dir = ""
 
