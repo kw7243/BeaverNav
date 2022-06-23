@@ -1,5 +1,5 @@
 # Should not end in backslash. This is the drive folder where everything will be written
-from BeaverNav import text_processing_methods
+from BeaverNav import svg_text_processing
 
 text_dir = "/content/drive/MyDrive/FreshStart/Text Files" 
 text_png_dir = "/content/drive/MyDrive/FreshStart/Text PNGs" 
