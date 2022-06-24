@@ -314,15 +314,9 @@ def test():
 
 
 def main():
-    DIRECTORY = "7_1_test"
-    pickle_name = f"{DIRECTORY}/7_1_reduced_batchA_0.pickle"
-    im_name = f"{DIRECTORY}/7_1_reduced"
-
-    with open(pickle_name, "rb") as f:
-        tree = pickle.load(f)
-        save_image_with_path_drawn(im_name, "test.png", tree["parent_ptrs"])
-
+    arr = np.array([[1,2,3]])
+    print(arr)
 
 if __name__ == "__main__":
-    test()
-    # main()
+    # test()
+    main()
