@@ -517,55 +517,6 @@ def Dijkstar_duplicated_graph(duplicated_graph, start, end):
     return nodes
 
 
-
-########################
-#         BFS          #
-########################
-
-def bfs(image, start):
-    """
-    Returns BFS tree rooted at a start pixel in the form
-    of parent pointers for an image
-    """
-    tree = {"start": start, "parent_ptrs": {start: start}} 
-
-    parent = tree["parent_ptrs"] # mapping (x1,y1): (x2,y2)
-    agenda = [start] # holds coordinates to explore
-
-    while agenda:
-        curr_node = agenda.pop(0)
-
-        for child in get_white_neighbors(image, *curr_node):
-            if child not in parent: # if unvisited
-                parent[child] = curr_node
-                agenda.append(child)
-
-    return tree
-
-def build_sp(tree, end, start = None): 
-    """
-    Builds a shortest path from parent pointers
-    """
-    if start == None:
-        start = tree["start"]
-
-    parent = tree["parent_ptrs"]
-    if end not in parent: # end unreachable
-        return None
-    
-    # initialize
-    curr_node = end
-    path = [end]
-
-    # backtracks from end node via parent pointers
-    # until reach start
-    while curr_node != start:
-        curr_node = parent[curr_node]
-        path.append(curr_node)
-
-    return path[::-1]
-
-
 ########################
 #        TESTING       #
 ########################
