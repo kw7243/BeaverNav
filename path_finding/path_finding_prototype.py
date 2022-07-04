@@ -570,47 +570,6 @@ def build_sp(tree, end, start = None):
 #        TESTING       #
 ########################
 
-def test_bfs(floor_plan, batch, start_coords):
-    """
-    Runs BFS from given start coordinates
-    on an image and saves BFS tree (parent dict.) to 
-    a pickle file
-    """
-    DIRECTORY = f"{floor_plan}_test"
-    im_filepath = f"{DIRECTORY}/{floor_plan}_reduced.png"
-    image = load_color_image(im_filepath)
-
-    for test_num, start_coord in enumerate(start_coords):
-        start_t = time.perf_counter()
-        parent = bfs(image, start_coord)
-        print(f"BFS test {test_num} time: {time.perf_counter() - start_t}")
-
-        # Draw BFS tree
-        save_image_with_path_drawn(im_filepath, f"{DIRECTORY}/{floor_plan}_bfs.png", parent["parent_ptrs"])
-
-        # Save pickle file
-        pickle_name = f"{DIRECTORY}/{floor_plan}_batch{batch}_{test_num}.pickle"
-        
-        with open(pickle_name, "wb") as f:
-            pickle.dump(parent, f)
-
-def test_bfs_paths(floor_plan, pickle_batch, test_batch, test_num, end_coords):
-    """
-    Saves PNGs w/ shortest path drawn given a BFS tree
-    and a list of destination coordinates
-    """
-    DIRECTORY = f"{floor_plan}_test"
-    pickle_name = f"{DIRECTORY}/{floor_plan}_batch{pickle_batch}_{test_num}.pickle"
-    im_filepath = f"{DIRECTORY}/{floor_plan}_reduced.png"
-
-    with open(pickle_name, "rb") as f: # unpickle
-        tree = pickle.load(f)
-    
-    for test_num, end_coord in enumerate(end_coords):
-        path = build_sp(tree, end_coord)
-        start = tree["start"]
-        save_image_with_path_drawn(im_filepath, f"{DIRECTORY}/{floor_plan}_sp_{start}_batch{test_batch}_{test_num}.png", path)
-
 def ask_for_coords(coords):
     """
     Appends user-given coordinates to given list
@@ -624,28 +583,6 @@ def ask_for_coords(coords):
         except ValueError as e:
             pass
 
-def full_bfs_test():
-    # PRODUCING PICKLE FILES
-    floor_plan = input("Floor plan? : ") 
-    batch = input("Batch? : ")
-
-    # Grab source coordinates for BFS
-    start_coords = []
-    ask_for_coords(start_coords)
-    test_bfs(floor_plan, batch, start_coords)
-
-
-    # DRAWING PATHS FROM PICKLE FILES
-    floor_plan = input("Floor plan? : ") 
-    pickle_batch = input("Pickle batch? : ")
-    test_batch = input("Test batch? : ")
-    test_num = input("Pickle test number? : ")
-
-    # Grab destination coordinates
-    end_coords = []
-    ask_for_coords(end_coords)
-    test_bfs_paths(floor_plan, pickle_batch, test_batch, test_num, end_coords)
- 
 
 
 def test_reduce_and_crop(DIRECTORY, floor_plan):
