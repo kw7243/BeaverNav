@@ -1,7 +1,7 @@
+from curses import start_color
 import time
 import pickle
 from PIL import Image
-import numpy as np
 from dijkstar import Graph, find_path
 
 ##############################
@@ -78,7 +78,7 @@ def in_bounds(image, x, y):
 #      IMAGE PROCESSING      #
 ##############################
 
-def reduce_resolution(cropped_image, new_filename = None, r=16):
+def reduce_resolution(cropped_image, new_filename=None, r=16):
     """
     Given internal rep. of cropped image,
     return an internal representation of it
@@ -100,11 +100,11 @@ def reduce_resolution(cropped_image, new_filename = None, r=16):
         reduced_obj.save(new_filename)
 
     reduced_obj.close()
-    return reduced_image, r
+    return reduced_image
 
 
 
-def expand_coords(list_of_coords, r = 16):
+def expand_coords(list_of_coords, r=16):
     """
     Converts a list of coordinates in lower res image
     to coordinates in higher res image
@@ -115,7 +115,6 @@ def expand_coords(list_of_coords, r = 16):
     (1, 1) corresponds to all 25 coordinates 
     inclusive within this range: (5, 5) --> (10, 10)
     """
-    print(list_of_coords)
     return [(x*r + dx, y*r + dy) 
                 for dx in range(r)
                     for dy in range(r)
@@ -188,7 +187,7 @@ def crop_image(filename, new_filename = None):
 
     w, h = image.size
     # Crop out border and legend
-    borders = (160, 160, w - 180, h - 500)
+    borders = (160, 160, w - 160, h - 500)
     cropped_image_obj = image.crop(borders)
 
     image.close()
@@ -346,8 +345,8 @@ def distance_to_black(image, coord):
             # the source coordinate
             return curr_node[1] 
 
-        if curr_node[1] >= 50:
-            return 50
+        if curr_node[1] >= 20:
+            return 20
 
         for neighbor_coord in get_neighbors(image, *curr_node[0]):
             if neighbor_coord not in visited:
@@ -521,10 +520,12 @@ def Dijkstar_duplicated_graph(duplicated_graph, start, end):
 #        TESTING       #
 ########################
 
-def ask_for_coords(coords):
+def ask_for_coords():
     """
-    Appends user-given coordinates to given list
+    Appends user-given coordinates to list
+    and returns it
     """
+    coords = []
     user = ""
     while user != "done":
         user = input("Type in coordinates (ex. 120 150): ")
@@ -533,31 +534,36 @@ def ask_for_coords(coords):
             coords.append(coord)
         except ValueError as e:
             pass
+    
+    return coords
 
 
-
-def test_reduce_and_crop(DIRECTORY, floor_plan):
+def test_crop_and_reduce(DIRECTORY, floor_plan, reduction_factor):
     original_filename = f"{DIRECTORY}/{floor_plan}_nontext.png"
     cropped_filename = f"{DIRECTORY}/{floor_plan}_cropped.png"
     reduced_filename = f"{DIRECTORY}/{floor_plan}_reduced.png"
 
-    start = time.perf_counter()
-    cropped = crop_image(original_filename, cropped_filename)
-    end_crop = time.perf_counter()
-    print(f"Crop time: {end_crop - start}")
+    try: # in case already cropped and reduced already
+        return load_color_image(reduced_filename)
 
-    reduced, reduction_factor = reduce_resolution(cropped, reduced_filename, r=17)
-    end_reduce = time.perf_counter()
-    print(f"Reduce time: {end_reduce - end_crop}")
-    print(f"Total time: {end_reduce - start}")
-    return reduced, reduction_factor    
+    except FileNotFoundError as e:
+        start = time.perf_counter()
+        cropped = crop_image(original_filename, cropped_filename)
+        end_crop = time.perf_counter()
+        print(f"Crop time: {end_crop - start}")
+
+        reduced = reduce_resolution(cropped, reduced_filename, reduction_factor)
+        end_reduce = time.perf_counter()
+        print(f"Reduce time: {end_reduce - end_crop}")
+        print(f"Total time: {end_reduce - start}")
+        return reduced  
 
 
 def test_duplicate_graph(DIRECTORY, floor_plan, reduced_im):
-    print("RUNNING TEST...")
+    print("\nCREATING GRAPH...")
     start = time.perf_counter()
     graph = preprocessing_via_duplicate_graph(reduced_im, 25)
-    print("FINISHED TEST...")
+    print("FINISHED GRAPH CREATION...")
     print(f"Duplicate graph creation: {time.perf_counter() - start}")
 
     # Save graph to pickle file
@@ -576,25 +582,49 @@ def test_path_finding(DIRECTORY, floor_plan, graph, start, end, reduction_factor
     end_reduced = (end[0]//reduction_factor, end[1]//reduction_factor)
 
     # Get path
+    t_start = time.perf_counter()
     path_low_res = Dijkstar_duplicated_graph(graph, start_reduced, end_reduced)
+    t_find_path = time.perf_counter()
+    print(f"Dijkstar find_path (duplicated graph) time: {t_find_path - t_start}")
+
     path_high_res = expand_coords(path_low_res, reduction_factor)
+    t_expand_coords = time.perf_counter()
+    print(f"Expanding coords time: {t_expand_coords - t_find_path}")
 
     # Draw path onto CROPPED image
     cropped_filename = f"{DIRECTORY}/{floor_plan}_cropped.png"
     new_filename = f"{DIRECTORY}/{floor_plan}_{start}_{end}_path.png"
+
     save_image_with_path_drawn(cropped_filename, new_filename, path_high_res)
+    print(f"Draw path time: {time.perf_counter() - t_expand_coords}")
+
+    print(f"User interface time: {time.perf_counter() - t_start}")
+
+
+def test_full_Dijkstar(DIRECTORY, floor_plan, reduction_factor):
+    reduced = test_crop_and_reduce(DIRECTORY, floor_plan, reduction_factor)
+
+    print("\nEnter start coordinates")
+    start_coords = ask_for_coords()
+    print("\nEnter end coordinates")
+    end_coords = ask_for_coords()
+
+    try:
+        with open(f"{DIRECTORY}/{floor_plan}_graph.pickle", "rb") as f:
+            graph = pickle.load(f)
+    except FileNotFoundError as e:
+        graph = test_duplicate_graph(DIRECTORY, floor_plan, reduced)
+
+    for start, end in zip(start_coords, end_coords):
+        test_path_finding(DIRECTORY, floor_plan, graph, start, end, reduction_factor)
+
 
 def test():
     floor_plan = input("Floor plan? (ex. 1_2): ")
     DIRECTORY = f"tests/{floor_plan}_test"
+    reduction_factor = int(input("Reduction factor?: "))
 
-    with open(f"{DIRECTORY}/{floor_plan}_graph.pickle", "rb") as f:
-        graph = pickle.load(f)
-    
-    start = 270, 360
-    end = 2700, 3100
-    test_path_finding(DIRECTORY, floor_plan, graph, start, end, 17)
-
+    test_full_Dijkstar(DIRECTORY, floor_plan, reduction_factor)
 
 if __name__ == "__main__":
     test()
