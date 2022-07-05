@@ -602,6 +602,15 @@ def test_path_finding(DIRECTORY, floor_plan, graph, start, end, reduction_factor
 
 
 def test_full_Dijkstar(DIRECTORY, floor_plan, reduction_factor):
+    """
+    Given a floor plan, reduction factor,
+    and its directory w.r.t. path_finding, runs a full test:
+
+    1. Crop and reduce image
+    2. Ask user for start and end coordinates
+    3. Create graph if doesn't already exist
+    4. Draw the shortest path between the start and end coords.
+    """
     reduced = test_crop_and_reduce(DIRECTORY, floor_plan, reduction_factor)
 
     print("\nEnter start coordinates")
