@@ -1,3 +1,12 @@
+########################################################################
+########################################################################
+########################################################################
+# TRIED, BUT THIS WAS NO BETTER AT TEXT DETECTION THAN EAST
+# DON'T USE
+########################################################################
+########################################################################
+########################################################################
+
 # Copyright 2021 Adobe. All rights reserved.
 # This file is licensed to you under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License. You may obtain a copy
@@ -42,15 +51,16 @@ try:
 
 
     # Set operation input from a source file.
-    source = FileRef.create_from_local_file(base_path + "/Desktop/BeaverNav/1_0.pdf")
+    source = FileRef.create_from_local_file(base_path + "/Desktop/BeaverNav/4_5_2.pdf")
     extract_pdf_operation.set_input(source)
     
     print('hello3')
 
     # Build ExtractPDF options and set them into the operation
     extract_pdf_options: ExtractPDFOptions = ExtractPDFOptions.builder() \
-        .with_element_to_extract(ExtractElementType.TEXT) \
-         .with_get_char_info(True) \
+        .with_elements_to_extract([ExtractElementType.TEXT, ExtractElementType.TABLES]) \
+        .with_get_char_info(True) \
+        .with_include_styling_info(True) \
         .build()
     extract_pdf_operation.set_options(extract_pdf_options)
 
@@ -64,7 +74,7 @@ try:
 
 
     # Save the result to the specified location.
-    result.save_as(base_path + "/Desktop/BeaverNav/Extract_Text.zip")
+    result.save_as(base_path + "/Desktop/BeaverNav/Extract_Text6.zip")
     print('hello6')
 
 except (ServiceApiException, ServiceUsageException, SdkException):

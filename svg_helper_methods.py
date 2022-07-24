@@ -1,4 +1,5 @@
 from svgpathtools.parser import parse_transform
+from svgpathtools import CubicBezier, Path, Line, smoothed_path, wsvg, svg2paths2
 from svgpathtools.path import transform as path_transform
 import math 
 from collections import defaultdict
