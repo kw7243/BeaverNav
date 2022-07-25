@@ -1,10 +1,8 @@
 from svgpathtools.parser import parse_transform
 from svgpathtools.path import transform as path_transform
-import math 
-from collections import defaultdict
-import numpy as np
+import math
 from IPython.display import SVG, display
-from svgpathtools import svg2paths2, wsvg, Path
+from svgpathtools import wsvg, Path
 
 
 def remove_from_list(l, indices_to_delete):
