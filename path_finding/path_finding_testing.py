@@ -120,6 +120,7 @@ def test():
     DIRECTORY = f"tests/{floor_plan}_test"
     reduction_factor = int(input("Reduction factor?: "))
 
+    ### DO WHATEVER TESTS YOU NEED STARTING HERE ###
     reduced_im = test_crop_and_reduce(DIRECTORY, floor_plan, reduction_factor)
     test_duplicate_graph(DIRECTORY, floor_plan, reduced_im)
 
