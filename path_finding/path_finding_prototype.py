@@ -1,6 +1,6 @@
-from curses import start_color
 import time
 import pickle
+from collections import deque
 from PIL import Image
 from dijkstar import Graph, find_path
 
@@ -325,9 +325,39 @@ def preprocess_via_threshold(image, threshold=4):
     return acceptable_pixels            
 
 
+def distances_to_black(image):
+    """
+    Given an image (internal rep.),
+    return the shortest distance of 
+    every white pixel to the nearest black pixel
+    """
+    distances = {} # (x, y) --> distance to black pixel
+    visited = set()
+
+    q = deque([])
+    for x in range(image['width']):
+        for y in range(image['height']):
+            if sum(get_pixel(image, x, y)) < 3*250:
+                # black pixel
+                q.append((x, y))
+                distances[(x, y)] = 0
+
+    while q:
+        coord = q.popleft()
+
+        for neighbor_coord in get_white_neighbors(image, *coord):
+            if neighbor_coord not in visited:
+                distances[neighbor_coord] = distances[coord] + 1
+                q.append(neighbor_coord)
+                visited.add(neighbor_coord)
+    
+    return distances
+
+
+
 def distance_to_black(image, coord):
     """
-    Given a coordinate and image, 
+    Given a coordinate and image (internal rep.), 
     return the MANHATTAN distance to the 
     nearest black pixel (sum of its RGB values < 240)
 
@@ -354,6 +384,8 @@ def distance_to_black(image, coord):
                 visited.add(neighbor_coord)
         
     return float("inf") # if no black pixels exist in image
+
+
 
 def weight_func(image, coord, k):
     """
@@ -414,6 +446,7 @@ def get_up_down_neighbors(image, x, y):
                     sum(get_pixel(image, *(x, y + dy))) > 250*3]
 
 
+
 def preprocessing_via_duplicate_graph(image, k=1000):
     """
     Given internal rep. of an image, 
@@ -444,7 +477,7 @@ def preprocessing_via_duplicate_graph(image, k=1000):
     path rather than turn up-down)
     """
     graph = Graph()
-    distances = {} # stores pixel distances of coords to nearest black pixel
+    distances = distances_to_black(image) # stores pixel distances of coords to nearest black pixel
 
     for x in range(image['width']):
         for y in range(image['height']):
@@ -455,11 +488,7 @@ def preprocessing_via_duplicate_graph(image, k=1000):
             u = (x, y)
             for v_horizontal in get_left_right_neighbors(image, *u):
                 # w(u_horiz, v_horiz) = k/d^2
-                if v_horizontal in distances:
-                    edge_weight = distances[v_horizontal]
-                else:
-                    edge_weight = weight_func(image, v_horizontal, k)
-                    distances[v_horizontal] = edge_weight
+                edge_weight = k*1/(distances[v_horizontal])**2
                 graph.add_edge((u, 'horizontal'), (v_horizontal, 'horizontal'), edge_weight)
 
                 # w(u_vert, v_horiz) = k
@@ -468,11 +497,7 @@ def preprocessing_via_duplicate_graph(image, k=1000):
                 
             for v_vertical in get_up_down_neighbors(image, *u):
                 # w(u_vert, v_vert) = k/d^2
-                if v_vertical in distances:
-                    edge_weight = distances[v_vertical]
-                else:
-                    edge_weight = weight_func(image, v_vertical, k)
-                    distances[v_vertical] = edge_weight
+                edge_weight = k* 1/(distances[v_vertical])**2
                 graph.add_edge((u, 'vertical'), (v_vertical, 'vertical'), edge_weight)
 
                 # w(u_horiz, v_vert) = k
@@ -633,7 +658,8 @@ def test():
     DIRECTORY = f"tests/{floor_plan}_test"
     reduction_factor = int(input("Reduction factor?: "))
 
-    test_full_Dijkstar(DIRECTORY, floor_plan, reduction_factor)
+    reduced_im = test_crop_and_reduce(DIRECTORY, floor_plan, reduction_factor)
+    test_duplicate_graph(DIRECTORY, floor_plan, reduced_im)
 
 if __name__ == "__main__":
     test()
