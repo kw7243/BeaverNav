@@ -168,8 +168,7 @@ def bottom_up(image):
         for x in range(image['width']):
             if sum(get_pixel(image, x, y)) < 3*250:
                 return y
-
-
+                
 def crop_image(filename, new_filename = None):
     """
     Given an internal representation of 
