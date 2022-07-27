@@ -1,7 +1,7 @@
 from svgpathtools.parser import parse_transform
 from svgpathtools.path import transform as path_transform
 from IPython.display import SVG, display
-from svgpathtools import wsvg, Path
+from svgpathtools import svg2paths2, wsvg, Path
 import numpy as np
 import math
 
@@ -124,10 +124,14 @@ def is_door(path, attribute):
         return False
     
     real_path = get_real_path(path, attribute)
+    curve_length = real_path.length() # get arc length of path
+
+    if curve_length > 20:
+        return False
 
     diff = real_path.start - real_path.end
     segment_length = math.sqrt((diff.real)**2 + (diff.imag)**2) # get distance between endpoints of path
-    curve_length = real_path.length() # get arc length of path
+    
 
     if segment_length == 0:
         return False
@@ -155,6 +159,7 @@ def remove_doors(paths, attributes):
     # iterate over paths and attributes
     for i, (path, attribute) in enumerate(zip(paths, attributes)):
         if is_door(path, attribute):
+            print(get_real_path(path, attribute).length())
             # print("Found door at position i = ", i)
             indices_to_delete.add(i)
 
@@ -198,3 +203,12 @@ def get_doors(paths, attributes):
     door_attributes = remove_from_list(attributes, to_delete)
 
     return door_paths, door_attributes
+
+
+if __name__ == "__main__":
+    paths, attr, svg_attr = svg2paths2("door_detection/tests/32_1.svg")
+    paths, attr = remove_empty_paths(paths, attr)
+    print(svg_attr)
+    new_paths, new_attr = remove_doors(paths, attr)
+
+    wsvg(new_paths, filename="door_detection/tests/32_1_no_doors_threshold.svg", attributes=new_attr, svg_attributes=svg_attr)
