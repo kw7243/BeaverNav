@@ -1,7 +1,7 @@
 import time
 import pickle
 from path_finding_prototype import *
-
+from deprecated_methods import distance_to_black
 
 ########################
 #        TESTING       #
@@ -26,7 +26,7 @@ def ask_for_coords():
 
 
 def test_crop_and_reduce(DIRECTORY, floor_plan, reduction_factor):
-    original_filename = f"{DIRECTORY}/{floor_plan}_nontext.png"
+    original_filename = f"../nontext_PNG_floor_plans/{floor_plan}_nontext.png"
     cropped_filename = f"{DIRECTORY}/{floor_plan}_cropped.png"
     reduced_filename = f"{DIRECTORY}/{floor_plan}_reduced.png"
 
@@ -121,8 +121,25 @@ def test():
     reduction_factor = int(input("Reduction factor?: "))
 
     ### DO WHATEVER TESTS YOU NEED STARTING HERE ###
-    reduced_im = test_crop_and_reduce(DIRECTORY, floor_plan, reduction_factor)
-    test_duplicate_graph(DIRECTORY, floor_plan, reduced_im)
+    reduced = test_crop_and_reduce(DIRECTORY, floor_plan, reduction_factor)
+    print("Started... ")
+    before = {(x, y): distance_to_black(reduced, (x, y))
+                for x in range(reduced["width"])
+                    for y in range(reduced["height"])}
+    print("FINISHED before")
+    after = distances_to_black(reduced)
+    print("FINISHED after")
+
+    assert(len(before) == len(after))
+    assert(before == after)
+
+
+    with open(f"{DIRECTORY}/{floor_plan}_before_distances.pickle", "wb") as f:
+        pickle.dump(before, f)
+
+    with open(f"{DIRECTORY}/{floor_plan}_after_distances.pickle", "wb") as f:
+        pickle.dump(after, f)
+
 
 if __name__ == "__main__":
     test()

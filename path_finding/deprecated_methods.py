@@ -48,13 +48,13 @@ def distance_to_black(image, coord):
     while agenda:
         curr_node = agenda.pop(0)
 
-        if sum(get_pixel(image, *curr_node[0])) < 3*240:
+        if sum(get_pixel(image, *curr_node[0])) < 3*250:
             # found a black pixel, so return its distance from 
             # the source coordinate
             return curr_node[1] 
 
-        if curr_node[1] >= 20:
-            return 20
+        # if curr_node[1] >= 20:
+        #     return 20
 
         for neighbor_coord in get_neighbors(image, *curr_node[0]):
             if neighbor_coord not in visited:
@@ -123,3 +123,23 @@ def Dijkstar_shortest_path(graph, start, end):
     """
     nodes, edges, costs, total_cost = find_path(graph, start, end)
     return nodes
+
+
+
+def conversion_to_real_paths(svg_file):
+    paths, attributes, svg_attributes = svg2paths2(svg_file)
+
+    dict_length_to_paths = {}
+
+    for path,attribute in zip(paths,attributes):
+        if path == Path():
+            continue
+        real_path = get_real_path(path,attribute)
+        curved_length = real_path.length()
+
+        if curved_length not in dict_length_to_paths:
+            dict_length_to_paths[curved_length] = [(real_path,path,attribute)]
+        else:
+            dict_length_to_paths[curved_length].append((real_path,path,attribute))
+
+    return dict_length_to_paths, svg_attributes

@@ -1,5 +1,5 @@
 %%time
-import svg_helper_methods
+import door_detection.svg_helper_methods as svg_helper_methods
 from svgpathtools import CubicBezier, Path, Line, smoothed_path, wsvg, svg2paths2
 from collections import defaultdict
 import pprint

@@ -22,7 +22,7 @@ def distances_to_black(image):
             if sum(get_pixel(image, x, y)) < 3*250: # if black pixel
                 distances[(x, y)] = 0 
                 q.append((x, y)) # add black pixels into q
-
+    
     while q:
         coord = q.popleft()
 

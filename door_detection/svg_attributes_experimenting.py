@@ -1,4 +1,4 @@
-from svg_helper_methods import *
+from door_detection.svg_helper_methods import *
 
 def main():
     file_name = "32_1.svg"
