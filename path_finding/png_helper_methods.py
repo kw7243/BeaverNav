@@ -1,5 +1,7 @@
 from PIL import Image
-
+import numpy as np
+import cv2
+import time
 ##############################
 #   IMAGE HELPER FUNCTIONS   #
 ##############################
@@ -227,7 +229,6 @@ def binary_filter(old_filename, new_filename=None):
     return im
 
 
-
 def save_image_with_path_drawn(image_filename, new_filename, relevant_coords):
     """
     Colors all coords in "relevant_coords" RED 
@@ -240,4 +241,39 @@ def save_image_with_path_drawn(image_filename, new_filename, relevant_coords):
         set_pixel(im_copy, (255,0,0), *pixel) # color red
     
     save_color_image(im_copy, new_filename)
+    
 
+def crop_image_cv2(filename, new_filename):
+    """
+    Information for Van + Michael:
+        1. Input your 1) Filepath of your png image you wanna crop and 2) the new filepath
+        2. The function should crop it easily now
+
+    Given a file name of a floor plan,
+    crops out the legend and unnecessary white space
+    """
+    im = cv2.imread(filename)
+    gray_im = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
+
+    # Crop out legend and outer border
+    height, width = gray_im.shape
+    left = int(0.038*width)
+    right = int(0.96*width)
+    top = int(0.038*height)
+    bottom = int(0.89*height)
+
+    gray_im = gray_im[top:bottom, left:right]
+    height, width = gray_im.shape
+
+    # Get bounding box of meat of floor plan 
+    inverted_im = 255*(gray_im < 100).astype(np.uint8) # invert all black to white
+    coords = cv2.findNonZero(inverted_im) # get all white pixel
+    x, y, w, h = cv2.boundingRect(coords) # Find minimum spanning bounding box
+    
+    # Add 1% padding for cropping
+    y_buffer = int(0.01*height) 
+    x_buffer = int(0.01*width)
+
+    # Crop the image 
+    rect = gray_im[y - y_buffer:(y + h) + y_buffer, x - x_buffer:(x + w) + x_buffer]
+    cv2.imwrite(new_filename, rect) # save image

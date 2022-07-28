@@ -227,9 +227,6 @@ def calc_segment_length(real_path):
 
 
 def determining_threshold_dots(svg_attributes):
-    """
-
-    """
     width = [i for i in svg_attributes['width'] if i in '0123456789']
     height = [i for i in svg_attributes['height'] if i in '0123456789']
     width = int("".join(width))
