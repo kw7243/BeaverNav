@@ -30,8 +30,12 @@ import easyocr
 # FILE INPUT parameters
 beavernav = os. getcwd()
 mypath = beavernav + '/PDF_floor_plans'
-mod = beavernav + '/text_detection/modified_png_floor_planss'
+mod = beavernav + '/text_detection/modified_png_floor_plans'
 nontextpngs = beavernav + "/text_detection/nontext_PNG_floor_plans"
+cropped_png_dir = beavernav + "/cropped_png_floor_plans"
+txt_png_dir = beavernav + "/text_png_floor_plans"
+bbox_dir = beavernav + '/text_detection/text_bounding_boxes'
+txt_dir = beavernav + '/text_detection/text_files'
 pdffiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
 modfiles = [f for f in listdir(mod) if isfile(join(mod, f))]
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = beavernav + '/psychic-ruler-357114-6631612ee47a.json'
@@ -306,11 +310,11 @@ def saveBoundingBoxes(floor, numPasses, post = True, east = True, google=True, e
 			quarters[id], boxes2[id] = detectTextWithEasyOCR(quarters[id])
 			boxes[id].extend(boxes2[id])
 		if (google):
-			cv2.imwrite(beavernav + "/Modified PNG Floor Plans/" + floor + '_0' + str(id) + ".png", quarters[id])
-			results = detect_text(beavernav + "/Modified PNG Floor Plans/" + floor + '_0' + str(id) + ".png")
+			cv2.imwrite(mod + "/" + floor + '_0' + str(id) + ".png", quarters[id])
+			results = detect_text( mod + "/" + floor + '_0' + str(id) + ".png")
 			for text in results:
 				boxes[id].append(results[text])
-			os.remove(beavernav + "/Modified PNG Floor Plans/" + floor + '_0' + str(id) + ".png")
+			os.remove(mod + "/" + floor + '_0' + str(id) + ".png")
 		mergedboxes[id].extend(boxes[id])
 		if post: mergedboxes[id] = postProcessing(mergedboxes[id])
 
@@ -328,11 +332,11 @@ def saveBoundingBoxes(floor, numPasses, post = True, east = True, google=True, e
 	image = drawBoxes(image, boxes, (255,255,255), -1)
 
 	print("Saving Images")
-	cv2.imwrite(beavernav + "/Modified PNG Floor Plans/" + floor + ".png", merged_box_orig)
-	cv2.imwrite(beavernav + "/Nontext PNG Floor Plans/" + floor + ".png", image)
+	cv2.imwrite(mod + "/" + floor + ".png", merged_box_orig)
+	cv2.imwrite(nontextpngs + "/" + floor + ".png", image)
 
 	if save:
-		with open(beavernav + '/Bounding Boxes/' + floor + 'bbs.pickle', 'wb') as handle:
+		with open(bbox_dir + '/' + floor + 'bbs.pickle', 'wb') as handle:
 			pickle.dump(mergedboxes, handle, protocol=pickle.HIGHEST_PROTOCOL)
 	
 	end = time.time()
@@ -683,9 +687,9 @@ def recognizeTextWithGoogle(orig, boxes, scale = True):
 		roi = addBorder(roi, 50)
 
 		# text detection with google
-		cv2.imwrite(beavernav + "/Modified PNG Floor Plans/temp.png", roi)
-		texts = detect_text(beavernav + "/Modified PNG Floor Plans/temp.png")
-		os.remove(beavernav + "/Modified PNG Floor Plans/temp.png")
+		cv2.imwrite(mod + "/temp.png", roi)
+		texts = detect_text( mod + "//temp.png")
+		os.remove(mod + "/temp.png")
 		text = ''
 		for t in texts:
 			text = text + t + " "
@@ -866,7 +870,7 @@ def saveTextResults(results, floor):
 		endY = results[r][3]
 		center = (int((startX + endX)//2), int((startY + endY)/2))
 		dict[r] = str(center)
-	with open(beavernav + '/Text Files/'+ floor + ".json", 'w') as out:
+	with open(txt_dir + '/'+ floor + ".json", 'w') as out:
 		json.dump(dict,out)
 
 def drawText(im,texts, y_offset):
@@ -896,9 +900,9 @@ def getText(floor, google = False, pytess = False, tess = False, easy = True, sc
 	start = time.time()
 	print("Running text detection on " + floor)
 
-	orig = cv2.imread(beavernav+'/Cropped PNG Floor Plans/' + floor + '.png')
+	orig = cv2.imread(cropped_png_dir + '/' + floor + '.png')
 
-	with open(beavernav + '/Bounding Boxes/' + floor + 'bbs.pickle', 'rb') as handle:
+	with open(bbox_dir + '/' + floor + 'bbs.pickle', 'rb') as handle:
 		boxes = pickle.load(handle)
 
 	if google: im, results = recognizeTextWithGoogle(orig, boxes, scale)
@@ -911,7 +915,7 @@ def getText(floor, google = False, pytess = False, tess = False, easy = True, sc
 	#im = drawText(im, results, 60)
 	im = drawText(im, rooms, 60)
 
-	cv2.imwrite(beavernav + '/Text PNG Floor Plans/' + floor + '.png', im)
+	cv2.imwrite(txt_png_dir + 's/' + floor + '.png', im)
 
 	saveTextResults(results,floor)
 
