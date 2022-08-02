@@ -50,7 +50,7 @@ def get_white_neighbors(image, x, y):
     return [(x + dx, y + dy) 
                 for dx, dy in direction_vector.values() 
                      if in_bounds(image, *(x + dx, y + dy)) 
-                        and sum(get_pixel(image, *(x + dx, y + dy) )) > 250*3]
+                        and sum(get_pixel(image, *(x + dx, y + dy) )) >= 250*3]
 
 
 def get_left_right_neighbors(image, x, y):
@@ -59,7 +59,7 @@ def get_left_right_neighbors(image, x, y):
     """
     return [(x + dx, y) for dx in [-1, 1] 
                 if in_bounds(image, *(x + dx, y)) and 
-                    sum(get_pixel(image, *(x + dx, y))) > 250*3]
+                    sum(get_pixel(image, *(x + dx, y))) >= 250*3]
 
 def get_up_down_neighbors(image, x, y):
     """
@@ -67,4 +67,4 @@ def get_up_down_neighbors(image, x, y):
     """
     return [(x, y + dy) for dy in [-1, 1] 
                 if in_bounds(image, *(x, y + dy)) and 
-                    sum(get_pixel(image, *(x, y + dy))) > 250*3]
+                    sum(get_pixel(image, *(x, y + dy))) >= 250*3]

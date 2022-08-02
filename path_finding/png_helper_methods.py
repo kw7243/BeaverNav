@@ -108,11 +108,14 @@ def expand_coords(list_of_coords, r=16):
     to coordinates in higher res image
     based on the reduction factor r
 
+    list_of_coords = [(x, y), "horizontal/vertical"]
+    
     Ex. 
     In a lower res image reduced by 5, 
     (1, 1) corresponds to all 25 coordinates 
     inclusive within this range: (5, 5) --> (10, 10)
     """
+
     return [(x*r + dx, y*r + dy) 
                 for dx in range(r)
                     for dy in range(r)
