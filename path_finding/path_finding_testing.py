@@ -25,8 +25,8 @@ def ask_for_coords():
     return coords
 
 
-def test_crop_and_reduce(DIRECTORY, floor_plan, reduction_factor):
-    original_filename = f"../nontext_PNG_floor_plans/{floor_plan}_nontext.png"
+def test_crop_and_reduce(DIRECTORY, floor_plan, reduction_factor=16):
+    original_filename = f"../nontext_PNG_floor_plans/{floor_plan}.png"
     cropped_filename = f"{DIRECTORY}/{floor_plan}_cropped.png"
     reduced_filename = f"{DIRECTORY}/{floor_plan}_reduced.png"
 
@@ -60,7 +60,7 @@ def test_duplicate_graph(DIRECTORY, floor_plan, reduced_im):
     return graph
 
 
-def test_path_finding(DIRECTORY, floor_plan, graph, start, end, reduction_factor):
+def test_path_finding(DIRECTORY, floor_plan, graph, start, end, reduction_factor=16):
     """
     Given a graph, a start and end coordinate on the UNALTERED IMAGE,
     return an image w/ the shortest path drawn between start and end
@@ -88,7 +88,7 @@ def test_path_finding(DIRECTORY, floor_plan, graph, start, end, reduction_factor
     print(f"User interface time: {time.perf_counter() - t_start}")
 
 
-def test_full(DIRECTORY, floor_plan, reduction_factor):
+def test_full(DIRECTORY, floor_plan, reduction_factor=16):
     """
     Given a floor plan, reduction factor,
     and its directory w.r.t. path_finding, runs a full test:
@@ -121,25 +121,16 @@ def test():
     reduction_factor = int(input("Reduction factor?: "))
 
     ### DO WHATEVER TESTS YOU NEED STARTING HERE ###
-    reduced = test_crop_and_reduce(DIRECTORY, floor_plan, reduction_factor)
-    print("Started... ")
-    before = {(x, y): distance_to_black(reduced, (x, y))
-                for x in range(reduced["width"])
-                    for y in range(reduced["height"])}
-    print("FINISHED before")
-    after = distances_to_black(reduced)
-    print("FINISHED after")
+    test_full(DIRECTORY, floor_plan, reduction_factor)
+    # reduced = test_crop_and_reduce(DIRECTORY, floor_plan, reduction_factor)
 
-    assert(len(before) == len(after))
-    assert(before == after)
+    # with open(f"{DIRECTORY}/{floor_plan}_before_distances.pickle", "rb") as f:
+    #     before = pickle.load(f)
 
-
-    with open(f"{DIRECTORY}/{floor_plan}_before_distances.pickle", "wb") as f:
-        pickle.dump(before, f)
-
-    with open(f"{DIRECTORY}/{floor_plan}_after_distances.pickle", "wb") as f:
-        pickle.dump(after, f)
-
+    # with open(f"{DIRECTORY}/{floor_plan}_after_distances.pickle", "rb") as f:
+    #     after = pickle.load(f)
+    
+    # save_image_with_path_drawn(f"{DIRECTORY}/{floor_plan}_cropped.png", f"{DIRECTORY}/{floor_plan}_distances.png", expand_coords(after.keys()))
 
 if __name__ == "__main__":
     test()
