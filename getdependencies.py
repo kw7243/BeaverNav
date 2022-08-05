@@ -12,3 +12,5 @@ pip3 install pytesseract # optical character recognition tool
 pip3 install pillow # image processing library
 pip3 install svgpathtools #for analyzing svg
 pip3 install cairosvg # for converting to png
+pip3 install easyocr
+pip3 install imutils

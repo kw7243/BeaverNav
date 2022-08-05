@@ -1,4 +1,5 @@
 from audioop import avg
+from cv2 import threshold
 from imutils.object_detection import non_max_suppression
 import numpy as np
 import time
@@ -6,9 +7,9 @@ import cv2
 from pdf2image import convert_from_path, convert_from_bytes
 from os import listdir
 from os.path import isfile, join
-import pytesseract
+# import pytesseract
 import random
-from google.cloud import vision
+# from google.cloud import vision
 import io
 import pickle 
 import os
@@ -18,6 +19,12 @@ from PIL import Image
 import subprocess
 import crop_floor_plans
 import easyocr
+import cairosvg
+from svgpathtools import svg2paths2
+import sys
+beavernav = os. getcwd()
+sys.path.append(beavernav)
+import svg_helper_methods
 
 # USING AN ALGORITHM INSPIRED BY https://sci-hub.se/10.1109/icdarw.2019.00006 
 
@@ -28,25 +35,33 @@ import easyocr
 # PARAMS
 
 # FILE INPUT parameters
-beavernav = os. getcwd()
 mypath = beavernav + '/PDF_floor_plans'
 mod = beavernav + '/text_detection/modified_png_floor_plans'
 nontextpngs = beavernav + "/text_detection/nontext_PNG_floor_plans"
 cropped_png_dir = beavernav + "/cropped_png_floor_plans"
-txt_png_dir = beavernav + "/text_png_floor_plans"
+txt_png_dir = beavernav + "/text_detection/text_png_floor_plans"
 bbox_dir = beavernav + '/text_detection/text_bounding_boxes'
 txt_dir = beavernav + '/text_detection/text_files'
+png_dir = beavernav + '/png_floor_plans'
+svg_dir = beavernav + '/SVG_floor_plans'
+mod_svg_dir = beavernav + '/text_detection/modified_svg_floor_plans'
+png_no_lines_dir = beavernav+'/text_detection/png_lines_removed'
+cropped_png_no_lines_dir = beavernav + '/text_detection/cropped_lines_removed_pngs'
+eroded_dir = beavernav + '/text_detection/final_pngs'
+final_dir = beavernav + '/text_detection/final_pngs'
 pdffiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
 modfiles = [f for f in listdir(mod) if isfile(join(mod, f))]
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = beavernav + '/psychic-ruler-357114-6631612ee47a.json'
 
 # scale size for text detection
-scale_percent = 100 # percent of original size
+scale_percent = 200 # percent of original size
 scale_height = 30 
 padding_percent_x = 20 # pixels on either side of the bounding box
 padding_percent_y = 10 # pixels on either side of the bounding box
 min_length = 0
 max_length = 50
+
+dpi = 1200
 
 # parameters for EAST
 # note that height & weight must be multiples of 32
@@ -54,16 +69,16 @@ max_length = 50
 # usually the image is resized, but here we skip it to prevent information loss
 # if we do resize, the bounding boxes have to be scaled
 # with a dpi of 960, the height and width are same as below
-min_confidence = 0.5
-height = int(10560)
-width = int(16320)
+min_confidence = 0.01
 merge_fraction = 1/3 # fractional distance that determines if two bounding boxes correspond to the same text
 
-split_dim = (7,7)
+split_dim = (3,3)
 
 threshx = 100
 threshy = 90
 threshP = 400 # try 200, or 350
+
+thresh_svg = 10
 
 r = easyocr.Reader(['en'])
 
@@ -80,21 +95,17 @@ def main():
 		if b in b2:
 			relevant.append(floor)
 
-	cropped_pngs = [f for f in listdir(crop_floor_plans.png_cropped_folder_path) if isfile(join(crop_floor_plans.png_cropped_folder_path, f))]
-	pngs = [f for f in listdir(crop_floor_plans.png_folder_path) if isfile(join(crop_floor_plans.png_folder_path, f))]
-
 	floors = relevant
-	floors = random.sample(relevant, 10)
+	#floors = random.sample(relevant, 10)
 	floors = ['7_1', '1_1', '5_1', '10_1', '32_1']
-	floors = ['7_1', '1_1', '5_1', '10_1']
-	#floors = ['7_1']
+	#floors = ['7_1', '1_1', '5_1', '10_1']
+	floors = ['7_1', '1_1']
+	#floors = ['32_1']
 	for floor in floors:
 		print('Converting Floor ' +floor + ' to PNG')
-		if floor+'.png' not in pngs: 
-			crop_floor_plans.convertSVGtoPNG(floor, 1200)
-		if floor+'.png' not in cropped_pngs: 
-			crop_floor_plans.crop_image_cv2(crop_floor_plans.png_folder_path +  '/'+floor + '.png', crop_floor_plans.png_cropped_folder_path+ '/'+floor + '.png')
-		saveBoundingBoxes(floor,2,True, True,False, False, True)
+		pre_process_floor_plans(floor)
+		#saveBoundingBoxes(floor,1,True, True,False, False, True)
+		remove_text(floor)
 		getText(floor, False, False,False, True, True)
 
 	print(floors)
@@ -103,6 +114,75 @@ def main():
 ######################################################
 # Pre Processing methods
 ######################################################
+
+def pre_process_floor_plans(floor):
+	"""Image.MAX_IMAGE_PIXELS = None
+	image = Image.open(mod + "/" + floor + ".png")
+	print("hey")
+	cropped_image_obj = image.crop((x_min, y_min, x_max, y_max))
+	print("hey")
+	cropped_image_obj.save(cropped_png_dir + '/'+floor + '.png')
+	cropped_image_obj.close()
+	"""
+	print("Pre processing")
+	# unecessary storagee - remove in final version
+	mod_svgs = [f for f in listdir(mod_svg_dir) if isfile(join(mod_svg_dir, f))]
+	if floor+'.svg' not in mod_svgs:
+		deleteSVGLines(svg_dir+ '/'+floor + '.svg', mod_svg_dir+ '/'+floor + '.svg', thresh_svg)
+	pngs = [f for f in listdir(png_dir) if isfile(join(png_dir, f))]
+	if floor+'.png' not in pngs: 
+		cairosvg.svg2png(url=svg_dir+ '/'+floor + '.svg', write_to = png_dir + "/" + floor + ".png", background_color="white", dpi=dpi) # choose on dpi
+	# unecessary storagee - remove in final version
+	pngs = [f for f in listdir(png_no_lines_dir) if isfile(join(png_no_lines_dir, f))]
+	if floor+'.png' not in pngs: 
+		cairosvg.svg2png(url=mod_svg_dir+ '/'+floor + '.svg', write_to = png_no_lines_dir + "/" + floor + ".png", background_color="white", dpi=dpi) # choose on dpi
+	# unecessary storagee - remove in final version
+	cropped_pngs = [f for f in listdir(cropped_png_dir) if isfile(join(cropped_png_dir, f))]
+	if floor+'.png' not in cropped_pngs: 
+		dim = crop_floor_plans.crop_image(png_dir + "/" + floor + ".png", cropped_png_dir + '/'+floor + '.png')
+	# unecessary storagee - remove in final version
+	cropped_pngs = [f for f in listdir(cropped_png_no_lines_dir) if isfile(join(cropped_png_no_lines_dir, f))]
+	if floor+'.png' not in cropped_pngs: 
+		crop_floor_plans.crop_image_with_dimensions(png_no_lines_dir + "/" + floor + ".png", cropped_png_no_lines_dir + '/'+floor + '.png', dim)
+	# unecessary storagee - remove in final version
+	pngs = [f for f in listdir(eroded_dir) if isfile(join(eroded_dir, f))]
+	if floor+'.png' not in pngs: 
+		img	 = cv2.imread(cropped_png_no_lines_dir + '/'+floor + '.png')
+		kernel = np.ones((5, 5), np.uint8)
+		img = cv2.erode(img, kernel, iterations=1)
+		res, img = cv2.threshold(img,200,255,cv2.THRESH_BINARY)
+		cv2.imwrite(eroded_dir + '/'+floor + '.png', img)
+
+def svg_to_png_coords(file,coords):
+	(x,y) = coords
+	conversion_factor = dpi/72
+	return (int(conversion_factor * x),int(conversion_factor * y))
+
+def png_to_svg_coords(file,coords):
+	(x,y) = coords
+	conversion_factor = 72/dpi
+	return (conversion_factor * x,conversion_factor * y)
+	
+
+def deleteSVGLines(file, destination, threshold):
+	paths, attributes, svg_attributes = svg2paths2(file)
+
+	new_paths, new_attributes = [],[]
+	for i, (path, attribute) in enumerate(zip(paths, attributes)):
+			if len(path) == 0:
+				continue
+			if svg_helper_methods.is_door(path, attribute):
+				continue
+			real_path = svg_helper_methods.path_transform(path, svg_helper_methods.parse_transform(attribute.get('transform', '')))
+			if real_path.length() < threshold:
+					new_paths.append(path)
+					new_attributes.append(attribute)
+
+	paths, attributes = new_paths, new_attributes
+
+	svg_helper_methods.visualize_all_paths(paths, attributes, svg_attributes, output=destination)
+	#svg_helper_methods.show_svg(destination)
+
 
 def convertPDFtoPNG(floor, dpi):
 	with warnings.catch_warnings(record=True) as w:
@@ -169,7 +249,7 @@ def runEast(image):
 
 	# load the pre-trained EAST text detector
 	print("[INFO] loading EAST text detector...")
-	net = cv2.dnn.readNet(beavernav + '/frozen_east_text_detection.pb')
+	net = cv2.dnn.readNet(beavernav + '/text_detection/frozen_east_text_detection.pb')
 	# construct a blob from the image and then perform a forward pass of
 	# the model to obtain the two output layer sets
 
@@ -272,7 +352,7 @@ def detectTextWithEasyOCR(image):
 # This runs EAST, removes text, then google OCR, then easy OCR if desired
 # running both on the original and then combining breaks our post processing algorithm
 # PARAMS:
-# numPasses - how many passes of east to do. potentially using more passes will catch leftover
+# numPasses - how many passes of east to do. potentially using more passes will catch leftover. Experiments show that > 1 pass is no better than 1 pass
 # post - whether or not to do postprocessing (this should be set to True unless debugging)
 # east - whether or not to use east (this should be set to True unless debugging)
 # post - whether or not to do postprocessing (this should be set to True unless debugging)
@@ -284,7 +364,7 @@ def saveBoundingBoxes(floor, numPasses, post = True, east = True, google=True, e
 	print("Running text detection & recognition on floor " + floor)
 	start = time.time()
 
-	image = cv2.imread(crop_floor_plans.png_cropped_folder_path+ '/'+floor + '.png')
+	image = cv2.imread(final_dir+ '/'+floor + '.png')
 
 	res, image = cv2.threshold(image,200,255,cv2.THRESH_BINARY)
 
@@ -329,15 +409,15 @@ def saveBoundingBoxes(floor, numPasses, post = True, east = True, google=True, e
 	print("Merged Boxes #: " + str(len(mergedboxes)))
 	merged_box_orig = drawBoxes(merged_box_orig, mergedboxes, (255,0,0), 2)
 
-	image = drawBoxes(image, boxes, (255,255,255), -1)
+	#image = drawBoxes(image, boxes, (255,255,255), -1)
 
 	print("Saving Images")
 	cv2.imwrite(mod + "/" + floor + ".png", merged_box_orig)
 	cv2.imwrite(nontextpngs + "/" + floor + ".png", image)
 
 	if save:
-		with open(bbox_dir + '/' + floor + 'bbs.pickle', 'wb') as handle:
-			pickle.dump(mergedboxes, handle, protocol=pickle.HIGHEST_PROTOCOL)
+		with open(bbox_dir + '/' + floor + 'bbs.json', 'w') as out:
+			json.dump(mergedboxes,out)
 	
 	end = time.time()
 	# show timing information on text prediction
@@ -646,6 +726,38 @@ def addPadding(boxes, dim, padding_percent):
 		boxes[id] = (max(0,int(startX - padding_w/100 * width)), max(int(startY - padding_h/100 * height),0),min(int(endX + padding_w/100 * width), W),min(int(endY+padding_h/100 * height),H))
 	return boxes
 
+def refine_text_detection(floor):
+	 # we know where EAST found ~ 90% of the text
+
+	 # we want to go through the boxes and for each box, find the SVG paths that are contained entirely inside the box
+
+	 # we want to go through all such paths and find the most popular stroke-wdith 
+	return
+
+
+
+
+def remove_text(floor):
+	#todo - remove text from the original svg file and save it to nontext pngs
+	print("removing text")
+	text_no_lines_img = cv2.imread(cropped_png_no_lines_dir + "/" + floor + ".png")
+	with open(bbox_dir + '/' + floor + 'bbs.json', 'r') as handle:
+		boxes = json.load(handle)
+	(H,W) = text_no_lines_img.shape[:2]
+	mask=np.full((H,W,3),255,dtype=np.uint8)
+	for (start_x, start_y,end_x, end_y) in boxes:
+		mask[start_y:end_y, start_x:end_x] = text_no_lines_img[start_y:end_y, start_x:end_x]
+	ret, mask = cv2.threshold(mask, 200, 255, cv2.THRESH_BINARY)
+	orig = cv2.imread(cropped_png_dir + '/' + floor + '.png')
+	ret, orig = cv2.threshold(orig, 200, 255, cv2.THRESH_BINARY)
+	orig = cv2.bitwise_not(cv2.subtract(cv2.bitwise_not(orig), cv2.bitwise_not(mask)))
+	#cv2.imwrite(nontextpngs + "/" + floor + "_mask.png",mask )
+	cv2.imwrite(nontextpngs + "/" + floor + ".png",orig )
+	return
+
+
+
+
 ######################################################
 ######################################################
 
@@ -659,6 +771,8 @@ def scaleImage(image, scale_percent):
 	dim = (width, height)
 
 	resized = cv2.resize(image, dim, None, interpolation=cv2.INTER_CUBIC)
+	res, resized = cv2.threshold(resized,200,255,cv2.THRESH_BINARY)
+
 	return resized
 
 # adds a white border to an image
@@ -883,16 +997,16 @@ def drawText(im,texts, y_offset):
 		
 def processText(results):
 	rooms = {}
-	elevators, stairs = [],[]
+	elevators, stairs = {},{}
 	for text in results:
 		if min_length < len(text) < max_length:
 			if (any(c.isdigit() for c in text)):
 				rooms[text] = results[text]
 			else: print(text)
-			if text in ['ELEV', 'EYE', 'FLFV', 'ELE', 'LEV']:
-				elevators.append(results[text])
-			if text in ['STAIR', 'STAI', 'TAIR']:
-				stairs.append(results[text])
+			if text in [ 'EYE', 'FLFV', 'ELE', 'LEV'] or 'ELEV' in text:
+				elevators[text] = results[text]
+			if text in [ 'STAI', 'TAIR'] or 'STAIR' in text:
+				stairs[text] = results[text]
 	return rooms, elevators, stairs
 
 
@@ -900,24 +1014,27 @@ def getText(floor, google = False, pytess = False, tess = False, easy = True, sc
 	start = time.time()
 	print("Running text detection on " + floor)
 
+	im = cv2.imread(final_dir + '/' + floor + '.png')
 	orig = cv2.imread(cropped_png_dir + '/' + floor + '.png')
 
-	with open(bbox_dir + '/' + floor + 'bbs.pickle', 'rb') as handle:
-		boxes = pickle.load(handle)
+	with open(bbox_dir + '/' + floor + 'bbs.json', 'r') as handle:
+		boxes = json.load(handle)
 
-	if google: im, results = recognizeTextWithGoogle(orig, boxes, scale)
-	if pytess: im,results = recognizeTextWithPyTesseract(orig, boxes, scale)
-	if tess: im,results = recognizeTextWithTesseract(orig, boxes, scale)
-	if easy: im,results = recognizeTextWithEasyOCR(orig, boxes, scale)
+	if google: im, results = recognizeTextWithGoogle(im, boxes, scale)
+	if pytess: im,results = recognizeTextWithPyTesseract(im, boxes, scale)
+	if tess: im,results = recognizeTextWithTesseract(im, boxes, scale)
+	if easy: im,results = recognizeTextWithEasyOCR(im , boxes, scale)
 
 	rooms, elevators, stairs = processText(results)
 
 	#im = drawText(im, results, 60)
-	im = drawText(im, rooms, 60)
+	orig = drawText(orig, rooms, 60)
+	orig = drawText(orig, elevators, 60)
+	orig = drawText(orig, stairs, 60)
 
-	cv2.imwrite(txt_png_dir + 's/' + floor + '.png', im)
+	cv2.imwrite(txt_png_dir + '/' + floor + '.png', orig)
 
-	saveTextResults(results,floor)
+	saveTextResults(rooms,floor)
 
 	end = time.time()
 	print("[INFO] Recognizing Text took {:.6f} seconds".format(end - start))
