@@ -1,4 +1,4 @@
-from png_helper_methods import *
+from floorplan_to_graph.png_helper_methods import *
 from graph_helper_methods import *
 
 ########################

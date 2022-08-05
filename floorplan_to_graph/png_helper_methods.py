@@ -1,7 +1,7 @@
 from PIL import Image
 import numpy as np
 import cv2
-import time
+
 ##############################
 #   IMAGE HELPER FUNCTIONS   #
 ##############################
@@ -274,9 +274,107 @@ def crop_image_cv2(filename, new_filename):
     x, y, w, h = cv2.boundingRect(coords) # Find minimum spanning bounding box
     
     # Add 1% padding for cropping
-    y_buffer = int(0.01*height) 
-    x_buffer = int(0.01*width)
+    x_buffer = min(x, int(0.01*width), width - x)
+    y_buffer = min(y, int(0.01*height), height - y)
 
     # Crop the image 
     rect = gray_im[y - y_buffer:(y + h) + y_buffer, x - x_buffer:(x + w) + x_buffer]
     cv2.imwrite(new_filename, rect) # save image
+
+
+def crop_image_pil(filename,new_filename=None):
+    """
+    Given a raw png file, crops the file
+
+    Returns the cropped file as our internal representation
+    """
+    # Open Image object
+    image = Image.open(filename)
+
+    width, height = image.size
+    left = 0.038*width
+    right = 0.96*width
+    top = 0.038*height
+    bottom = 0.89*height
+
+    cropped_image_obj = image.crop((left, top, right, bottom))
+
+    w, h = cropped_image_obj.size
+    cropped_image = {'height': h, 'width': w, 'pixels': list(cropped_image_obj.getdata())}
+
+    # Crop out whitespace
+    x_min = left_right(cropped_image) - 10
+    x_max = right_left(cropped_image) + 10
+    y_min = top_down(cropped_image) - 10
+    y_max = bottom_up(cropped_image) + 10
+
+    cropped_image_obj = cropped_image_obj.crop((x_min, y_min, x_max, y_max))
+
+    # Convert cropped Image obj to internal rep
+    w, h = cropped_image_obj.size
+   
+    # Save cropped Image if new file name provided
+    # new_filename = 'floorplansPNGcroppedfolder/' + os.path.basename(filename)[:-4] + "_cropped" + ".png"
+    # cropped_image_obj.save(new_filename)
+
+    cropped_image_obj.save(new_filename)
+
+
+def custom_resizing(image):
+    """
+    Given standard image input, resize the image so that the minimum of its 2 dimensions is 500 pixels wide/tall/whatever
+    """
+    save_color_image(image,'temp_useless_file.png')
+    im = Image.open('temp_useless_file.png')
+
+    initial_width, initial_height = im.size
+    print(im.size)
+    min_dim = min(initial_width,initial_height)
+    if 600 < min_dim < 1000:
+        scaling_factor = 2
+    else:
+        scaling_factor = min_dim//500
+
+    final_width = initial_width//scaling_factor
+    final_height = initial_height//scaling_factor   
+
+    final_img = im.resize((final_width,final_height))
+
+    img_data = final_img.getdata()
+    pixels = list(img_data)
+
+    final_img = {
+        "width":final_width,
+        "height":final_height,
+        "pixels":pixels
+    }
+
+    return final_img, scaling_factor
+
+def color_processing_thresholding(image):
+    pixels = []
+
+    for pixel in image["pixels"]:
+        if sum(pixel) > 3*250:
+            pixels.append((255,255,255))
+            continue
+
+        if pixel[0] - 5 < pixel[1] < pixel[0] + 5:
+            pixels.append((0,0,0))
+            continue
+
+        new_pixel = []
+
+        for i in range(len(pixel)):
+            if pixel[i] > 240:
+                new_pixel.append(255)
+            else:
+                new_pixel.append(0)
+       
+        pixels.append(tuple(new_pixel))
+   
+    image["pixels"] = pixels
+
+    # save_color_image(image,newfilename)
+
+    return image

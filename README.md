@@ -1,7 +1,12 @@
+NEED TO ADD TO THIS
+
 # BeaverNav
+An indoor navigation app for room-to-room travel in building networks currently designed for the MIT campus
 
-Run the following from your terminal to download the necessary packages:
-
-```
-bash gitdependencies.py
-```
+Potential extensions:
+- Other college campuses
+- Hospitals
+- Government buildings
+- Malls
+- Museums
+- ADD ANY MORE YOU THINK OF

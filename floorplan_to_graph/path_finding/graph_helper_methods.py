@@ -1,5 +1,5 @@
 from collections import deque
-from png_helper_methods import *
+from floorplan_to_graph.png_helper_methods import *
 from dijkstar import Graph, find_path
 
 
