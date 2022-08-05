@@ -1,0 +1,7 @@
+import cv2
+from BeaverNav import flood_fill_methods
+
+png_dir = ""
+image_np = cv2.imread(png_dir + "/7_1_final_nontext.png")
+points_in_room = get_interior(image_np)
+#cv2_imshow(points_in_room)
