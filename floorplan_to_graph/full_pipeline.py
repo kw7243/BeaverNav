@@ -180,6 +180,9 @@ def main():
     txt_png_dir = "full_pipeline_files_test/pngs_with_recognized_text"
     txt_dir = "full_pipeline_files_test/text_locations"
 
+    start_time = time.perf_counter()
+
+
     print("Starting... ")
     #floors = random.sample(os.listdir(svg_originals_dir), 1)
     floors = os.listdir(svg_originals_dir)
@@ -205,7 +208,7 @@ def main():
 
     ### STEP 2: Save to png + crop it
     for i, floorplan in enumerate(os.listdir(svg_doors_dots_removed_dir)):
-        if ".svg" not in floorplan:
+        if ".svg" not in floorplan or "DS" in floorplan:
             continue
 
         if f"{floorplan[:-4]}.png" in os.listdir(cropped_png_files_dir) and f"{floorplan[:-4]}.png" in os.listdir(cropped_png_no_lines_dir):
@@ -251,7 +254,7 @@ def main():
         print("****************")
         if f"{floorplan[:-4]}.json" in os.listdir(bbox_dir) or "DS" in floorplan:
             continue
-        text_detection_with_east.saveBoundingBoxes(f"{cropped_png_no_lines_dir}/{floorplan[:-4]}.png", f"{modified_png_dir}/{floorplan[:-4]}.png", f"{bbox_dir}/{floorplan[:-4]}.json")
+        text_detection_with_east.saveBoundingBoxes(f"{cropped_png_no_lines_dir}/{floorplan[:-4]}.png", f"{modified_png_dir}/{floorplan[:-4]}.png", f"{bbox_dir}/{floorplan[:-4]}.json", 1, True, True, True)
 
     ###STEP 4: Manually Refining Text Detection
     # Need to add break or something here 
@@ -278,7 +281,12 @@ def main():
         text_detection_with_east.getText(f"{cropped_png_files_dir}/{floorplan[:-4]}.png", f"{cropped_png_no_lines_dir}/{floorplan[:-4]}.png", f"{bbox_dir}/{floorplan[:-4]}.json", f"{txt_png_dir}/{floorplan[:-4]}.png", f"{txt_dir}/{floorplan[:-4]}.json")
 
 
+
+
+
     ###STEP 4: Converting each image into a graph
+    print("done all floor plans took: ",time.perf_counter() - start_time)
+
     floorplan_to_graph = {}
 
     """for png_file in os.listdir(non_text_pngs_dir):

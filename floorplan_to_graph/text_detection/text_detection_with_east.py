@@ -26,7 +26,7 @@ import sys
 beavernav = os. getcwd() + ''
 sys.path.append(beavernav)
 from text_detection import svg_helper_methods
-#import keras_ocr
+import keras_ocr
 
 # USING AN ALGORITHM INSPIRED BY https://sci-hub.se/10.1109/icdarw.2019.00006 
 
@@ -84,7 +84,7 @@ thresh_svg = 10
 
 
 r = easyocr.Reader(['en'])
-#pipeline = keras_ocr.pipeline.Pipeline()
+pipeline = keras_ocr.pipeline.Pipeline()
 
 
 def main():
@@ -333,7 +333,7 @@ def detectTextWithEasyOCR(image):
 		boxes.append((startX,startY,endX, endY))
 		print((startX,startY,endX, endY))
 	# remove the text from the image
-	#image = drawBoxes(image, boxes, (255,255,255), -1)
+	image = drawBoxes(image, boxes, (255,255,255), -1)
 
 	results = []
 	for box in boxes:
@@ -544,7 +544,7 @@ def mergeIntersectingRectangles(boxes):
 		found = False
 		b1,b2 = 0,0
 		for id1,box1 in enumerate(boxes):
-			for id2,box2 in enumerate(boxes, start = id1+1):
+			for id2,box2 in enumerate(boxes[id1+1:], start = id1+1):
 				if str(box1) == str(box2):
 					continue
 				if calculateIoU(box1,box2) > 0.4:
@@ -570,7 +570,7 @@ def discardDuplicateRectangles(boxes):
 		found = False
 		b1 = 0
 		for id1,box1 in enumerate(boxes):
-			for id2,box2 in enumerate(boxes, start = id1+1):
+			for id2,box2 in enumerate(boxes[id1+1:], start = id1+1):
 				if str(box1) == str(box2):
 					continue
 				I = calculateIntersectionArea(box1,box2)
@@ -607,7 +607,7 @@ def mergeYAlignedRectangles(boxes):
 		b1,b2 = 0,0
 		for id1,box1 in enumerate(boxes):
 			(xmin1, ymin1, xmax1, ymax1) = box1
-			for id2,box2 in enumerate(boxes, start = id1+1):
+			for id2,box2 in enumerate(boxes[id1+1:], start = id1+1):
 				if str(box1) == str(box2):
 					continue
 				(xmin2, ymin2, xmax2, ymax2) = box2
@@ -636,8 +636,7 @@ def mergeYAlignedRectangles(boxes):
 			if found:
 				break
 		if found:
-			boxes = boxes[0:b1] + boxes[b1+1:b2] + boxes[b2+1:]
-
+			boxes = boxes[:b1] + boxes[b1+1:b2] + boxes[b2+1:]
 		
 	return boxes
 
@@ -652,7 +651,7 @@ def mergeXAlignedRectangles(boxes):
 		b1,b2 = 0,0
 		for id1,box1 in enumerate(boxes):
 			(xmin1, ymin1, xmax1, ymax1) = box1
-			for id2,box2 in enumerate(boxes, start = id1+1):
+			for id2,box2 in enumerate(boxes[id1+1:], start = id1+1):
 				if str(box1) == str(box2):
 					continue
 				(xmin2, ymin2, xmax2, ymax2) = box2
@@ -713,17 +712,17 @@ def postProcessing(boxes, debug = False):
 	start = time.time()
 	if debug: print("PostProcessing")
 	#print('length of boxes0: ' + str(len(boxes)))
-	#boxes = fixNegativeCases(boxes)
+	boxes = fixNegativeCases(boxes)
 	#print('length of boxes1: ' + str(len(boxes)))
-	#boxes = trimLargeRectangles(boxes)
+	boxes = trimLargeRectangles(boxes)
 	#print('length of boxes2: ' + str(len(boxes)))
-	#boxes = mergeIntersectingRectangles(boxes)
+	boxes = mergeIntersectingRectangles(boxes)
 	#print('length of boxes3: ' + str(len(boxes)))
 	#print(*boxes, sep = "\n")
 	#boxes = discardDuplicateRectangles(boxes)
 	#print('length of boxes4: ' + str(len(boxes)))
 	#print(*boxes, sep = "\n")
-	#boxes = mergeYAlignedRectangles(boxes)
+	boxes = mergeYAlignedRectangles(boxes)
 	#print('length of boxes5: ' + str(len(boxes)))
 	#print(*boxes, sep = "\n")
 	#boxes = mergeXAlignedRectangles(boxes)
