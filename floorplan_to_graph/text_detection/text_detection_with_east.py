@@ -26,7 +26,7 @@ import sys
 beavernav = os. getcwd() + ''
 sys.path.append(beavernav)
 from text_detection import svg_helper_methods
-import keras_ocr
+#import keras_ocr
 
 # USING AN ALGORITHM INSPIRED BY https://sci-hub.se/10.1109/icdarw.2019.00006 
 
@@ -84,7 +84,7 @@ thresh_svg = 10
 
 
 r = easyocr.Reader(['en'])
-pipeline = keras_ocr.pipeline.Pipeline()
+#pipeline = keras_ocr.pipeline.Pipeline()
 
 
 def main():
