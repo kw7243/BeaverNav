@@ -3,12 +3,14 @@ from cairosvg import svg2png
 import os
 import cv2
 from PIL import Image
-import pyvips
-from dijkstar import Graph, find_path
+#from dijkstar import Graph, find_path
 from png_helper_methods import *
 from collections import deque
 import pickle
 import time
+from text_detection import text_detection_with_east
+import cairosvg
+import random
 
 direction_vector = {
     "up": (-1, 0),
@@ -171,11 +173,19 @@ def main():
     reduced_res_png_dir = "full_pipeline_files_test/graph_creation_reduced_res_png"
     graph_storage_dir = "full_pipeline_files_test/graph_storage"
     non_text_pngs_dir = "full_pipeline_files_test/non_text_cropped_pngs"
+    svg_no_lines_dir = "full_pipeline_files_test/no_lines_svgs"
+    cropped_png_no_lines_dir = "full_pipeline_files_test/no_lines_cropped_pngs"
+    bbox_dir = "full_pipeline_files_test/bounding_boxes"
+    modified_png_dir = "full_pipeline_files_test/boxed_text_pngs"
+    txt_png_dir = "full_pipeline_files_test/pngs_with_recognized_text"
+    txt_dir = "full_pipeline_files_test/text_locations"
 
     print("Starting... ")
-    print(f"Total floor plans to process: {len(os.listdir(svg_originals_dir))}")
+    #floors = random.sample(os.listdir(svg_originals_dir), 1)
+    floors = os.listdir(svg_originals_dir)
+    print(f"Total floor plans to process: {len(floors)}")
 
-    for i, floorplan in enumerate(os.listdir(svg_originals_dir)):
+    for i, floorplan in enumerate(floors):
         if '.svg' not in floorplan:
             continue
 
@@ -188,61 +198,90 @@ def main():
         paths, attr = remove_doors(paths, attr)
         paths, attr = remove_dots(paths, attr, threshold)
 
-        wsvg(paths, filename=f"{svg_doors_dots_removed_dir}/{floorplan[:-4]}_doors_dots_removed.svg", attributes=attr, svg_attributes=svg_attr)
+        if f"{floorplan[:-4]}.svg" not in os.listdir(svg_doors_dots_removed_dir):
+            wsvg(paths, filename=f"{svg_doors_dots_removed_dir}/{floorplan[:-4]}.svg", attributes=attr, svg_attributes=svg_attr)
+        if f"{floorplan[:-4]}.svg" not in os.listdir(svg_no_lines_dir):
+            text_detection_with_east.deleteSVGLines(f"{svg_doors_dots_removed_dir}/{floorplan[:-4]}.svg", f"{svg_no_lines_dir}/{floorplan[:-4]}.svg", text_detection_with_east.thresh_svg)
 
     ### STEP 2: Save to png + crop it
     for i, floorplan in enumerate(os.listdir(svg_doors_dots_removed_dir)):
         if ".svg" not in floorplan:
             continue
+
+        if f"{floorplan[:-4]}.png" in os.listdir(cropped_png_files_dir) and f"{floorplan[:-4]}.png" in os.listdir(cropped_png_no_lines_dir):
+            img = cv2.imread(f"{cropped_png_files_dir}/{floorplan[:-4]}.png")
+            img = cv2.imread(f"{cropped_png_no_lines_dir}/{floorplan[:-4]}.png")
+            continue
         
         start_time = time.perf_counter()
-        print("step 2 has begun")
-        new_filename = f"{cropped_png_files_dir}/{floorplan[:-4]}_cropped.png"
-        image = pyvips.Image.new_from_file(f"{svg_doors_dots_removed_dir}/{floorplan}", dpi=1200)
-        image.write_to_file(new_filename)
-        print(new_filename)
-
-        # svg2png(url=f"{svg_doors_dots_removed_dir}/{floorplan}",write_to=new_filename,background_color="white",dpi=200)
+        print("****************")
+        print("STEP 2 HAS BEGUN")
+        print("****************")       
+        new_filename = f"{cropped_png_files_dir}/{floorplan[:-4]}.png"
+        new_filename_lines_removed = f"{cropped_png_no_lines_dir}/{floorplan[:-4]}.png"
+        cairosvg.svg2png(url=f"{svg_doors_dots_removed_dir}/{floorplan}", write_to = new_filename, background_color="white", dpi=text_detection_with_east.dpi)
+        cairosvg.svg2png(url=f"{svg_no_lines_dir}/{floorplan}", write_to = new_filename_lines_removed, background_color="white", dpi=text_detection_with_east.dpi)
+        
+        #print(new_filename)
 
         Image.MAX_IMAGE_PIXELS = 100000000000
 
         img = cv2.imread(new_filename)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        print(img.shape)
         w, h = img.shape
 
         threshold_used, img = cv2.threshold(img, 240, 255, cv2.THRESH_BINARY)
-        data_temp = img.tolist()
-        data = []
+        (a,b,c,d) = crop_image_cv2(new_filename,new_filename)
 
-        for top_list in data_temp:
-            for elem in top_list:
-                data.append(elem)
-        
-        internal_rep = {
-            "height":h,
-            "width":w,
-            "pixels":data
-        }
-        
-        print("thresholding is done")
-        print("loaded")
-        print("type of rep is: ",type(internal_rep))
-        print(len(internal_rep["pixels"]))
-        save_color_image(internal_rep,"temp_file_useless.png")
-        print('saved')
-        print("new_filename is: ",new_filename)
-        internal_rep = load_color_image("temp_file_useless.png")
-        print(internal_rep.keys())
-        print(len(internal_rep["pixels"]))
-        crop_image_cv2("temp_file_useless.png",new_filename)
+        img_no_lines = cv2.imread(new_filename_lines_removed)
+        img_no_lines = img_no_lines[a:b,c:d]
+        kernel = np.ones((5, 5), np.uint8)
+        img_no_lines = cv2.erode(img_no_lines, kernel, iterations=1)
+        res, img_no_lines = cv2.threshold(img_no_lines,200,255,cv2.THRESH_BINARY)
+        cv2.imwrite(new_filename_lines_removed,img_no_lines)
+
         print("done processing, took: ",time.perf_counter() - start_time)
 
 
-    ###STEP 3: Converting each image into a graph
+    ###STEP 3: Detecting Text
+    for i, floorplan in enumerate(os.listdir(cropped_png_no_lines_dir)):
+        start_time = time.perf_counter()
+        print("****************")
+        print("STEP 3 HAS BEGUN")
+        print("****************")
+        if f"{floorplan[:-4]}.json" in os.listdir(bbox_dir) or "DS" in floorplan:
+            continue
+        text_detection_with_east.saveBoundingBoxes(f"{cropped_png_no_lines_dir}/{floorplan[:-4]}.png", f"{modified_png_dir}/{floorplan[:-4]}.png", f"{bbox_dir}/{floorplan[:-4]}.json")
+
+    ###STEP 4: Manually Refining Text Detection
+    # Need to add break or something here 
+    # we may want to just move this after step 6
+
+    ###STEP 5: Removing Text
+    for i, floorplan in enumerate(os.listdir(modified_png_dir)):
+        start_time = time.perf_counter()
+        print("****************")
+        print("STEP 5 HAS BEGUN")
+        print("****************")
+        if f"{floorplan[:-4]}.png" in os.listdir(non_text_pngs_dir) or "DS" in floorplan:
+            continue
+        text_detection_with_east.remove_text(f"{cropped_png_files_dir}/{floorplan[:-4]}.png", f"{cropped_png_no_lines_dir}/{floorplan[:-4]}.png", f"{bbox_dir}/{floorplan[:-4]}.json", f"{non_text_pngs_dir}/{floorplan[:-4]}.png")
+
+    ###STEP 6: Recognizing and storing text location
+    for i, floorplan in enumerate(os.listdir(modified_png_dir)):
+        start_time = time.perf_counter()
+        print("****************")
+        print("STEP 6 HAS BEGUN")
+        print("****************")
+        if f"{floorplan[:-4]}.png" in os.listdir(txt_png_dir) or "DS" in floorplan:
+            continue
+        text_detection_with_east.getText(f"{cropped_png_files_dir}/{floorplan[:-4]}.png", f"{cropped_png_no_lines_dir}/{floorplan[:-4]}.png", f"{bbox_dir}/{floorplan[:-4]}.json", f"{txt_png_dir}/{floorplan[:-4]}.png", f"{txt_dir}/{floorplan[:-4]}.json")
+
+
+    ###STEP 4: Converting each image into a graph
     floorplan_to_graph = {}
 
-    for png_file in os.listdir(non_text_pngs_dir):
+    """for png_file in os.listdir(non_text_pngs_dir):
         if '.png' not in png_file:
             continue
         floorplan_name = png_file[:-4]
@@ -269,7 +308,7 @@ def main():
         
         floorplan_to_graph[floorplan_name] = (f"{graph_storage_dir}/{floorplan_name}_graph.pickle",scaling_factor)
     
-    print(floorplan_to_graph)
+    print(floorplan_to_graph)"""
 
 if __name__ == "__main__":
     main()

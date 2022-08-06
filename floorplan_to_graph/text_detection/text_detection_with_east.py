@@ -1,10 +1,11 @@
 from audioop import avg
+from unittest import result
 from cv2 import threshold
 from imutils.object_detection import non_max_suppression
 import numpy as np
 import time
 import cv2
-from pdf2image import convert_from_path, convert_from_bytes
+#from pdf2image import convert_from_path, convert_from_bytes
 from os import listdir
 from os.path import isfile, join
 # import pytesseract
@@ -17,14 +18,15 @@ import json
 import warnings
 from PIL import Image
 import subprocess
-import crop_floor_plans
+from text_detection import crop_floor_plans
 import easyocr
 import cairosvg
 from svgpathtools import svg2paths2
 import sys
-beavernav = os. getcwd()
+beavernav = os. getcwd() + ''
 sys.path.append(beavernav)
-import svg_helper_methods
+from text_detection import svg_helper_methods
+#import keras_ocr
 
 # USING AN ALGORITHM INSPIRED BY https://sci-hub.se/10.1109/icdarw.2019.00006 
 
@@ -34,7 +36,7 @@ import svg_helper_methods
 
 # PARAMS
 
-# FILE INPUT parameters
+# FILE INPUT parameters - used for testing
 mypath = beavernav + '/PDF_floor_plans'
 mod = beavernav + '/text_detection/modified_png_floor_plans'
 nontextpngs = beavernav + "/text_detection/nontext_PNG_floor_plans"
@@ -80,7 +82,9 @@ threshP = 400 # try 200, or 350
 
 thresh_svg = 10
 
+
 r = easyocr.Reader(['en'])
+#pipeline = keras_ocr.pipeline.Pipeline()
 
 
 def main():
@@ -98,15 +102,13 @@ def main():
 	floors = relevant
 	#floors = random.sample(relevant, 10)
 	floors = ['7_1', '1_1', '5_1', '10_1', '32_1']
-	#floors = ['7_1', '1_1', '5_1', '10_1']
-	floors = ['7_1', '1_1']
-	#floors = ['32_1']
+	floors = ['7_1']
+	#floors = ['1_1']
 	for floor in floors:
-		print('Converting Floor ' +floor + ' to PNG')
 		pre_process_floor_plans(floor)
-		#saveBoundingBoxes(floor,1,True, True,False, False, True)
-		remove_text(floor)
-		getText(floor, False, False,False, True, True)
+		saveBoundingBoxes(eroded_dir + '/'+floor + '.png', mod+ '/'+floor + '.png', bbox_dir+ '/'+floor + '.json', 1, False, True, False)
+		#remove_text(cropped_png_dir + '/'+floor + '.png', cropped_png_no_lines_dir + '/'+floor + '.png', bbox_dir + '/'+floor + '.json', nontextpngs + '/'+floor + '.png')
+		#getText(cropped_png_dir + '/'+floor + '.png', cropped_png_no_lines_dir + '/'+floor + '.png', bbox_dir + '/'+floor + '.json', txt_png_dir + '/'+floor + '.png', txt_dir + '/'+floor + '.json')
 
 	print(floors)
 
@@ -116,14 +118,6 @@ def main():
 ######################################################
 
 def pre_process_floor_plans(floor):
-	"""Image.MAX_IMAGE_PIXELS = None
-	image = Image.open(mod + "/" + floor + ".png")
-	print("hey")
-	cropped_image_obj = image.crop((x_min, y_min, x_max, y_max))
-	print("hey")
-	cropped_image_obj.save(cropped_png_dir + '/'+floor + '.png')
-	cropped_image_obj.close()
-	"""
 	print("Pre processing")
 	# unecessary storagee - remove in final version
 	mod_svgs = [f for f in listdir(mod_svg_dir) if isfile(join(mod_svg_dir, f))]
@@ -138,11 +132,9 @@ def pre_process_floor_plans(floor):
 		cairosvg.svg2png(url=mod_svg_dir+ '/'+floor + '.svg', write_to = png_no_lines_dir + "/" + floor + ".png", background_color="white", dpi=dpi) # choose on dpi
 	# unecessary storagee - remove in final version
 	cropped_pngs = [f for f in listdir(cropped_png_dir) if isfile(join(cropped_png_dir, f))]
-	if floor+'.png' not in cropped_pngs: 
+	cropped_pngs_2 = [f for f in listdir(cropped_png_no_lines_dir) if isfile(join(cropped_png_no_lines_dir, f))]
+	if floor+'.png' not in cropped_pngs or floor+'.png' not in cropped_pngs_2: 
 		dim = crop_floor_plans.crop_image(png_dir + "/" + floor + ".png", cropped_png_dir + '/'+floor + '.png')
-	# unecessary storagee - remove in final version
-	cropped_pngs = [f for f in listdir(cropped_png_no_lines_dir) if isfile(join(cropped_png_no_lines_dir, f))]
-	if floor+'.png' not in cropped_pngs: 
 		crop_floor_plans.crop_image_with_dimensions(png_no_lines_dir + "/" + floor + ".png", cropped_png_no_lines_dir + '/'+floor + '.png', dim)
 	# unecessary storagee - remove in final version
 	pngs = [f for f in listdir(eroded_dir) if isfile(join(eroded_dir, f))]
@@ -154,6 +146,7 @@ def pre_process_floor_plans(floor):
 		cv2.imwrite(eroded_dir + '/'+floor + '.png', img)
 
 def svg_to_png_coords(file,coords):
+	print("Converting ")
 	(x,y) = coords
 	conversion_factor = dpi/72
 	return (int(conversion_factor * x),int(conversion_factor * y))
@@ -165,6 +158,7 @@ def png_to_svg_coords(file,coords):
 	
 
 def deleteSVGLines(file, destination, threshold):
+	print("[TXT DETECTION INFO] Deleting the lines from " + file.split('/')[-1])
 	paths, attributes, svg_attributes = svg2paths2(file)
 
 	new_paths, new_attributes = [],[]
@@ -248,7 +242,7 @@ def runEast(image):
 		"feature_fusion/concat_3"]
 
 	# load the pre-trained EAST text detector
-	print("[INFO] loading EAST text detector...")
+	print("[[TXT DETECTION INFO]] loading EAST text detector...")
 	net = cv2.dnn.readNet(beavernav + '/text_detection/frozen_east_text_detection.pb')
 	# construct a blob from the image and then perform a forward pass of
 	# the model to obtain the two output layer sets
@@ -260,7 +254,7 @@ def runEast(image):
 	(scores, geometry) = net.forward(layerNames)
 	end = time.time()
 	# show timing information on text prediction
-	print("[INFO] text detection took {:.6f} seconds".format(end - start))
+	print("[[TXT DETECTION INFO]] text detection took {:.6f} seconds".format(end - start))
 
 	# grab the number of rows and columns from the scores volume, then
 	# initialize our set of bounding box rectangles and corresponding
@@ -313,7 +307,7 @@ def runEast(image):
 	boxes = non_max_suppression(np.array(rects), probs=confidences)
 
 	# remove the text from the image
-	image = drawBoxes(image, boxes, (255,255,255), -1)
+	#image = drawBoxes(image, boxes, (255,255,255), -1)
 
 	results = []
 	for box in boxes:
@@ -339,7 +333,7 @@ def detectTextWithEasyOCR(image):
 		boxes.append((startX,startY,endX, endY))
 		print((startX,startY,endX, endY))
 	# remove the text from the image
-	image = drawBoxes(image, boxes, (255,255,255), -1)
+	#image = drawBoxes(image, boxes, (255,255,255), -1)
 
 	results = []
 	for box in boxes:
@@ -347,6 +341,25 @@ def detectTextWithEasyOCR(image):
 
 	# show the output image
 	return image, results
+
+"""
+# runs text detection using keras ocr (NOT RECOGNITION)
+"""
+def detectTextWithKerasOCR(image):
+	images = [image]
+	prediction_groups = pipeline.recognize(images)
+	boxes = prediction_groups[0]
+	results = []
+	for (text,box) in boxes:
+		startX = min(box[0][0], box[2][0])
+		endX = max(box[0][0], box[2][0])
+		startY = min(box[0][1], box[2][1])
+		endY = max(box[0][1], box[2][1])
+		results.append((startX,startY,endX, endY))
+
+	# show the output image
+	return image, results
+
 
 """
 # This runs EAST, removes text, then google OCR, then easy OCR if desired
@@ -360,17 +373,19 @@ def detectTextWithEasyOCR(image):
 # easy - whether or not to do easyOCR (this should be set to False unless debugging, since the google api is not very good)
 # save - whether or not to save the bounding boxes. If so, they are saved in a pickle file as a list of boxes, defined by a tuple of 4 coordinates
 """
-def saveBoundingBoxes(floor, numPasses, post = True, east = True, google=True, easy = True, save=True):
-	print("Running text detection & recognition on floor " + floor)
+def saveBoundingBoxes(image_filename, mod_image_destination, bbx_destination, numPasses = 1, post = False, east = True, keras = False, google=False, easy = False, save=True, debug = False):
+	floor = image_filename.split('/')[-1]
+	print("[TXT DETECTION INFO] Running text detection on " + floor)
 	start = time.time()
 
-	image = cv2.imread(final_dir+ '/'+floor + '.png')
+	#image = cv2.imread(final_dir+ '/'+floor + '.png')
+	image = cv2.imread(image_filename)
 
 	res, image = cv2.threshold(image,200,255,cv2.THRESH_BINARY)
 
 	merged_box_orig = image.copy()
 
-	print('Splitting Image')
+	if debug: print('Splitting Image')
 	quarters = splitImage(image,split_dim)
 
 	boxes = []
@@ -395,10 +410,13 @@ def saveBoundingBoxes(floor, numPasses, post = True, east = True, google=True, e
 			for text in results:
 				boxes[id].append(results[text])
 			os.remove(mod + "/" + floor + '_0' + str(id) + ".png")
+		if (keras):
+			quarters[id], boxes2[id] = detectTextWithKerasOCR(quarters[id])
+			boxes[id].extend(boxes2[id])
 		mergedboxes[id].extend(boxes[id])
 		if post: mergedboxes[id] = postProcessing(mergedboxes[id])
 
-	print("Merging Split Boxes")
+	if debug: print("Merging Split Boxes")
 	mergedboxes = mergeSplitBoxes(mergedboxes, split_dim, image.shape[0], image.shape[1])
 	boxes = mergeSplitBoxes(boxes, split_dim, image.shape[0], image.shape[1])
 	boxes = addPadding(boxes,image.shape[:2], (padding_percent_y, padding_percent_x))
@@ -406,22 +424,22 @@ def saveBoundingBoxes(floor, numPasses, post = True, east = True, google=True, e
 
 	if post: mergedboxes = postProcessing(mergedboxes)
 	mergedboxes = trimLargeRectangles(mergedboxes)
-	print("Merged Boxes #: " + str(len(mergedboxes)))
+	if debug: print("Merged Boxes #: " + str(len(mergedboxes)))
 	merged_box_orig = drawBoxes(merged_box_orig, mergedboxes, (255,0,0), 2)
 
 	#image = drawBoxes(image, boxes, (255,255,255), -1)
 
-	print("Saving Images")
-	cv2.imwrite(mod + "/" + floor + ".png", merged_box_orig)
-	cv2.imwrite(nontextpngs + "/" + floor + ".png", image)
+	if debug: print("Saving Images")
+	cv2.imwrite(mod_image_destination, merged_box_orig)
+	#cv2.imwrite(nontextpngs + "/" + floor + ".png", image)
 
 	if save:
-		with open(bbox_dir + '/' + floor + 'bbs.json', 'w') as out:
+		with open(bbx_destination, 'w') as out:
 			json.dump(mergedboxes,out)
 	
 	end = time.time()
 	# show timing information on text prediction
-	print("[INFO] Saving Bounding Boxes took {:.6f} seconds".format(end - start))
+	print("[TXT DETECTION INFO] Saving Bounding Boxes took {:.6f} seconds".format(end - start))
 
 
 ######################################################
@@ -509,10 +527,10 @@ def trimLargeRectangles(boxes):
 	for (startX, startY, endX, endY) in boxes:
 		if endY - startY > threshy:
 			continue
-		if endX + endY - startX - startY > threshP:
-			continue
-		if calculateArea((startX, startY, endX, endY)) <= 0.1:
-			continue
+		"""if endX + endY - startX - startY > threshP:
+			continue"""
+		"""if calculateArea((startX, startY, endX, endY)) <= 0.1:
+			continue"""
 		ret.append((startX, startY, endX, endY))
 
 	return ret
@@ -616,8 +634,10 @@ def mergeYAlignedRectangles(boxes):
 					b2 = id2
 					break
 			if found:
-				boxes = boxes[0:b1] + boxes[b1+1:b2] + boxes[b2+1:]
 				break
+		if found:
+			boxes = boxes[0:b1] + boxes[b1+1:b2] + boxes[b2+1:]
+
 		
 	return boxes
 
@@ -689,26 +709,26 @@ def mergeSplitBoxes(boxes_split, split_dim, orig_h, orig_w):
 # performs post processing on the boxes
 # its finalized, look into the method for clarification
 """
-def postProcessing(boxes):
+def postProcessing(boxes, debug = False):
 	start = time.time()
-	print("PostProcessing")
+	if debug: print("PostProcessing")
 	#print('length of boxes0: ' + str(len(boxes)))
-	boxes = fixNegativeCases(boxes)
+	#boxes = fixNegativeCases(boxes)
 	#print('length of boxes1: ' + str(len(boxes)))
-	boxes = trimLargeRectangles(boxes)
+	#boxes = trimLargeRectangles(boxes)
 	#print('length of boxes2: ' + str(len(boxes)))
-	boxes = mergeIntersectingRectangles(boxes)
+	#boxes = mergeIntersectingRectangles(boxes)
 	#print('length of boxes3: ' + str(len(boxes)))
 	#print(*boxes, sep = "\n")
 	#boxes = discardDuplicateRectangles(boxes)
 	#print('length of boxes4: ' + str(len(boxes)))
 	#print(*boxes, sep = "\n")
-	boxes = mergeYAlignedRectangles(boxes)
+	#boxes = mergeYAlignedRectangles(boxes)
 	#print('length of boxes5: ' + str(len(boxes)))
 	#print(*boxes, sep = "\n")
 	#boxes = mergeXAlignedRectangles(boxes)
 	end = time.time()
-	print("[INFO] Post Processing took {:.6f} seconds".format(end - start))
+	if debug: print("[TXT DETECTION INFO][INFO] Post Processing took {:.6f} seconds".format(end - start))
 
 	return boxes
 
@@ -737,22 +757,22 @@ def refine_text_detection(floor):
 
 
 
-def remove_text(floor):
+def remove_text(text_img_filename, text_no_lines_img_filename, bbx_filename, no_txt_destination):
 	#todo - remove text from the original svg file and save it to nontext pngs
-	print("removing text")
-	text_no_lines_img = cv2.imread(cropped_png_no_lines_dir + "/" + floor + ".png")
-	with open(bbox_dir + '/' + floor + 'bbs.json', 'r') as handle:
+	print("[TXT DETECTION INFO] Removing Text from " +text_img_filename.split('/')[-1])
+	text_no_lines_img = cv2.imread(text_no_lines_img_filename)
+	with open(bbx_filename, 'r') as handle:
 		boxes = json.load(handle)
 	(H,W) = text_no_lines_img.shape[:2]
 	mask=np.full((H,W,3),255,dtype=np.uint8)
 	for (start_x, start_y,end_x, end_y) in boxes:
 		mask[start_y:end_y, start_x:end_x] = text_no_lines_img[start_y:end_y, start_x:end_x]
 	ret, mask = cv2.threshold(mask, 200, 255, cv2.THRESH_BINARY)
-	orig = cv2.imread(cropped_png_dir + '/' + floor + '.png')
+	orig = cv2.imread(text_img_filename)
 	ret, orig = cv2.threshold(orig, 200, 255, cv2.THRESH_BINARY)
 	orig = cv2.bitwise_not(cv2.subtract(cv2.bitwise_not(orig), cv2.bitwise_not(mask)))
 	#cv2.imwrite(nontextpngs + "/" + floor + "_mask.png",mask )
-	cv2.imwrite(nontextpngs + "/" + floor + ".png",orig )
+	cv2.imwrite(no_txt_destination,orig )
 	return
 
 
@@ -900,7 +920,7 @@ def recognizeTextWithEasyOCR(orig, boxes, scale = True):
 		roi = orig[startY:endY,startX:endX]
 
 		kernel = np.ones((3, 3), np.uint8)
-		roi = cv2.erode(roi, kernel, iterations=1)
+		#roi = cv2.erode(roi, kernel, iterations=1)
 
 		# scale image for better text detection
 		if scale: roi = scaleImage(roi, scale_percent)
@@ -910,10 +930,50 @@ def recognizeTextWithEasyOCR(orig, boxes, scale = True):
 		res, roi = cv2.threshold(roi,200,255,cv2.THRESH_BINARY)
 
 		cv2.imwrite(beavernav+'/temp.png', roi)
-		bounds = r.readtext('temp.png')
+		bounds = r.readtext(beavernav+'/temp.png')
 		if(len(bounds)>0): text = bounds[0][1]
 		else: text = ''
 		os.remove(beavernav+'/temp.png')
+		
+		# text detection
+		#text = text.replace("\n","")
+		text = ''.join([c if ord(c) < 128 else "" for c in text]).strip()# not tested
+
+
+
+		# collect results
+		if (any(c.isalpha() for c in text) or any(c.isdigit() for c in text)):
+			results[text] = (startX, startY, endX, endY)
+	return im,results
+
+def recognizeTextWithKerasOCR(orig, boxes, scale = True):
+	results = {}
+	(H,W) = orig.shape[:2]
+	im = orig.copy()
+	c = 10000
+	for (startX, startY, endX, endY) in boxes:
+		height = endY - startY
+		width = endX - startX
+		# ROI to be recognized
+		roi = orig[startY:endY,startX:endX]
+
+		kernel = np.ones((3, 3), np.uint8)
+		roi = cv2.erode(roi, kernel, iterations=1)
+
+		# scale image for better text detection
+		if scale: roi = scaleImage(roi, scale_percent)
+
+		roi = addBorder(roi, 50)
+
+		res, roi = cv2.threshold(roi,200,255,cv2.THRESH_BINARY)
+
+		images = [roi]
+		prediction_groups = pipeline.recognize(images)
+		boxes = prediction_groups[0]
+		if len(boxes) > 0:
+			(text,box) = boxes[0]
+		else: text = ''
+
 		
 		# text detection
 		#text = text.replace("\n","")
@@ -975,7 +1035,7 @@ def printTextResults(results):
 			print('bounds: {}'.format(','.join(str(results[text]))))
 
 
-def saveTextResults(results, floor):
+def saveTextResults(results, txt_destination):
 	dict = {}
 	for r in results:
 		startX = results[r][0]
@@ -984,60 +1044,70 @@ def saveTextResults(results, floor):
 		endY = results[r][3]
 		center = (int((startX + endX)//2), int((startY + endY)/2))
 		dict[r] = str(center)
-	with open(txt_dir + '/'+ floor + ".json", 'w') as out:
+	with open(txt_destination, 'w') as out:
 		json.dump(dict,out)
 
-def drawText(im,texts, y_offset):
+def drawText(im,texts, y_offset, color):
 	for text in texts:
 		(start_x, start_y,end_x, end_y) = texts[text]
 		cv2.rectangle(im, (start_x, start_y), (end_x, end_y), (0, 0, 255), 2)
 		cv2.putText(im, text, (int((start_x + end_x)/2), int((start_y + end_y)/2) - y_offset),
-                    cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 3)
+                    cv2.FONT_HERSHEY_SIMPLEX, 2, color, 3)
 	return im
 		
-def processText(results):
+def processText(results, floor_num):
 	rooms = {}
-	elevators, stairs = {},{}
+	elevators, stairs, bathrooms, others = {},{}, {}, {}
 	for text in results:
 		if min_length < len(text) < max_length:
-			if (any(c.isdigit() for c in text)):
-				rooms[text] = results[text]
-			else: print(text)
-			if text in [ 'EYE', 'FLFV', 'ELE', 'LEV'] or 'ELEV' in text:
-				elevators[text] = results[text]
-			if text in [ 'STAI', 'TAIR'] or 'STAIR' in text:
+			if text in [ 'STAI', 'TAIR'] or 'STAIR' in text or text[-2:].lower() == 'sb':
 				stairs[text] = results[text]
-	return rooms, elevators, stairs
+			elif text in [ 'EYE', 'FLFV', 'ELE', 'LEV'] or 'ELEV' in text or text[-2:].lower() in ['e1', 'e2', 'e3', 'e4']:
+				elevators[text] = results[text]
+			elif (len(text) >= 2 and any(c.isdigit() for c in text)):
+				t = results[text]
+				if len("".join([c for c in text if c.isdigit()])) <= 2:
+					if text[0] != floor_num:
+						t = floor_num+text
+				rooms[text] = results[text]
+			else: others[text] = results[text]
+	return rooms, elevators, stairs, bathrooms, others
 
 
-def getText(floor, google = False, pytess = False, tess = False, easy = True, scale = False):
+def getText(lines_img_filename, no_lines_cropped_img_filename, bbox_filename, txt_img_destination,txt_destination, google = False, pytess = False, tess = False, easy = True, keras = False, scale = False):
 	start = time.time()
-	print("Running text detection on " + floor)
+	floor = lines_img_filename.split("/")[-1][:-4]
+	floor_num = floor.split('_')[-1][-1]
+	print(floor_num)
+	print("[TXT DETECTION INFO] Running text recognition on " + floor)
 
-	im = cv2.imread(final_dir + '/' + floor + '.png')
-	orig = cv2.imread(cropped_png_dir + '/' + floor + '.png')
+	im = cv2.imread(no_lines_cropped_img_filename)
+	orig = cv2.imread(lines_img_filename)
 
-	with open(bbox_dir + '/' + floor + 'bbs.json', 'r') as handle:
+	with open(bbox_filename, 'r') as handle:
 		boxes = json.load(handle)
 
 	if google: im, results = recognizeTextWithGoogle(im, boxes, scale)
 	if pytess: im,results = recognizeTextWithPyTesseract(im, boxes, scale)
 	if tess: im,results = recognizeTextWithTesseract(im, boxes, scale)
 	if easy: im,results = recognizeTextWithEasyOCR(im , boxes, scale)
+	if keras: im,results = recognizeTextWithKerasOCR(im , boxes, scale)
 
-	rooms, elevators, stairs = processText(results)
+	rooms, elevators, stairs, bathrooms, others = processText(results, floor_num)
 
 	#im = drawText(im, results, 60)
-	orig = drawText(orig, rooms, 60)
-	orig = drawText(orig, elevators, 60)
-	orig = drawText(orig, stairs, 60)
+	orig = drawText(orig, rooms, 60, (0,0, 255)) # red
+	orig = drawText(orig, elevators, 60, (0,255, 0)) # green
+	orig = drawText(orig, stairs, 60, (255,0, 0)) # blue
+	orig = drawText(orig, bathrooms, 60, (255,0, 255)) # purple
+	orig = drawText(orig, others, 60, (0,127, 127)) # brown
 
-	cv2.imwrite(txt_png_dir + '/' + floor + '.png', orig)
+	cv2.imwrite(txt_img_destination, orig)
 
-	saveTextResults(rooms,floor)
+	saveTextResults({**rooms,**elevators,**stairs,**bathrooms},txt_destination)
 
 	end = time.time()
-	print("[INFO] Recognizing Text took {:.6f} seconds".format(end - start))
+	print("[TXT DETECTION INFO] Recognizing Text took {:.6f} seconds".format(end - start))
 
 # need to process text
 # note that tesseract generally only works well on the room numbers

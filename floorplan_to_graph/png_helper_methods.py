@@ -281,6 +281,8 @@ def crop_image_cv2(filename, new_filename):
     rect = gray_im[y - y_buffer:(y + h) + y_buffer, x - x_buffer:(x + w) + x_buffer]
     cv2.imwrite(new_filename, rect) # save image
 
+    return (y - y_buffer+ top,(y + h) + y_buffer+top, x - x_buffer+left,(x + w) + x_buffer+left)
+
 
 def crop_image_pil(filename,new_filename=None):
     """
