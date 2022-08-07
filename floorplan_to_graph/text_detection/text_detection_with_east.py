@@ -26,7 +26,7 @@ import sys
 beavernav = os. getcwd() + ''
 sys.path.append(beavernav)
 from text_detection import svg_helper_methods
-#import keras_ocr
+import keras_ocr
 
 # USING AN ALGORITHM INSPIRED BY https://sci-hub.se/10.1109/icdarw.2019.00006 
 
@@ -80,11 +80,11 @@ threshx = 100
 threshy = 90
 threshP = 400 # try 200, or 350
 
-thresh_svg = 10
+thresh_svg = 20
 
 
 r = easyocr.Reader(['en'])
-#pipeline = keras_ocr.pipeline.Pipeline()
+pipeline = keras_ocr.pipeline.Pipeline()
 
 
 def main():
@@ -103,10 +103,11 @@ def main():
 	#floors = random.sample(relevant, 10)
 	floors = ['7_1', '1_1', '5_1', '10_1', '32_1']
 	floors = ['7_1']
+	floors = ['32_1']
 	#floors = ['1_1']
 	for floor in floors:
 		pre_process_floor_plans(floor)
-		saveBoundingBoxes(eroded_dir + '/'+floor + '.png', mod+ '/'+floor + '.png', bbox_dir+ '/'+floor + '.json', 1, False, True, False)
+		saveBoundingBoxes(eroded_dir + '/'+floor + '.png', mod+ '/'+floor + '.png', bbox_dir+ '/'+floor + '.json', 1, True, True, True)
 		#remove_text(cropped_png_dir + '/'+floor + '.png', cropped_png_no_lines_dir + '/'+floor + '.png', bbox_dir + '/'+floor + '.json', nontextpngs + '/'+floor + '.png')
 		#getText(cropped_png_dir + '/'+floor + '.png', cropped_png_no_lines_dir + '/'+floor + '.png', bbox_dir + '/'+floor + '.json', txt_png_dir + '/'+floor + '.png', txt_dir + '/'+floor + '.json')
 
@@ -919,7 +920,7 @@ def recognizeTextWithEasyOCR(orig, boxes, scale = True):
 		roi = orig[startY:endY,startX:endX]
 
 		kernel = np.ones((3, 3), np.uint8)
-		#roi = cv2.erode(roi, kernel, iterations=1)
+		roi = cv2.erode(roi, kernel, iterations=1)
 
 		# scale image for better text detection
 		if scale: roi = scaleImage(roi, scale_percent)

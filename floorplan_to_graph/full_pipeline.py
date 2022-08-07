@@ -180,7 +180,7 @@ def main():
     txt_png_dir = "full_pipeline_files_test/pngs_with_recognized_text"
     txt_dir = "full_pipeline_files_test/text_locations"
 
-    start_time = time.perf_counter()
+    start_time_total = time.perf_counter()
 
 
     print("Starting... ")
@@ -194,7 +194,6 @@ def main():
 
         print(f"SVG processing number {i}: {floorplan}...")
         paths, attr, svg_attr = svg2paths2(f"{svg_originals_dir}/{floorplan}")
-        print(svg_attr)
         threshold = determining_threshold_dots(svg_attr)
 
         paths, attr = remove_empty_paths(paths, attr)
@@ -219,7 +218,8 @@ def main():
         start_time = time.perf_counter()
         print("****************")
         print("STEP 2 HAS BEGUN")
-        print("****************")       
+        print("****************")  
+        print("Cropping floor " + f"{cropped_png_files_dir}/{floorplan[:-4]}.png")     
         new_filename = f"{cropped_png_files_dir}/{floorplan[:-4]}.png"
         new_filename_lines_removed = f"{cropped_png_no_lines_dir}/{floorplan[:-4]}.png"
         cairosvg.svg2png(url=f"{svg_doors_dots_removed_dir}/{floorplan}", write_to = new_filename, background_color="white", dpi=text_detection_with_east.dpi)
@@ -238,9 +238,9 @@ def main():
 
         img_no_lines = cv2.imread(new_filename_lines_removed)
         img_no_lines = img_no_lines[a:b,c:d]
-        kernel = np.ones((5, 5), np.uint8)
-        img_no_lines = cv2.erode(img_no_lines, kernel, iterations=1)
-        res, img_no_lines = cv2.threshold(img_no_lines,200,255,cv2.THRESH_BINARY)
+        """kernel = np.ones((5, 5), np.uint8)
+        img_no_lines = cv2.erode(img_no_lines, kernel, iterations=1)"""
+        res, img_no_lines = cv2.threshold(img_no_lines,240,255,cv2.THRESH_BINARY)
         cv2.imwrite(new_filename_lines_removed,img_no_lines)
 
         print("done processing, took: ",time.perf_counter() - start_time)
@@ -285,7 +285,7 @@ def main():
 
 
     ###STEP 4: Converting each image into a graph
-    print("done all floor plans took: ",time.perf_counter() - start_time)
+    print("done all floor plans took: ",time.perf_counter() - start_time_total)
 
     floorplan_to_graph = {}
 
