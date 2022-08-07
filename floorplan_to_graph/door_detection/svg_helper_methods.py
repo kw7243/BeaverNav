@@ -192,9 +192,11 @@ def remove_empty_paths(paths, attributes):
     for i, (path, attr) in enumerate(zip(paths, attributes)):
         if path == Path():
             indices_to_remove.add(i)
-        elif 'rgb(100%,100%,100%)' in attr['style'].split(';')[0]:
-            indices_to_remove.add(i)
-            
+        try:
+            if 'rgb(100%,100%,100%)' in attr['style'].split(';')[0]:
+                indices_to_remove.add(i)
+        except KeyError:
+            print((path,attr))
 
     paths = remove_from_list(paths, indices_to_remove)
     attributes = remove_from_list(attributes, indices_to_remove)

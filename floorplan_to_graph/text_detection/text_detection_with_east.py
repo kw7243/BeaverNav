@@ -436,7 +436,7 @@ def saveBoundingBoxes(image_filename, mod_image_destination, bbx_destination, nu
 
 	if save:
 		with open(bbx_destination, 'w') as out:
-			json.dump(mergedboxes,out)
+			json.dump(mergedboxes,out, indent=5)
 	
 	end = time.time()
 	# show timing information on text prediction
@@ -1045,7 +1045,7 @@ def saveTextResults(results, txt_destination):
 		center = (int((startX + endX)//2), int((startY + endY)/2))
 		dict[r] = str(center)
 	with open(txt_destination, 'w') as out:
-		json.dump(dict,out)
+		json.dump(dict,out, indent=5)
 
 def drawText(im,texts, y_offset, color):
 	for text in texts:
