@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import tw from 'tailwind-react-native-classnames'
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete'
 import { useDispatch } from 'react-redux'
-import { setDestination } from '../slices/navSlice'
+import { setDestination, setOrigin } from '../slices/navSlice'
 import { useNavigation } from '@react-navigation/native'
 import NavFavorites from './NavFavorites'
 import { TouchableOpacity } from 'react-native-gesture-handler'
@@ -28,14 +28,13 @@ const NavigateCard = () => {
             onSubmitEditing={() => {
               // dispatch setOrigin ACTION to Redux slice
               // send up location and name of chosen origin
-              // console.log(setDestination);
-              // dispatch(setDestination({
-              // 	location: {lat: 42.360001, lng: -71.092003}, 
-              // 	// description: data.description
-              // }));
+              dispatch(setOrigin({
+                location: {lat: 42.360001, lng: -71.099003}, 
+                // description: data.description
+              }));
               
-              // // reset destination in case of back and forth
-              // if (startLocation) navigation.navigate("RideOptionsCard");
+              // reset destination in case of back and forth
+              dispatch(setDestination(null)); 
             }}
           />
           <TextInput
@@ -44,14 +43,10 @@ const NavigateCard = () => {
             onChangeText={(text) => setEndLocation(text)}
             onSubmitEditing={() => {
               // dispatch setOrigin ACTION to Redux slice
-              // send up location and name of chosen origin
-              // console.log(setDestination);
-              // dispatch(setDestination({
-              // 	location: {lat: 42.360001, lng: -71.092003}, 
-              // 	// description: data.description
-              // }));
-              
-              // // reset destination in case of back and forth
+              dispatch(setDestination({
+              	location: {lat: 42.37001, lng: -71.084003}, 
+              	// description: data.description
+              }));
               
               // if (endLocation) navigation.navigate("RideOptionsCard");
             }}
