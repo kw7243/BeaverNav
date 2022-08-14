@@ -8,6 +8,7 @@ import { GOOGLE_MAPS_APIKEY } from "@env";
 import { useDispatch } from 'react-redux';
 import { setDestination, setOrigin } from '../slices/navSlice';
 import { TextInput } from 'react-native-gesture-handler';
+import NavFavorites from '../components/NavFavorites';
 
 const HomeScreen = () => {
 	const dispatch = useDispatch();
@@ -31,13 +32,13 @@ const HomeScreen = () => {
 					onSubmitEditing={() => {
 						// dispatch setOrigin ACTION to Redux slice
 						// send up location and name of chosen origin
-						// console.log(setOrigin);
+						console.log(setOrigin);
 						// dispatch(setOrigin({
 						// 	location: {lat: 42.360001, lng: -71.092003}, 
 						// 	// description: data.description
 						// }));
 						
-						// reset destination in case of back and forth
+						// // reset destination in case of back and forth
 						// dispatch(setDestination(null)); 
 					}}
 				/>
@@ -78,6 +79,7 @@ const HomeScreen = () => {
 				/> */}
 
 				<NavOptions />
+				<NavFavorites/>
 			</View>
 		</SafeAreaView>
 	)
