@@ -14,3 +14,4 @@ pip3 install svgpathtools #for analyzing svg
 pip3 install cairosvg # for converting to png
 pip3 install easyocr
 pip3 install imutils
+pip3 install djikstar

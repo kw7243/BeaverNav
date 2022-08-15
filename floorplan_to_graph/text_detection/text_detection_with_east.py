@@ -8,7 +8,7 @@ import cv2
 #from pdf2image import convert_from_path, convert_from_bytes
 from os import listdir
 from os.path import isfile, join
-# import pytesseract
+import pytesseract
 import random
 # from google.cloud import vision
 import io
@@ -56,7 +56,7 @@ modfiles = [f for f in listdir(mod) if isfile(join(mod, f))]
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = beavernav + '/psychic-ruler-357114-6631612ee47a.json'
 
 # scale size for text detection
-scale_percent = 200 # percent of original size
+scale_percent = 600 # percent of original size
 scale_height = 30 
 padding_percent_x = 20 # pixels on either side of the bounding box
 padding_percent_y = 10 # pixels on either side of the bounding box
@@ -77,7 +77,7 @@ merge_fraction = 1/3 # fractional distance that determines if two bounding boxes
 split_dim = (3,3)
 
 threshx = 100
-threshy = 90
+threshy = 150
 threshP = 400 # try 200, or 350
 
 thresh_svg = 20
@@ -122,8 +122,8 @@ def pre_process_floor_plans(floor):
 	print("Pre processing")
 	# unecessary storagee - remove in final version
 	mod_svgs = [f for f in listdir(mod_svg_dir) if isfile(join(mod_svg_dir, f))]
-	if floor+'.svg' not in mod_svgs:
-		deleteSVGLines(svg_dir+ '/'+floor + '.svg', mod_svg_dir+ '/'+floor + '.svg', thresh_svg)
+	#if floor+'.svg' not in mod_svgs:
+	#	deleteSVGLines(svg_dir+ '/'+floor + '.svg', mod_svg_dir+ '/'+floor + '.svg', thresh_svg)
 	pngs = [f for f in listdir(png_dir) if isfile(join(png_dir, f))]
 	if floor+'.png' not in pngs: 
 		cairosvg.svg2png(url=svg_dir+ '/'+floor + '.svg', write_to = png_dir + "/" + floor + ".png", background_color="white", dpi=dpi) # choose on dpi
@@ -145,39 +145,6 @@ def pre_process_floor_plans(floor):
 		img = cv2.erode(img, kernel, iterations=1)
 		res, img = cv2.threshold(img,200,255,cv2.THRESH_BINARY)
 		cv2.imwrite(eroded_dir + '/'+floor + '.png', img)
-
-def svg_to_png_coords(file,coords):
-	print("Converting ")
-	(x,y) = coords
-	conversion_factor = dpi/72
-	return (int(conversion_factor * x),int(conversion_factor * y))
-
-def png_to_svg_coords(file,coords):
-	(x,y) = coords
-	conversion_factor = 72/dpi
-	return (conversion_factor * x,conversion_factor * y)
-	
-
-def deleteSVGLines(file, destination, threshold):
-	print("[TXT DETECTION INFO] Deleting the lines from " + file.split('/')[-1])
-	paths, attributes, svg_attributes = svg2paths2(file)
-
-	new_paths, new_attributes = [],[]
-	for i, (path, attribute) in enumerate(zip(paths, attributes)):
-			if len(path) == 0:
-				continue
-			if svg_helper_methods.is_door(path, attribute):
-				continue
-			real_path = svg_helper_methods.path_transform(path, svg_helper_methods.parse_transform(attribute.get('transform', '')))
-			if real_path.length() < threshold:
-					new_paths.append(path)
-					new_attributes.append(attribute)
-
-	paths, attributes = new_paths, new_attributes
-
-	svg_helper_methods.visualize_all_paths(paths, attributes, svg_attributes, output=destination)
-	#svg_helper_methods.show_svg(destination)
-
 
 def convertPDFtoPNG(floor, dpi):
 	with warnings.catch_warnings(record=True) as w:
@@ -347,6 +314,7 @@ def detectTextWithEasyOCR(image):
 # runs text detection using keras ocr (NOT RECOGNITION)
 """
 def detectTextWithKerasOCR(image):
+	print('[TXT DETECTION INFO] Running KERAS OCR')
 	images = [image]
 	prediction_groups = pipeline.recognize(images)
 	boxes = prediction_groups[0]
@@ -386,6 +354,9 @@ def saveBoundingBoxes(image_filename, mod_image_destination, bbx_destination, nu
 
 	merged_box_orig = image.copy()
 
+	"""kernel = np.ones((5, 5), np.uint8)
+	image = cv2.erode(image, kernel, iterations=1)"""
+
 	if debug: print('Splitting Image')
 	quarters = splitImage(image,split_dim)
 
@@ -420,8 +391,8 @@ def saveBoundingBoxes(image_filename, mod_image_destination, bbx_destination, nu
 	if debug: print("Merging Split Boxes")
 	mergedboxes = mergeSplitBoxes(mergedboxes, split_dim, image.shape[0], image.shape[1])
 	boxes = mergeSplitBoxes(boxes, split_dim, image.shape[0], image.shape[1])
-	boxes = addPadding(boxes,image.shape[:2], (padding_percent_y, padding_percent_x))
-	mergedboxes = addPadding(mergedboxes,image.shape[:2], (padding_percent_y, padding_percent_x))
+	#boxes = addPadding(boxes,image.shape[:2], (padding_percent_y, padding_percent_x))
+	#mergedboxes = addPadding(mergedboxes,image.shape[:2], (padding_percent_y, padding_percent_x))
 
 	if post: mergedboxes = postProcessing(mergedboxes)
 	mergedboxes = trimLargeRectangles(mergedboxes)
@@ -705,6 +676,17 @@ def mergeSplitBoxes(boxes_split, split_dim, orig_h, orig_w):
 				new_boxes.append((x1,y1,x2,y2))
 	return new_boxes
 
+def change_to_int(boxes):
+	for i, box in enumerate(boxes):
+		(xmin1, ymin1, xmax1, ymax1) = box
+		xmin1 = int(xmin1)
+		ymin1 = int(ymin1)
+		xmax1 = int(xmax1)
+		ymax1 = int(ymax1)
+		boxes[i] = (xmin1, ymin1, xmax1, ymax1)
+	return boxes
+
+
 """
 # performs post processing on the boxes
 # its finalized, look into the method for clarification
@@ -714,6 +696,7 @@ def postProcessing(boxes, debug = False):
 	if debug: print("PostProcessing")
 	#print('length of boxes0: ' + str(len(boxes)))
 	boxes = fixNegativeCases(boxes)
+	boxes = change_to_int(boxes)
 	#print('length of boxes1: ' + str(len(boxes)))
 	boxes = trimLargeRectangles(boxes)
 	#print('length of boxes2: ' + str(len(boxes)))
@@ -803,189 +786,99 @@ def addBorder(image, thickness):
 	newimg[thickness:height+thickness,thickness:width+thickness,:]=image
 	return newimg
 
+def smoothen_image(img):
+	img = cv2.fastNlMeansDenoisingColored(img, None, 10, 10, 7, 15)
+	img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+	kernel = np.ones((5, 5), np.uint8)
+	img = cv2.erode(img, kernel, iterations=1)
+	img = cv2.GaussianBlur(img, (5,5), 0)
+	img = cv2.medianBlur(img,5)
+	ret,img = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+	img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+	return img
+
 # takes in an original image (WITHOUT BOXES) 
 # and returns the text in each of the boxes
-def recognizeTextWithGoogle(orig, boxes, scale = True):
-	print("Using Google Text Detection")
-	results = {}
+def recognizeTextWithGoogle(img):
+	cv2.imwrite(mod + "/temp.png", img)
+	texts = detect_text( mod + "//temp.png")
+	os.remove(mod + "/temp.png")
+	text = ''
+	for t in texts:
+		text = text + t + " "
+	text = text[:-1]
+	return text
+
+def recognizeTextWithPyTesseract(img):
+	config = '-l eng --oem 1 --psm 7'
+	text = pytesseract.image_to_string(img, config=config)
+	text = text.replace("\n","")
+	return text
+
+def recognizeTextWithTesseract(img):
+	cv2.imwrite(beavernav+'/temp.png', img)
+	subprocess.call(["tesseract", beavernav+'/temp.png', 'out','-l', 'eng', '--oem','1', "--psm", "7"]) 
+	with open(beavernav + '/out.txt') as f:
+		text = f.read()
+	os.remove(beavernav+'/temp.png')
+	os.remove(beavernav+'/out.txt')
+	return text
+
+def recognizeTextWithEasyOCR(img):
+	cv2.imwrite(beavernav+'/temp.png', img)
+	bounds = r.readtext(beavernav+'/temp.png')
+	text = ''
+	if(len(bounds)>0): text = bounds[0][1]
+	os.remove(beavernav+'/temp.png')
+	return text
+
+def recognizeTextWithKerasOCR(img):
+	"""cv2.imshow('test',img)
+	cv2.waitKey()"""
+	prediction_groups = pipeline.recognize([img])
+	boxes = prediction_groups[0]
+	text = ''
+	if len(boxes) > 0:
+		(text,box) = boxes[0]
+	return text.upper()
+
+def recognizeText(orig, boxes, google = False, pytess = False, tess = False, easy = True, keras = False, scale = True, smoothen = True):
+	results = []
 	(H,W) = orig.shape[:2]
 	im = orig.copy()
-	im = drawBoxes(im,boxes,(255,0,0),2)
+	c = 10000
 	for (startX, startY, endX, endY) in boxes:
+		height = endY - startY
+		width = endX - startX
 		# ROI to be recognized
 		roi = orig[startY:endY,startX:endX]
+
+		roi = addBorder(roi, 50)
 
 		# scale image for better text detection
 		if scale: roi = scaleImage(roi, scale_percent)
 
-		roi = addBorder(roi, 50)
+		if smoothen: roi =  smoothen_image(roi)
 
-		# text detection with google
-		cv2.imwrite(mod + "/temp.png", roi)
-		texts = detect_text( mod + "//temp.png")
-		os.remove(mod + "/temp.png")
 		text = ''
-		for t in texts:
-			text = text + t + " "
-		text = text[:-1]
 
-		# collect results
-		if (any(c.isalpha() for c in text) or any(c.isdigit() for c in text)):
-			if min_length < len(text) < max_length:
-				results[text] = (startX, startY, endX, endY)
-	return im, results
-
-def recognizeTextWithPyTesseract(orig, boxes, scale = True):
-	results = {}
-	(H,W) = orig.shape[:2]
-	im = orig.copy()
-	for (startX, startY, endX, endY) in boxes:
-		# ROI to be recognized
-		roi = orig[startY:endY,startX:endX]
-
-		kernel = np.ones((3, 3), np.uint8)
-		roi = cv2.erode(roi, kernel, iterations=2)
-
-		# scale image for better text detection
-		if scale: roi = scaleImage(roi, scale_percent)
-
-		roi = addBorder(roi, 50)
-
-		res, roi = cv2.threshold(roi,200,255,cv2.THRESH_BINARY)
-
-		# text detection
-		config = '-l eng --oem 1 --psm 7'
-		text = pytesseract.image_to_string(roi, config=config)
-		text = text.replace("\n","")
-
-
-		# collect results
-		if (any(c.isalpha() for c in text) or any(c.isdigit() for c in text)):
-			if min_length < len(text) < max_length:
-				results[text] = (startX, startY, endX, endY)
-	return im,results
-
-def recognizeTextWithTesseract(orig, boxes, scale = True):
-	results = {}
-	(H,W) = orig.shape[:2]
-	im = orig.copy()
-	c = 10000
-	for (startX, startY, endX, endY) in boxes:
-		height = endY - startY
-		width = endX - startX
-		# ROI to be recognized
-		roi = orig[startY:endY,startX:endX]
-
-		kernel = np.ones((3, 3), np.uint8)
-		roi = cv2.erode(roi, kernel, iterations=2)
-
-		# scale image for better text detection
-		if scale: roi = scaleImage(roi, scale_percent)
-
-		roi = addBorder(roi, 50)
-
-		res, roi = cv2.threshold(roi,200,255,cv2.THRESH_BINARY)
-		cv2.imwrite(beavernav+'/temp.png', roi)
-		subprocess.call(["tesseract", beavernav+'/temp.png', 'out','-l', 'eng', '--oem','1', "--psm", "7"]) 
-		with open(beavernav + '/out.txt') as f:
-			text = f.read()
-		os.remove(beavernav+'/temp.png')
-		os.remove(beavernav+'/out.txt')
+		if google: text = recognizeTextWithGoogle(roi)
+		if pytess: text = recognizeTextWithPyTesseract(roi)
+		if tess: text = recognizeTextWithTesseract(roi)
+		if easy: text = recognizeTextWithEasyOCR(roi)
+		if keras: text = recognizeTextWithKerasOCR(roi)
 		
-		# text detection
-		"""text = tesserocr.image_to_text(Image.fromarray(newroi))"""
-		text = text.replace("\n","")
-		text = ''.join([c if ord(c) < 128 else "" for c in text]).strip()# not tested
-
-
-
-		# collect results
-		if (any(c.isalpha() for c in text) or any(c.isdigit() for c in text)):
-			if min_length < len(text) < max_length:
-				results[text] = (startX, startY, endX, endY)
-		"""else:
-			results[str(c)] = (startX, startY, endX, endY)
-			c = c+1"""
-	return im,results
-
-def recognizeTextWithEasyOCR(orig, boxes, scale = True):
-	results = {}
-	(H,W) = orig.shape[:2]
-	im = orig.copy()
-	c = 10000
-	for (startX, startY, endX, endY) in boxes:
-		height = endY - startY
-		width = endX - startX
-		# ROI to be recognized
-		roi = orig[startY:endY,startX:endX]
-
-		kernel = np.ones((3, 3), np.uint8)
-		roi = cv2.erode(roi, kernel, iterations=1)
-
-		# scale image for better text detection
-		if scale: roi = scaleImage(roi, scale_percent)
-
-		roi = addBorder(roi, 50)
-
-		res, roi = cv2.threshold(roi,200,255,cv2.THRESH_BINARY)
-
-		cv2.imwrite(beavernav+'/temp.png', roi)
-		bounds = r.readtext(beavernav+'/temp.png')
-		if(len(bounds)>0): text = bounds[0][1]
-		else: text = ''
-		os.remove(beavernav+'/temp.png')
 		
 		# text detection
 		#text = text.replace("\n","")
-		text = ''.join([c if ord(c) < 128 else "" for c in text]).strip()# not tested
+		#text = ''.join([c if ord(c) < 128 else "" for c in text]).strip()# not tested
 
 
 
 		# collect results
-		if (any(c.isalpha() for c in text) or any(c.isdigit() for c in text)):
-			results[text] = (startX, startY, endX, endY)
+		#if (any(c.isalpha() for c in text) or any(c.isdigit() for c in text)):
+		results.append((text, (startX, startY, endX, endY)))
 	return im,results
-
-def recognizeTextWithKerasOCR(orig, boxes, scale = True):
-	results = {}
-	(H,W) = orig.shape[:2]
-	im = orig.copy()
-	c = 10000
-	for (startX, startY, endX, endY) in boxes:
-		height = endY - startY
-		width = endX - startX
-		# ROI to be recognized
-		roi = orig[startY:endY,startX:endX]
-
-		kernel = np.ones((3, 3), np.uint8)
-		roi = cv2.erode(roi, kernel, iterations=1)
-
-		# scale image for better text detection
-		if scale: roi = scaleImage(roi, scale_percent)
-
-		roi = addBorder(roi, 50)
-
-		res, roi = cv2.threshold(roi,200,255,cv2.THRESH_BINARY)
-
-		images = [roi]
-		prediction_groups = pipeline.recognize(images)
-		boxes = prediction_groups[0]
-		if len(boxes) > 0:
-			(text,box) = boxes[0]
-		else: text = ''
-
-		
-		# text detection
-		#text = text.replace("\n","")
-		text = ''.join([c if ord(c) < 128 else "" for c in text]).strip()# not tested
-
-
-
-		# collect results
-		if (any(c.isalpha() for c in text) or any(c.isdigit() for c in text)):
-			results[text] = (startX, startY, endX, endY)
-	return im,results
-
 
 def detect_text(path, suppressPrints = True):
 		"""Detects text in the file."""
@@ -1030,51 +923,47 @@ def detect_text(path, suppressPrints = True):
 		return results
 
 def printTextResults(results):
-	for text in results:
+	for (text, (startX, startY, endX, endY)) in results:
 			print(f'{text}\n')
-			print('bounds: {}'.format(','.join(str(results[text]))))
+			print('bounds: {}'.format(','.join(str((startX, startY, endX, endY)))))
 
 
 def saveTextResults(results, txt_destination):
-	dict = {}
-	for r in results:
-		startX = results[r][0]
-		endX = results[r][2]
-		startY = results[r][1]
-		endY = results[r][3]
+	dict = []
+	for (text, (startX, startY, endX, endY)) in results:
 		center = (int((startX + endX)//2), int((startY + endY)/2))
-		dict[r] = str(center)
+		dict.append((text,str(center)))
 	with open(txt_destination, 'w') as out:
 		json.dump(dict,out, indent=5)
 
 def drawText(im,texts, y_offset, color):
-	for text in texts:
-		(start_x, start_y,end_x, end_y) = texts[text]
+	for (text, (start_x, start_y, end_x, end_y)) in texts:
 		cv2.rectangle(im, (start_x, start_y), (end_x, end_y), (0, 0, 255), 2)
 		cv2.putText(im, text, (int((start_x + end_x)/2), int((start_y + end_y)/2) - y_offset),
                     cv2.FONT_HERSHEY_SIMPLEX, 2, color, 3)
 	return im
 		
 def processText(results, floor_num):
-	rooms = {}
-	elevators, stairs, bathrooms, others = {},{}, {}, {}
-	for text in results:
+	rooms, elevators, stairs, bathrooms, others = [],[],[],[],[]
+	for (text, (startX, startY, endX, endY)) in results:
 		if min_length < len(text) < max_length:
-			if text in [ 'STAI', 'TAIR'] or 'STAIR' in text or text[-2:].lower() == 'sb':
-				stairs[text] = results[text]
-			elif text in [ 'EYE', 'FLFV', 'ELE', 'LEV'] or 'ELEV' in text or text[-2:].lower() in ['e1', 'e2', 'e3', 'e4']:
-				elevators[text] = results[text]
-			elif (len(text) >= 2 and any(c.isdigit() for c in text)):
-				t = results[text]
+			if text in [ 'STAI', 'TAIR', 'UP', 'DN', 'ON', 'STAR', 'STNR'] or any( c in text for c in ['STAIR', 'UP', 'DN']) or text[-2:].lower() in ['sb', 'sa']:
+				stairs.append(("STAIR", (startX, startY, endX, endY)))
+			elif text in [ 'EYE', 'FLFV', 'ELE', 'LEV', 'EVEV', 'ELEY'] or any( c in text for c in ['ELEV']) or text[-2:].lower() in ['e1', 'e2', 'e3', 'e4']:
+				elevators.append(('ELEV', (startX, startY, endX, endY)))
+			elif text in ['LAV'] or any( c in text for c in ['LAV']):
+				bathrooms.append(('LAV', (startX, startY, endX, endY)))
+			elif (6 >= len(text) >= 2 and any(c.isdigit() for c in text)):
+				t = text
 				if len("".join([c for c in text if c.isdigit()])) <= 2:
 					if text[0] != floor_num:
 						t = floor_num+text
-				rooms[text] = results[text]
-			else: others[text] = results[text]
+				rooms.append((text, (startX, startY, endX, endY)))
+			else: others.append((text, (startX, startY, endX, endY)))
 	return rooms, elevators, stairs, bathrooms, others
 
 
-def getText(lines_img_filename, no_lines_cropped_img_filename, bbox_filename, txt_img_destination,txt_destination, google = False, pytess = False, tess = False, easy = True, keras = False, scale = False):
+def getText(lines_img_filename, no_lines_cropped_img_filename, bbox_filename, txt_img_destination,txt_destination, google = False, pytess = False, tess = False, easy = False, keras = True, scale = False, smoothen = False):
 	start = time.time()
 	floor = lines_img_filename.split("/")[-1][:-4]
 	floor_num = floor.split('_')[-1][-1]
@@ -1087,11 +976,7 @@ def getText(lines_img_filename, no_lines_cropped_img_filename, bbox_filename, tx
 	with open(bbox_filename, 'r') as handle:
 		boxes = json.load(handle)
 
-	if google: im, results = recognizeTextWithGoogle(im, boxes, scale)
-	if pytess: im,results = recognizeTextWithPyTesseract(im, boxes, scale)
-	if tess: im,results = recognizeTextWithTesseract(im, boxes, scale)
-	if easy: im,results = recognizeTextWithEasyOCR(im , boxes, scale)
-	if keras: im,results = recognizeTextWithKerasOCR(im , boxes, scale)
+	im, results = recognizeText(im, boxes, google, pytess, tess, easy, keras, scale, smoothen)
 
 	rooms, elevators, stairs, bathrooms, others = processText(results, floor_num)
 
@@ -1099,12 +984,12 @@ def getText(lines_img_filename, no_lines_cropped_img_filename, bbox_filename, tx
 	orig = drawText(orig, rooms, 60, (0,0, 255)) # red
 	orig = drawText(orig, elevators, 60, (0,255, 0)) # green
 	orig = drawText(orig, stairs, 60, (255,0, 0)) # blue
-	orig = drawText(orig, bathrooms, 60, (255,0, 255)) # purple
-	orig = drawText(orig, others, 60, (0,127, 127)) # brown
+	orig = drawText(orig, bathrooms, 60, (255,0, 125)) # purple
+	#orig = drawText(orig, others, 60, (0,127, 127)) # brown
 
 	cv2.imwrite(txt_img_destination, orig)
 
-	saveTextResults({**rooms,**elevators,**stairs,**bathrooms},txt_destination)
+	saveTextResults(rooms+elevators+stairs+bathrooms,txt_destination)
 
 	end = time.time()
 	print("[TXT DETECTION INFO] Recognizing Text took {:.6f} seconds".format(end - start))

@@ -254,3 +254,4 @@ def find_and_update_doors(paths, attributes, start_paths, end_paths):
   new_paths = remove_from_list(new_paths, to_delete_segments)
   new_attributes = remove_from_list(new_attributes, to_delete_segments)
   return new_paths, new_attributes
+
