@@ -41,42 +41,6 @@ const HomeScreen = () => {
 						dispatch(setDestination(null)); 
 					}}
 				/>
-
-				{/* <GooglePlacesAutocomplete
-					placeholder="Start location?"
-					styles={{
-						container: {
-							flex: 0
-						},
-						textInput: {
-							fontSize: 18
-						}
-					}}
-					onPress={(data, details=null) => {
-						// dispatch setOrigin ACTION to Redux slice
-						// send up location and name of chosen origin
-						console.log("PRESSED");
-						dispatch(setOrigin({
-							location: {lat: 42.360001, lng: -71.092003}, 
-							// description: data.description
-						}));
-						
-						// reset destination in case of back and forth
-						dispatch(setDestination(null)); 
-					}} // end onPress
-
-					// fetchDetails={true}
-					returnKeyType={"search"}
-					enablePoweredByContainer={false}
-					minLength={2} // minimum search value before autocomplete
-					// query={{
-					// 	key: GOOGLE_MAPS_APIKEY,
-					// 	language: "en"
-					// }}
-					nearbyPlacesAPI="GooglePlacesSearch"
-					debounce={400}
-				/> */}
-
 				<NavOptions />
 				<NavFavorites/>
 			</View>

@@ -51,34 +51,6 @@ const NavigateCard = () => {
               // if (endLocation) navigation.navigate("RideOptionsCard");
             }}
           />
-
-                {/* <GooglePlacesAutocomplete
-            placeholder="Where to?"
-            styles={styles}
-            onPress={(data, details=null) => {
-              // dispatch setOrigin ACTION to Redux slice
-              // send up location and name of chosen origin
-              dispatch(setDestination({
-                location: {lat: 42.360001, lng: -71.092003}, 
-                // description: data.description
-              }));
-              
-              // reset destination in case of back and forth
-              dispatch(setDestination(null)); 
-            }} // end onPress
-
-            // fetchDetails={true}
-            returnKeyType={"search"}
-            enablePoweredByContainer={false}
-            minLength={2} // minimum search value before autocomplete
-            // query={{
-            // 	key: GOOGLE_MAPS_APIKEY,
-            // 	language: "en"
-            // }}
-            nearbyPlacesAPI="GooglePlacesSearch"
-            debounce={400}
-          /> */}
-          
         </View>
         <NavFavorites/>
       </View>
@@ -91,11 +63,6 @@ const NavigateCard = () => {
           <Icon name="walking" type="font-awesome-5" color="white" size={16}/>
           <Text style={tw`text-white text-center`}>Directions</Text>
         </TouchableOpacity>
-
-        {/* <TouchableOpacity style={tw`flex flex-row justify-between w-24 px-4 py-3 rounded-full`}>
-          <Icon name="fast-food-outline" type="ionicon" color="black" size={16}/>
-          <Text style={tw`text-center`}>Food</Text>
-        </TouchableOpacity> */}
       </View>
 
     </SafeAreaView>
