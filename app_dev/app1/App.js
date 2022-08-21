@@ -3,13 +3,12 @@ import { KeyboardAvoidingView, Platform, StyleSheet, Text, View } from 'react-na
 import { Provider } from "react-redux";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
-import HomeScreen from './screens/HomeScreen';
-import MapScreen from './screens/MapScreen';
-
 import { store } from './store';
 import "react-native-gesture-handler";
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import DirectionsScreen from './screens/DirectionsScreen';
+import NavSearchScreen from './screens/NavSearchScreen';
 
 export default function App() {
   // create stack for swiping through pages
@@ -26,15 +25,15 @@ export default function App() {
           >
             <Stack.Navigator>
               <Stack.Screen
-                name="HomeScreen"
-                component={HomeScreen}
+                name="NavSearchScreen"
+                component={NavSearchScreen}
                 options={{
                   headerShown: false
                 }}
               />
               <Stack.Screen
-                name="MapScreen"
-                component={MapScreen}
+                name="DirectionsScreen"
+                component={DirectionsScreen}
                 options={{
                   headerShown: false
                 }}

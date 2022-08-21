@@ -4,7 +4,6 @@ import MapView, { Marker } from 'react-native-maps';
 import tw from 'tailwind-react-native-classnames';
 import { useSelector } from 'react-redux';
 import { selectDestination, selectOrigin } from '../slices/navSlice';
-import MapViewDirections from 'react-native-maps-directions';
 
 const Map = () => {
   const origin = useSelector(selectOrigin);
