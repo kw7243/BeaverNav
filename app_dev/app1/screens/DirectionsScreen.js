@@ -1,6 +1,35 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, Image } from 'react-native';
 import React, { useState } from 'react';
-import { post, get } from '../utilities';
+// import { get } from '../utilities';
+import DirectionsCard from '../components/DirectionsCard';
+import Map from '../components/Map';
+import tw from 'tailwind-react-native-classnames';
+
+const floorPlanQueries = [
+    {
+        floorPlan: "4_1",
+        start: "Building 4 entrance",
+        end: "Building 2",
+        src: require("../local_test/4_1.png")
+    },
+    {
+        floorPlan: "2_1",
+        start: "Building 2 entrance from building 4",
+        end: "Building 6",
+        src: require("../local_test/2_1.png")
+    },
+    {
+        floorPlan: "6_1",
+        start: "Building 6 entrance from building 2",
+        end: "Room 6-132",
+        src: require("../local_test/6_1.png")
+    }
+
+];
+
+const get = (endpoint, floorPlanQuery) => {
+    return floorPlanQuery.src
+};
 
 const DirectionsScreen = () => {
     const MULTIPLE_FLOORS_API = "INSERT HERE";
@@ -24,8 +53,7 @@ const DirectionsScreen = () => {
      *   }
      * ]
      */
-    const [floorPlanQueries, setFloorPlanQueries] = useState([]);
-
+    // const [floorPlanQueries, setFloorPlanQueries] = useState([]);
 
     // called when first loading DirectionsScreen
     // with origin + destination
@@ -35,14 +63,31 @@ const DirectionsScreen = () => {
     //     });
     // }, []);
     
+    const floorPlanImage = get(SINGLE_FLOOR_API, floorPlanQueries[index]);
 
     return (
         <View>
-            <Text>DirectionsScreen</Text>
+            <View style={[tw`flex-initial h-5/6`, {overflow: 'hidden'}]}>
+                <Image 
+                    style={{
+                        width: "100%",
+                        height: "100%",
+                        aspectRatio: 1,
+                    }}
+                    resizeMode="contain"
+                    source={floorPlanImage}
+                />
+                {/* <Map/> */}
+            </View>
+            <View style={tw`h-1/6`}>
+                <DirectionsCard 
+                    floorPlanQueries={floorPlanQueries}
+                    index={index}
+                    setIndex={setIndex}
+                />
+            </View>
         </View>
     )
 }
 
 export default DirectionsScreen;
-
-const styles = StyleSheet.create({})

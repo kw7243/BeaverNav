@@ -9,7 +9,7 @@ import NavFavorites from './NavFavorites'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import { Icon } from 'react-native-elements'
 
-const NavigateCard = () => {
+const SearchCard = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   
@@ -72,7 +72,7 @@ const NavigateCard = () => {
   )
 }
 
-export default NavigateCard
+export default SearchCard
 
 const styles = StyleSheet.create({
   container: {

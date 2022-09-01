@@ -1,14 +1,87 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
+import tw from 'tailwind-react-native-classnames'
+import { TouchableOpacity } from 'react-native-gesture-handler'
+import { Icon } from 'react-native-elements'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { useNavigation } from '@react-navigation/native'
 
-const DirectionsCard = () => {
-  return (
-    <View>
-      <Text>DirectionsCard</Text>
-    </View>
+/**
+ * Proptypes
+ * @param {FloorPlanQuery[]} floorPlanQueries
+ * @param {number} index tracks index in floorPlanQueries at which to GET (pixel1, pixel2) path
+ * @param {(index) => void} setIndex (function) sets index
+ */
+
+const DirectionsCard = (props) => {
+    const navigation = useNavigation();
+
+    const incrementIndex = () => {
+        if (props.index < props.floorPlanQueries.length - 1) {
+            props.setIndex(props.index + 1);
+        } // if not at destination
+        else {
+            // props.setIndex(0);
+            navigation.navigate("NavSearchScreen");
+        }
+    };
+
+    const decrementIndex = () => {
+        if (props.index > 0) {
+            props.setIndex(props.index - 1);
+        }
+    };
+
+
+    return (
+        <View style={tw`flex-auto`}>
+            <View style={tw`flex py-3 px-5 bg-black bg-opacity-80`}>
+                <Text style={tw`text-center text-white font-bold text-xl`}> 
+                    Walk to {props.floorPlanQueries[props.index].end}
+                </Text>
+            </View>
+            <SafeAreaView style={tw`flex-none absolute bottom-0 inset-x-0 flex-row justify-between`}>
+                <TouchableOpacity
+                    onPress={() => {
+                        decrementIndex();
+                    }}
+                >
+                    <Icon 
+                        style={tw`p-2 bg-black rounded-full w-20 mt-4 mx-4`}
+                        name="arrowleft" 
+                        color="white" 
+                        type="antdesign"
+                    />
+                </TouchableOpacity>
+
+                <View style={tw`flex-row justify-center mt-auto`}>
+                    <View style={tw`p-2 mt-4 bg-red-500 rounded-full w-20`}>
+                        <TouchableOpacity>
+                            <Text style={tw`text-white font-bold text-xl text-center`}>
+                                End
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+
+                <TouchableOpacity
+                    onPress={() => {
+                        incrementIndex();
+                    }}
+                >
+                    <Icon 
+                        style={tw`p-2 bg-black rounded-full w-20 mt-4 mx-4`}
+                        name="arrowright" 
+                        color="white" 
+                        type="antdesign"
+                    />
+                </TouchableOpacity>
+            </SafeAreaView>
+
+        </View>
   )
 }
 
-export default DirectionsCard
+export default DirectionsCard;
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({});

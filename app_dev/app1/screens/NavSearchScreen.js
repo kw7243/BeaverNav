@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
-import NavigateCard from '../components/NavigateCard'
+import SearchCard from '../components/SearchCard'
 import tw from "tailwind-react-native-classnames";
 import Map from '../components/Map';
 
@@ -11,7 +11,7 @@ const NavSearchScreen = () => {
                 <Map/>
             </View>
             <View style={tw`h-1/2`}>
-                <NavigateCard/>
+                <SearchCard/>
             </View>
         </View>
     )

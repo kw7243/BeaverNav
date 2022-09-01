@@ -28,14 +28,16 @@ export default function App() {
                 name="NavSearchScreen"
                 component={NavSearchScreen}
                 options={{
-                  headerShown: false
+                  headerShown: false,
+                  // gestureEnabled: false
                 }}
               />
               <Stack.Screen
                 name="DirectionsScreen"
                 component={DirectionsScreen}
                 options={{
-                  headerShown: false
+                  headerShown: false,
+                  // gestureEnabled: false
                 }}
               />
             </Stack.Navigator>
