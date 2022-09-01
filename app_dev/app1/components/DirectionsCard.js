@@ -21,7 +21,6 @@ const DirectionsCard = (props) => {
             props.setIndex(props.index + 1);
         } // if not at destination
         else {
-            // props.setIndex(0);
             navigation.navigate("NavSearchScreen");
         }
     };
@@ -29,6 +28,9 @@ const DirectionsCard = (props) => {
     const decrementIndex = () => {
         if (props.index > 0) {
             props.setIndex(props.index - 1);
+        }
+        else {
+            navigation.navigate("NavSearchScreen");
         }
     };
 
@@ -56,26 +58,34 @@ const DirectionsCard = (props) => {
 
                 <View style={tw`flex-row justify-center mt-auto`}>
                     <View style={tw`p-2 mt-4 bg-red-500 rounded-full w-20`}>
-                        <TouchableOpacity>
+                        <TouchableOpacity
+                            onPress={() => {
+                                navigation.navigate("NavSearchScreen");
+                            }}
+                        >
                             <Text style={tw`text-white font-bold text-xl text-center`}>
                                 End
                             </Text>
                         </TouchableOpacity>
                     </View>
                 </View>
-
-                <TouchableOpacity
-                    onPress={() => {
-                        incrementIndex();
-                    }}
-                >
-                    <Icon 
-                        style={tw`p-2 bg-black rounded-full w-20 mt-4 mx-4`}
-                        name="arrowright" 
-                        color="white" 
-                        type="antdesign"
-                    />
-                </TouchableOpacity>
+                
+                {props.index < props.floorPlanQueries.length - 1 ?
+                    <TouchableOpacity
+                        onPress={() => {
+                            incrementIndex();
+                        }}
+                    >
+                        <Icon 
+                            style={tw`p-2 bg-black rounded-full w-20 mt-4 mx-4`}
+                            name="arrowright" 
+                            color="white" 
+                            type="antdesign"
+                        />
+                    </TouchableOpacity>
+                    :
+                    null
+                }
             </SafeAreaView>
 
         </View>
