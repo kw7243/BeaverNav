@@ -19,11 +19,10 @@ const SearchCard = () => {
   return (
     <SafeAreaView style={tw`bg-white flex-1 border-t border-gray-200`}>
       <Text style={tw`text-center py-5 text-xl`}>Good morning, Kevin</Text>
-      <View style={tw`border-t border-gray-200 flex-shrink mx-5 mt-5`}>
         <View>
           <TextInput
             placeholder="Start location?"
-            style={tw`p-2 bg-gray-200 flex-none text-lg rounded-md`}
+            style={tw`mx-5 p-2 bg-gray-200 flex-none text-lg rounded-md`}
             onChangeText={(text) => setStartLocation(text)}
             onSubmitEditing={() => {
               // dispatch setOrigin ACTION to Redux slice
@@ -39,7 +38,7 @@ const SearchCard = () => {
           />
           <TextInput
             placeholder="Where to?"
-            style={tw`my-5 p-2 bg-gray-200 flex-none text-lg rounded-md`}
+            style={tw`mx-5 my-5 p-2 bg-gray-200 flex-none text-lg rounded-md`}
             onChangeText={(text) => setEndLocation(text)}
             onSubmitEditing={() => {
               // dispatch setOrigin ACTION to Redux slice
@@ -53,7 +52,6 @@ const SearchCard = () => {
           />
         </View>
         <NavFavorites/>
-      </View>
 
       <View style={tw`flex-row bg-white justify-evenly py-2 mt-auto border-t border-gray-100`}>
         <TouchableOpacity 
