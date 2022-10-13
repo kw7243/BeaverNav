@@ -1,5 +1,6 @@
 from importlib.resources import read_binary
 from math import floor
+from pydoc import text
 from door_detection.svg_helper_methods import *
 from cairosvg import svg2png
 import os
@@ -40,6 +41,7 @@ txt_dir = "full_pipeline_files_test/text_locations"
 floorplan_name_graph_correspondence_dir = "full_pipeline_files_test/floorplan_name_graph_correspondence"
 cropped_pristine_png_files = "full_pipeline_files_test/cropped_pristine_png_files"
 cropping_offsets= "full_pipeline_files_test/cropping_offsets"
+temp_dir = 'full_pipeline_files_test/temp_files'
 
 def pixel_valid(image,x,y):
     return sum(get_pixel(image,x,y)) > 250*3
@@ -257,7 +259,6 @@ def process_SVGs():
 def add_height_width_to_svgs():
     floors = os.listdir(svg_doors_dots_removed_dir)
     for i, floorplan in enumerate(floors):
-        print("Modifying " + floorplan)
         if floorplan == ".DS_Store":
             continue
         f = open(f"{svg_doors_dots_removed_dir}/{floorplan}", 'r+')
@@ -269,6 +270,7 @@ def add_height_width_to_svgs():
                 if 'x="0px" y="0px" viewBox="0 0 1224 792"' in str(line):
                     #print("found")
                     #print(line)
+                    print("Modifying " + floorplan)
                     f_content[i] = line.replace('x="0px" y="0px" viewBox="0 0 1224 792"', 'width="1224pt" height="792pt" viewBox="0 0 1224 792"')
                     #print(f_content[i])
             f.seek(0)
@@ -306,16 +308,19 @@ def crop_pngs():
     start_time = time.perf_counter()
     errors = []
     offsets = {}
+    try:
+        with open(cropping_offsets + '/offsets.json', 'r') as out:
+            offsets = json.load(out)
+    except:
+        pass
     for i, floorplan in enumerate(os.listdir(svg_doors_dots_removed_dir)):
         if ".svg" not in floorplan or "DS" in floorplan:
             continue
         if f"{floorplan[:-4]}.png" in os.listdir(cropped_png_files_dir) and f"{floorplan[:-4]}.png" in os.listdir(cropped_png_no_lines_dir):
-            print("Already cropped " +floorplan[-4] + '.png')
-            img = cv2.imread(f"{cropped_png_files_dir}/{floorplan[:-4]}.png")
-            img = cv2.imread(f"{cropped_png_no_lines_dir}/{floorplan[:-4]}.png")
+            print(f"Already cropped number {i}: " +floorplan[:-4] + '.png')
             continue
         
-        print("Cropping floor " + f"{floorplan[:-4]}.png")     
+        print(f"Cropping floor number {i}: " + f"{floorplan[:-4]}.png")     
         new_filename = f"{cropped_png_files_dir}/{floorplan[:-4]}.png"
         new_filename_lines_removed = f"{cropped_png_no_lines_dir}/{floorplan[:-4]}.png"
         cairosvg.svg2png(url=f"{svg_doors_dots_removed_dir}/{floorplan}", write_to = new_filename, background_color="white", dpi=text_detection_with_east.dpi)
@@ -330,7 +335,7 @@ def crop_pngs():
         threshold_used, img = cv2.threshold(img, 240, 255, cv2.THRESH_BINARY)
         try:
             (a,b,c,d) = crop_image_cv2(new_filename,new_filename)
-
+            temp_img = cv2.imread(new_filename)
             img_no_lines = cv2.imread(new_filename_lines_removed)
             img_no_lines = img_no_lines[a:b,c:d]
             res, img_no_lines = cv2.threshold(img_no_lines,240,255,cv2.THRESH_BINARY)
@@ -340,9 +345,10 @@ def crop_pngs():
             errors.append(floorplan)
         # stores offets as tuple of (building_floor, (y_offset, x_offset))
         offsets[floorplan[:-4]] =  (a,c)
+        with open(cropping_offsets + '/offsets.json', 'w') as out:
+            json.dump(offsets,out, indent=5)
     print('ERRORS WITH FLOORPLANS ' + str(errors))
-    with open(cropping_offsets + '/offsets.json', 'w') as out:
-        json.dump(offsets,out, indent=5)
+    
     print("DONE WITH STEP 2. TIME TAKEN: ",time.perf_counter() - start_time)
 
 def detect_text():
@@ -354,7 +360,9 @@ def detect_text():
     for i, floorplan in enumerate(os.listdir(cropped_png_no_lines_dir)):
         start_time = time.perf_counter()
         if f"{floorplan[:-4]}.json" in os.listdir(bbox_dir) or "DS" in floorplan:
+            print(f"Already ran text detection on number {i}: " +floorplan[:-4] + '.png')
             continue
+        print(f"Running text detection on number {i}: " +floorplan[:-4] + '.png')
         text_detection_with_east.saveBoundingBoxes(f"{cropped_png_no_lines_dir}/{floorplan[:-4]}.png", f"{modified_png_dir}/{floorplan[:-4]}.png", f"{bbox_dir}/{floorplan[:-4]}.json", 1, True, True, True)
     print("DONE WITH STEP 3. TIME TAKEN: ",time.perf_counter() - start_time)
 
@@ -366,7 +374,9 @@ def remove_text_from_pngs():
     for i, floorplan in enumerate(os.listdir(modified_png_dir)):
         start_time = time.perf_counter()
         if f"{floorplan[:-4]}.png" in os.listdir(non_text_pngs_dir) or "DS" in floorplan:
+            print(f"Already removed text from number {i}: " +floorplan[:-4] + '.png')
             continue
+        print(f"Removing text from number {i}: " +floorplan[:-4] + '.png')
         text_detection_with_east.remove_text(f"{cropped_png_files_dir}/{floorplan[:-4]}.png", f"{cropped_png_no_lines_dir}/{floorplan[:-4]}.png", f"{bbox_dir}/{floorplan[:-4]}.json", f"{non_text_pngs_dir}/{floorplan[:-4]}.png")
     print("DONE WITH STEP 4. TIME TAKEN: ",time.perf_counter() - start_time)
 
@@ -377,35 +387,50 @@ def recognize_text():
     print("****************")
     for i, floorplan in enumerate(os.listdir(modified_png_dir)):
         if f"{floorplan[:-4]}.png" in os.listdir(txt_png_dir) or "DS" in floorplan:
+            print(f"Already recognized text on number {i}: " +floorplan[:-4] + '.png')
             continue
-        text_detection_with_east.getText(f"{cropped_png_files_dir}/{floorplan[:-4]}.png", f"{cropped_png_no_lines_dir}/{floorplan[:-4]}.png", f"{bbox_dir}/{floorplan[:-4]}.json", f"{txt_png_dir}/{floorplan[:-4]}.png", f"{txt_dir}/{floorplan[:-4]}.json")
+        print(f"Recognizing text on number {i}: " +floorplan[:-4] + '.png')
+        text_detection_with_east.getText(f"{cropped_png_files_dir}/{floorplan[:-4]}.png", f"{cropped_png_no_lines_dir}/{floorplan[:-4]}.png", f"{bbox_dir}/{floorplan[:-4]}.json", f"{txt_png_dir}/{floorplan[:-4]}.png", f"{txt_dir}/{floorplan[:-4]}.json", easy = True, keras = False)
     print("DONE WITH STEP 5. TIME TAKEN: ",time.perf_counter() - start_time)
 
-def create_graph():
+def create_low_res_png():
     start_time = time.perf_counter()
     print("****************")
     print("STEP 6 HAS BEGUN: CREATING GRAPH")
     print("****************")
     floorplan_to_graph = {}
 
-    for png_file in os.listdir(non_text_pngs_dir):
+    Image.MAX_IMAGE_PIXELS = 100000000000
+    for i,png_file in enumerate(os.listdir(non_text_pngs_dir)):
         if '.png' not in png_file:
             continue
         floorplan_name = png_file[:-4]
-        print("floorplan is: ",floorplan_name)
+        if f"{png_file[:-4]}.png" in os.listdir(reduced_res_png_dir) or "DS" in png_file:
+            print(f"Already created reduced res png of number {i}: " +png_file[:-4] + '.png')
+            continue
+        print(f"Creating reduced res png of number {i}: " +png_file[:-4] + '.png')
 
         internal_rep = load_color_image(f"{non_text_pngs_dir}/{png_file}")
 
-        new_filename = reduced_res_png_dir + '/' + floorplan_name + "_low_res" + ".png"
+        new_filename = reduced_res_png_dir + '/' + floorplan_name + ".png"
 
-        print(internal_rep["width"])
-        print(internal_rep["height"])
+        # print(internal_rep["width"])
+        # print(internal_rep["height"])
         internal_rep, scaling_factor = custom_resizing(internal_rep)
         internal_rep = color_processing_thresholding(internal_rep)
         save_color_image(internal_rep,new_filename)
-        
-        print(internal_rep["width"])
-        print(internal_rep["height"])
+    print("DONE WITH STEP 6. TIME TAKEN: ",time.perf_counter() - start_time)
+
+    return 
+        # print(internal_rep["width"])
+        # print(internal_rep["height"])
+
+def create_graph():
+    floorplan_to_graph = {}
+    for png_file in os.listdir(reduced_res_png_dir):
+        text_detection_with_east.drawTextNodes(f"{reduced_res_png_dir}/{png_file}", f"{reduced_res_png_dir}/{png_file}", f"{txt_dir}/{png_file[:-4]}.txt", )
+        floorplan_name = png_file[:-4]
+        internal_rep = load_color_image(png_file)
         distances_to_black_dict = distances_to_black(internal_rep)
 
         floorplan_graph = preprocessing_via_duplicate_graph(internal_rep,distances_to_black_dict)
@@ -418,7 +443,8 @@ def create_graph():
     with open(floorplan_name_graph_correspondence_dir + '/' + "floorplan_name_graph_correspondence.json","w") as out:
         json.dump(floorplan_to_graph,out, indent = 5)
     print(floorplan_to_graph)
-    print("DONE WITH STEP 6. TIME TAKEN: ",time.perf_counter() - start_time)
+    
+    return 
     
 def read_labels():
     start_time = time.perf_counter()
@@ -427,6 +453,56 @@ def read_labels():
     print("****************")
     read_labels_new.main()
     print("DONE WITH STEP 5.5. TIME TAKEN: ",time.perf_counter() - start_time)
+
+def trim_text_files():
+    start_time = time.perf_counter()
+    print("****************")
+    print("STEP MISC HAS BEGUN: TRIMMING TEXT FILES")
+    print("****************")
+    for i, floorplan in enumerate(os.listdir(txt_dir)):
+        if "DS" in floorplan:
+            continue
+        print(f"Trimming text on number {i}: " +floorplan[:-5] + '.json')
+        text_detection_with_east.trim_drtext_file(f"{txt_dir}/{floorplan[:-5]}.json", f"{txt_dir}/{floorplan[:-5]}.json")
+    print("DONE WITH STEP MISC. TIME TAKEN: ",time.perf_counter() - start_time)
+
+def draw_text_nodes():
+    start_time = time.perf_counter()
+    print("****************")
+    print("STEP MISC HAS BEGUN: DRAWING TEXT NODES")
+    print("****************")
+    with open(reduced_res_png_dir + '/' + "scaling_factors.json","r") as file:
+        factors = json.load(file)
+    for i, floorplan in enumerate(os.listdir(reduced_res_png_dir)):
+        if "DS" in floorplan:
+            continue
+        if '.png' not in floorplan:
+            continue
+        scaling_factor = factors[floorplan]
+        print(f"Drawing text nodes on number {i}: " +floorplan[:-4] + '.png')
+        text_detection_with_east.drawTextNodes(f"{reduced_res_png_dir}/{floorplan[:-4]}.png", f"{temp_dir}/{floorplan[:-4]}.png", f"{txt_dir}/{floorplan[:-4]}.json", scale_factor=scaling_factor, color = (0,0,255))
+    print("DONE WITH STEP MISC. TIME TAKEN: ",time.perf_counter() - start_time)
+
+def store_scaling_factor():
+    start_time = time.perf_counter()
+    print("****************")
+    print("STEP MISC 1 HAS BEGUN: STORING SCALING FACTOR")
+    print("****************")
+    factors = {}
+    for i,png_file in enumerate(os.listdir(reduced_res_png_dir)):
+        if '.png' not in png_file:
+            continue
+        print(f"Finding scaling factor of number {i}: " +png_file[:-4] + '.png')
+        reduced_img = cv2.imread(f"{reduced_res_png_dir}/{png_file}")
+        full_img = cv2.imread(f"{non_text_pngs_dir}/{png_file}")
+        w_reduced = reduced_img.shape[0]
+        w_full = full_img.shape[0]
+        scaling_factor = w_full/w_reduced
+        factors[png_file] = scaling_factor
+    with open(reduced_res_png_dir + '/' + "scaling_factors.json","w") as out:
+        json.dump(factors,out, indent = 5)
+
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -437,8 +513,12 @@ if __name__ == "__main__":
     parser.add_argument("--d", type=bool, default=False)
     parser.add_argument("--rm", type=bool, default=False)
     parser.add_argument("--rt", type=bool, default=False)
+    parser.add_argument("--rr", type=bool, default=False)
     parser.add_argument("--cg", type=bool, default=False)
     parser.add_argument("--rl", type=bool, default=False)
+    parser.add_argument("--tt", type=bool, default=False)
+    parser.add_argument("--dt", type=bool, default=False)
+    parser.add_argument("--sf", type=bool, default=False)
     args = parser.parse_args()
     if args.p:
         process_SVGs()
@@ -454,11 +534,17 @@ if __name__ == "__main__":
         remove_text_from_pngs()
     if args.rt:
         recognize_text()
+    if args.rr:
+        create_low_res_png()
     if args.cg:
         create_graph()
     if args.rl:
         read_labels()
-    """if args.ol:
-        create_graph()"""
+    if args.tt:
+        trim_text_files()
+    if args.dt:
+        draw_text_nodes()
+    if args.sf:
+        store_scaling_factor()
     #main()
 

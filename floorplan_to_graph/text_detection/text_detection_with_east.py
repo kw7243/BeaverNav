@@ -51,6 +51,7 @@ png_no_lines_dir = beavernav+'/text_detection/png_lines_removed'
 cropped_png_no_lines_dir = beavernav + '/text_detection/cropped_lines_removed_pngs'
 eroded_dir = beavernav + '/text_detection/final_pngs'
 final_dir = beavernav + '/text_detection/final_pngs'
+temp_dir = beavernav + '/text_detection/temp_files'
 pdffiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
 modfiles = [f for f in listdir(mod) if isfile(join(mod, f))]
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = beavernav + '/psychic-ruler-357114-6631612ee47a.json'
@@ -72,19 +73,19 @@ dpi = 1200
 # if we do resize, the bounding boxes have to be scaled
 # with a dpi of 960, the height and width are same as below
 min_confidence = 0.01
-merge_fraction = 1/3 # fractional distance that determines if two bounding boxes correspond to the same text
+merge_fraction = 1/6 # fractional distance that determines if two bounding boxes correspond to the same text
 
-split_dim = (3,3)
+split_dim = (5,5)
 
 threshx = 100
-threshy = 150
+threshy = 80
 threshP = 400 # try 200, or 350
 
 thresh_svg = 20
 
 
-r = easyocr.Reader(['en'])
-pipeline = keras_ocr.pipeline.Pipeline()
+# r = easyocr.Reader(['en'])
+# pipeline = keras_ocr.pipeline.Pipeline()
 
 
 def main():
@@ -595,9 +596,9 @@ def mergeYAlignedRectangles(boxes):
 					m = ymax1 <= ymax2 + h*merge_fraction and ymin1 >= ymin2 - h*merge_fraction
 				if m:
 					if xmin1 <= xmin2:
-						m = (xmin2 - xmax1) <= h/3
+						m = (xmin2 - xmax1) <= h*merge_fraction
 					else:
-						m = (xmin1 - xmax2) <= h/3	
+						m = (xmin1 - xmax2) <= h*merge_fraction	
 				if m:
 					merged = merge((xmin1, ymin1, xmax1, ymax1),(xmin2, ymin2, xmax2, ymax2))
 					boxes.append(merged)
@@ -697,10 +698,10 @@ def postProcessing(boxes, debug = False):
 	#print('length of boxes0: ' + str(len(boxes)))
 	boxes = fixNegativeCases(boxes)
 	boxes = change_to_int(boxes)
-	#print('length of boxes1: ' + str(len(boxes)))
-	boxes = trimLargeRectangles(boxes)
+	# print('length of boxes1: ' + str(len(boxes)))
+	# boxes = trimLargeRectangles(boxes)
 	#print('length of boxes2: ' + str(len(boxes)))
-	boxes = mergeIntersectingRectangles(boxes)
+	# boxes = mergeIntersectingRectangles(boxes)
 	#print('length of boxes3: ' + str(len(boxes)))
 	#print(*boxes, sep = "\n")
 	#boxes = discardDuplicateRectangles(boxes)
@@ -723,11 +724,12 @@ def addPadding(boxes, dim, padding_percent):
 	padding_h = padding_percent[0]
 	padding_w = padding_percent[1]
 	(H,W) = dim
+	new_boxes = []
 	for id, (startX, startY, endX, endY)in enumerate(boxes):
 		width = endX - startX
 		height = endY - startY
-		boxes[id] = (max(0,int(startX - padding_w/100 * width)), max(int(startY - padding_h/100 * height),0),min(int(endX + padding_w/100 * width), W),min(int(endY+padding_h/100 * height),H))
-	return boxes
+		new_boxes.append((max(0,int(startX - padding_w/100 * width)), max(int(startY - padding_h/100 * height),0),min(int(endX + padding_w/100 * width), W),min(int(endY+padding_h/100 * height),H)))
+	return new_boxes
 
 def refine_text_detection(floor):
 	 # we know where EAST found ~ 90% of the text
@@ -749,11 +751,24 @@ def remove_text(text_img_filename, text_no_lines_img_filename, bbx_filename, no_
 	(H,W) = text_no_lines_img.shape[:2]
 	mask=np.full((H,W,3),255,dtype=np.uint8)
 	for (start_x, start_y,end_x, end_y) in boxes:
-		mask[start_y:end_y, start_x:end_x] = text_no_lines_img[start_y:end_y, start_x:end_x]
+		if calculateArea((start_x, start_y,end_x, end_y)) <=0:
+			continue
+		kernel = np.ones((5, 5), np.uint8)
+		mask[start_y:end_y, start_x:end_x] = cv2.erode(text_no_lines_img[start_y:end_y, start_x:end_x], kernel, iterations=2)
 	ret, mask = cv2.threshold(mask, 200, 255, cv2.THRESH_BINARY)
 	orig = cv2.imread(text_img_filename)
 	ret, orig = cv2.threshold(orig, 200, 255, cv2.THRESH_BINARY)
-	orig = cv2.bitwise_not(cv2.subtract(cv2.bitwise_not(orig), cv2.bitwise_not(mask)))
+	orig = cv2.subtract(cv2.bitwise_not(orig), cv2.bitwise_not(mask))
+	orig = cv2.cvtColor(orig, cv2.COLOR_BGR2GRAY)
+	countours,hierarchy=cv2.findContours(orig,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+	orig = cv2.bitwise_not(orig)
+	# orig = cv2.cvtColor(orig,cv2.COLOR_GRAY2RGB)
+	# for cnt in countours:
+	# 	area = cv2.contourArea(cnt)
+	# 	p = cv2.arcLength(cnt, True)
+	# 	((x,y), (width, height), rotation)  = cv2.minAreaRect(cnt)
+	# 	if area < 10000 and 2< width < 20 and 2<height < 20:
+	# 		orig = cv2.drawContours(orig,[cnt],0,(0,255,255),2)
 	#cv2.imwrite(nontextpngs + "/" + floor + "_mask.png",mask )
 	cv2.imwrite(no_txt_destination,orig )
 	return
@@ -943,6 +958,21 @@ def drawText(im,texts, y_offset, color):
                     cv2.FONT_HERSHEY_SIMPLEX, 2, color, 3)
 	return im
 		
+def drawTextNodes(non_text_im_filename, destination_filename, txt_filename, scale_factor = 1, color = (255,255,255)):
+	with open(txt_filename, 'r') as handle:
+		nodes = json.load(handle)
+	img = cv2.imread(non_text_im_filename)
+	for [txt, coords] in nodes:
+		coords = coords.replace('(','').replace(')','').replace(' ','').split(',')
+		coords[0] = int(int(coords[0])//scale_factor)
+		coords[1] = int(int(coords[1])//scale_factor)
+		img = cv2.circle(img, coords, int(max(15//scale_factor,1)), color, -1)
+		if scale_factor< 3:
+			cv2.putText(img, txt, (coords[0], coords[1] - int(max(20//scale_factor,1))),
+                    cv2.FONT_HERSHEY_SIMPLEX, 2/scale_factor, color, int(max(3//scale_factor,1)))
+	cv2.imwrite(destination_filename, img)
+
+
 def processText(results, floor_num):
 	rooms, elevators, stairs, bathrooms, others = [],[],[],[],[]
 	for (text, (startX, startY, endX, endY)) in results:
@@ -999,6 +1029,16 @@ def getText(lines_img_filename, no_lines_cropped_img_filename, bbox_filename, tx
 # enforce 3 digit numbers
 # enforce the floor number to be the first number in each room
 	
+def trim_text_file(txt_filename, txt_destination):
+	with open(txt_filename, 'r') as handle:
+		nodes = json.load(handle)
+	ret_dict = []
+	for [txt, coords] in nodes:
+		if txt not in ['STAIR', 'ELEV', 'LAV']:
+			ret_dict.append((txt,coords))
+	# print(ret_dict)
+	with open(txt_destination, 'w') as out:
+		json.dump(ret_dict,out, indent=5)
 
 
 

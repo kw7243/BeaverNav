@@ -274,13 +274,15 @@ def crop_image_cv2(filename, new_filename):
     x, y, w, h = cv2.boundingRect(coords) # Find minimum spanning bounding box
     
     # Add 1% padding for cropping
-    x_buffer = min(x, int(0.01*width), width - x)
-    y_buffer = min(y, int(0.01*height), height - y)
+    # x_buffer = min(x, int(0.01*width), width - x)
+    # y_buffer = min(y, int(0.01*height), height - y)
+    x_buffer = 0
+    y_buffer = 0
 
     # Crop the image 
     rect = gray_im[y - y_buffer:(y + h) + y_buffer, x - x_buffer:(x + w) + x_buffer]
     cv2.imwrite(new_filename, rect) # save image
-
+    rect = cv2.imread(new_filename)
     return (y - y_buffer+ top,(y + h) + y_buffer+top, x - x_buffer+left,(x + w) + x_buffer+left)
 
 
@@ -330,7 +332,7 @@ def custom_resizing(image):
     im = Image.open('temp_useless_file.png')
 
     initial_width, initial_height = im.size
-    print(im.size)
+    # print(im.size)
     min_dim = min(initial_width,initial_height)
     if 600 < min_dim < 1000:
         scaling_factor = 2

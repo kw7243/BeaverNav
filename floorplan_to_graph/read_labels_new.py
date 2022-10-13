@@ -7,6 +7,7 @@ from pathlib import Path
 import copy
 
 labelled_pngs = "full_pipeline_files_test/labelled_pngs"
+cropped_png_files_dir = "full_pipeline_files_test/cropped_png_files"
 cropping_offsets= "full_pipeline_files_test/cropping_offsets"
 labelling_legend = "full_pipeline_files_test/labelling_legend.json"
 final_output_name = "full_pipeline_files_test/special_feature_coordinates.json"
@@ -317,7 +318,11 @@ def main(prints = False):
                     [row_offset,col_offset] = offsets[k2]
                     coord = list(coord)
                     coord[0] = max(0,coord[0] - int(col_offset))
+                    img = cv2.imread(f"{cropped_png_files_dir}/{k2}.png")
+                    (H,W) = img.shape[:2]
+                    coord[0] = min(coord[0], W)
                     coord[1] = max(0,coord[1] - int(row_offset))
+                    coord[1] = min(coord[1], H)
                     final_output[k][k2][k3][i] = coord            
   
     with open(final_output_name,"w") as f:
