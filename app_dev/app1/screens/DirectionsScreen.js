@@ -55,7 +55,7 @@ const DirectionsScreen = () => {
      */
     // const [floorPlanQueries, setFloorPlanQueries] = useState([]);
 
-    // called when first loading DirectionsScreen
+    // Called when first loading DirectionsScreen
     // with origin + destination
     // useEffect(() => {
     //     get(MULTIPLE_FLOORS_API).then((floorQueries) => {
@@ -67,7 +67,7 @@ const DirectionsScreen = () => {
 
     return (
         <View>
-            <View style={[tw`flex-initial h-5/6`, {overflow: 'hidden'}]}>
+            <View style={[tw`flex-initial h-5/6`]}>
                 <Image 
                     style={{
                         width: "100%",
