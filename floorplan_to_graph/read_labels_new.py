@@ -16,7 +16,7 @@ def process_string_coord(coord):
     coord = coord.replace('(','')
     coord = coord.replace(')','')
     coord = coord.replace(' ','')
-    coord = coord.split(',')
+    coord = coord.split('_')
     coord = tuple(int(item) for item in coord)
     return coord
 
@@ -94,6 +94,7 @@ def find_locations_base_floorplan(floorplans, cropping_offsets, labelled_pngs, b
     for key in locations[base_floorplan]:
         try:
             key_tuple = process_string_coord(key)
+            print("key_tuple, key" + str(key_tuple) + ' ' + key)
         except ValueError:
             continue
         for coord in locations[base_floorplan][key]:
@@ -130,12 +131,13 @@ def find_locations_base_floorplan(floorplans, cropping_offsets, labelled_pngs, b
         Only works with entry_exits
         '''
         base_entry_exits = copy.deepcopy(base_entry_exits)
+        print(base_entry_exits)
         type = list(base_entry_exits[base_floorplan].keys())[0]
 
         hashmap = {}
         coord_list = base_entry_exits[base_floorplan][type]
         new_coord_list = []
-
+        print(coord_list)
         for coord_r, coord_c, building, floor in coord_list:
             hashmap[(building,floor)] = 0
         
@@ -152,6 +154,10 @@ def find_locations_all_but_base_floorplan(floorplan, cropping_offsets, labelled_
         offsets = json.load(out)
     with open(labelling_legend, 'r') as out:
         legend = json.load(out)
+    
+    if floorplan not in legend:
+        return None, None, None, None, None
+
 
     cropping_offsets = Path(cropping_offsets)
     labelled_pngs = Path(labelled_pngs)
@@ -224,7 +230,7 @@ def find_locations_all_but_base_floorplan(floorplan, cropping_offsets, labelled_
     
     return elevators, stairs, elevators_hallway, stairs_hallway, entry_exits
 
-def main(prints = False):
+def main(prints = True):
     labelled_pngs_dir = Path(labelled_pngs)
 
     final_output = {}
@@ -237,6 +243,9 @@ def main(prints = False):
         floorplan_base_path = labelled_pngs_dir / building_dir / floorplan_base_name
         floorplans = sorted(os.listdir(labelled_pngs / building_dir))
         base_floorplan_file = min(floorplans)
+        if "DS" in base_floorplan_file:
+            floorplans = floorplans[1:]
+            base_floorplan_file = min(floorplans)
         base_floorplan = base_floorplan_file[:-4]
         base_elevators, base_stairs, base_elevators_hallway, base_stairs_hallway, base_entry_exits = find_locations_base_floorplan(floorplans,cropping_offsets,labelled_pngs,building_dir,{}, prints = prints)
         
@@ -265,8 +274,11 @@ def main(prints = False):
             if prints: print("base_floorplan is: ",base_floorplan_file)
             if floorplan_file == base_floorplan_file:
                 continue
+
             elevators, stairs, elevators_hallway, stairs_hallway, entry_exits = find_locations_all_but_base_floorplan(floorplan_file,cropping_offsets,labelled_pngs_dir,building_dir,{}, prints = prints)
             if prints: print(elevators, stairs, elevators_hallway, stairs_hallway, entry_exits)
+            if elevators == None:
+                continue
 
             def iding_input(something,base_something):
                 ided_coord_list = []
