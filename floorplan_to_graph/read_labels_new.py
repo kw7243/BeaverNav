@@ -155,8 +155,7 @@ def find_locations_all_but_base_floorplan(floorplan, cropping_offsets, labelled_
     with open(labelling_legend, 'r') as out:
         legend = json.load(out)
     
-    if floorplan not in legend:
-        return None, None, None, None, None
+   
 
 
     cropping_offsets = Path(cropping_offsets)
@@ -166,6 +165,9 @@ def find_locations_all_but_base_floorplan(floorplan, cropping_offsets, labelled_
     ### calculate base
     floorplane_filename = floorplan
     floorplan = floorplan[:-4]
+    if floorplan not in legend:
+        print("floorplan is " + floorplan)
+        return None, None, None, None, None
     locations[floorplan] = {}
     img_path_leaf = Path(floorplane_filename)
     img = cv2.imread(str(labelled_pngs / building / img_path_leaf))
@@ -235,7 +237,7 @@ def main(prints = True):
 
     final_output = {}
 
-    for building_dir in os.listdir(labelled_pngs_dir):
+    for i, building_dir in enumerate(os.listdir(labelled_pngs_dir)):
         if "DS" in building_dir:
             continue
         building_dir = Path(building_dir)
