@@ -1,47 +1,13 @@
 import json
+from graph_class import Node, Internal_Graph
 
 abstract_graph = "full_pipeline_files_test/special_feature_coordinates.json"
 
-class Node():
-    def __init__(self, building, floor, type, coordinates, id, connection = None):
-        self.building = building
-        self.floor = floor
-        self.type = type
-        self.coordinates = coordinates
-        self.id = id
-        self.connection = connection
-    def check_condition_ea_sa(self, node2):
-        return (self.building == node2.building
-            and self.id == node2.id
-            and abs(self.floor - node2.floor) == 1
-            and self.type == node2.type)
-    def check_condition_eh_sh(self, node2):
-        return (self.building == node2.building
-            and self.id == node2.id
-            and self.floor == node2.floor)
-    def check_condition_ee(self, node2):
-        return  (str(self.connection[0]) == str(node2.building)
-            and str(self.connection[1]) == str(node2.floor)
-            and str(node2.connection[0]) == str(self.building)
-            and str(node2.connection[1]) == str(self.floor)
-            and (self.id == node2.id or node2.id == '99' or self.id == '99'))
-    def __str__(self):
-        return str(["building " + self.building, "floor " + str(self.floor), "type " + self.type,"id " + str(self.id), "connections " + str(self.connection)])
-
-    
-class Graph():
-    def __init__(self, nodes = {}):
-        self.nodes = nodes # dictionary of nodes, with values being lists of their neighbors
-    def __str__(self):
-        s = ''
-        for node in self.nodes:
-            s += str(node) +  ": " +  str( [str(node1) for node1 in self.nodes[node]] ) +'\n' + '\n' + '\n' + '\n' + '\n' + '\n'
-        return s
 def main():
     # read in special features
     with open( abstract_graph, 'r') as out:
         special_features = json.load(out)
-    graph = Graph()
+    graph = Internal_Graph()
     # create all nodes
         # iterate through all the special features names
     for building_floor in special_features:
@@ -99,7 +65,10 @@ def main():
                         graph.nodes[node2].append(node1)
     
     print(graph)
-                    
+
+    # convert to djikstar
+
+    graph.convert_to_djikstar("full_pipeline_files_test/abstract_graph.pickle")
 
     # create all edges
         #iterate through all nodes
@@ -120,7 +89,6 @@ def main():
 
                 
     # output pickle file
-
 
 if __name__ == '__main__':
     main()

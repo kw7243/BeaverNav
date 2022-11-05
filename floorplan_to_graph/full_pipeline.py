@@ -427,10 +427,18 @@ def create_low_res_png():
 
 def create_graph():
     floorplan_to_graph = {}
-    for png_file in os.listdir(reduced_res_png_dir):
-        text_detection_with_east.drawTextNodes(f"{reduced_res_png_dir}/{png_file}", f"{reduced_res_png_dir}/{png_file}", f"{txt_dir}/{png_file[:-4]}.txt", )
+    scaling_factors = {}
+    with open(reduced_res_png_dir + '/scaling_factors.json', 'r') as out:
+            scaling_factors = json.load(out)
+    for i,png_file in enumerate(os.listdir(reduced_res_png_dir)):
+        if (i > 1):
+            continue
+        print(f"Creating Graph {i}: " + png_file[:-4] + '.png')
+
+        text_detection_with_east.drawTextNodes(f"{reduced_res_png_dir}/{png_file}", f"{reduced_res_png_dir}/{png_file}", f"{txt_dir}/{png_file[:-4]}.json", scale_factor=scaling_factors[png_file] )
         floorplan_name = png_file[:-4]
-        internal_rep = load_color_image(png_file)
+        
+        internal_rep = load_color_image(reduced_res_png_dir + '/' + png_file)
         distances_to_black_dict = distances_to_black(internal_rep)
 
         floorplan_graph = preprocessing_via_duplicate_graph(internal_rep,distances_to_black_dict)
@@ -438,7 +446,7 @@ def create_graph():
         with open(f"{graph_storage_dir}/{floorplan_name}_graph.pickle","wb") as f:
             pickle.dump(floorplan_graph,f)
         
-        floorplan_to_graph[floorplan_name] = (f"{graph_storage_dir}/{floorplan_name}_graph.pickle",scaling_factor)
+        floorplan_to_graph[floorplan_name] = (f"{graph_storage_dir}/{floorplan_name}_graph.pickle",scaling_factors[png_file] )
 
     with open(floorplan_name_graph_correspondence_dir + '/' + "floorplan_name_graph_correspondence.json","w") as out:
         json.dump(floorplan_to_graph,out, indent = 5)
