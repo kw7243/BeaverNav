@@ -1,10 +1,154 @@
 {
-     "12_4": [
-          "full_pipeline_files_test/graph_storage/12_4_graph.pickle",
-          14.013779527559056
+     "10_6": [
+          "full_pipeline_files_test/graph_storage/10_6_graph.pickle",
+          12.016014234875446
      ],
-     "36_5": [
-          "full_pipeline_files_test/graph_storage/36_5_graph.pickle",
-          16.00798403193613
+     "10_7": [
+          "full_pipeline_files_test/graph_storage/10_7_graph.pickle",
+          12.007005253940456
+     ],
+     "10_5": [
+          "full_pipeline_files_test/graph_storage/10_5_graph.pickle",
+          12.016014234875446
+     ],
+     "3_4M": [
+          "full_pipeline_files_test/graph_storage/3_4M_graph.pickle",
+          12.01388888888889
+     ],
+     "10_4": [
+          "full_pipeline_files_test/graph_storage/10_4_graph.pickle",
+          12.02048417132216
+     ],
+     "10_0": [
+          "full_pipeline_files_test/graph_storage/10_0_graph.pickle",
+          12.013913043478261
+     ],
+     "10_1": [
+          "full_pipeline_files_test/graph_storage/10_1_graph.pickle",
+          13.017241379310345
+     ],
+     "10_3": [
+          "full_pipeline_files_test/graph_storage/10_3_graph.pickle",
+          12.018691588785046
+     ],
+     "10_2": [
+          "full_pipeline_files_test/graph_storage/10_2_graph.pickle",
+          12.005586592178771
+     ],
+     "10_8M": [
+          "full_pipeline_files_test/graph_storage/10_8M_graph.pickle",
+          12.017793594306049
+     ],
+     "10_4M": [
+          "full_pipeline_files_test/graph_storage/10_4M_graph.pickle",
+          12.0
+     ],
+     "4_1M": [
+          "full_pipeline_files_test/graph_storage/4_1M_graph.pickle",
+          12.013861386138613
+     ],
+     "2_4M": [
+          "full_pipeline_files_test/graph_storage/2_4M_graph.pickle",
+          16.00494233937397
+     ],
+     "3_1": [
+          "full_pipeline_files_test/graph_storage/3_1_graph.pickle",
+          12.001956947162427
+     ],
+     "1_3": [
+          "full_pipeline_files_test/graph_storage/1_3_graph.pickle",
+          17.015734265734267
+     ],
+     "1_2": [
+          "full_pipeline_files_test/graph_storage/1_2_graph.pickle",
+          17.006968641114984
+     ],
+     "3_0": [
+          "full_pipeline_files_test/graph_storage/3_0_graph.pickle",
+          14.015209125475286
+     ],
+     "3_2": [
+          "full_pipeline_files_test/graph_storage/3_2_graph.pickle",
+          13.0
+     ],
+     "1_0": [
+          "full_pipeline_files_test/graph_storage/1_0_graph.pickle",
+          17.0103986135182
+     ],
+     "1_1": [
+          "full_pipeline_files_test/graph_storage/1_1_graph.pickle",
+          17.006993006993007
+     ],
+     "3_3": [
+          "full_pipeline_files_test/graph_storage/3_3_graph.pickle",
+          12.013833992094861
+     ],
+     "1_4": [
+          "full_pipeline_files_test/graph_storage/1_4_graph.pickle",
+          16.01967213114754
+     ],
+     "3_4": [
+          "full_pipeline_files_test/graph_storage/3_4_graph.pickle",
+          12.01984126984127
+     ],
+     "3_1M": [
+          "full_pipeline_files_test/graph_storage/3_1M_graph.pickle",
+          12.001956947162427
+     ],
+     "3_5": [
+          "full_pipeline_files_test/graph_storage/3_5_graph.pickle",
+          12.017857142857142
+     ],
+     "2_2": [
+          "full_pipeline_files_test/graph_storage/2_2_graph.pickle",
+          17.0103986135182
+     ],
+     "4_4": [
+          "full_pipeline_files_test/graph_storage/4_4_graph.pickle",
+          12.007920792079208
+     ],
+     "4_5": [
+          "full_pipeline_files_test/graph_storage/4_5_graph.pickle",
+          12.016
+     ],
+     "2_3": [
+          "full_pipeline_files_test/graph_storage/2_3_graph.pickle",
+          17.0
+     ],
+     "2_1": [
+          "full_pipeline_files_test/graph_storage/2_1_graph.pickle",
+          17.020408163265305
+     ],
+     "2_0": [
+          "full_pipeline_files_test/graph_storage/2_0_graph.pickle",
+          18.015652173913043
+     ],
+     "2_4": [
+          "full_pipeline_files_test/graph_storage/2_4_graph.pickle",
+          16.01963993453355
+     ],
+     "4_2": [
+          "full_pipeline_files_test/graph_storage/4_2_graph.pickle",
+          12.005825242718446
+     ],
+     "4_3": [
+          "full_pipeline_files_test/graph_storage/4_3_graph.pickle",
+          12.017821782178217
+     ],
+     "10_8": [
+          "full_pipeline_files_test/graph_storage/10_8_graph.pickle",
+          12.016014234875446
+     ],
+     "4_1": [
+          "full_pipeline_files_test/graph_storage/4_1_graph.pickle",
+          12.017681728880158
+     ],
+     "4_0": [
+          "full_pipeline_files_test/graph_storage/4_0_graph.pickle",
+          13.02321083172147
+     ],
+     "10_1M": [
+          "full_pipeline_files_test/graph_storage/10_1M_graph.pickle",
+          12.01953125
      ]
 }

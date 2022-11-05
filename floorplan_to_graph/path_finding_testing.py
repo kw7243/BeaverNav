@@ -1,7 +1,7 @@
 import time
 import pickle
 from path_finding_prototype import *
-from deprecated_methods import distance_to_black
+#from deprecated_methods import distance_to_black
 
 ########################
 #        TESTING       #
@@ -66,8 +66,8 @@ def test_path_finding(DIRECTORY, floor_plan, graph, start, end, reduction_factor
     Given a graph, a start and end coordinate on the UNALTERED IMAGE,
     return an image w/ the shortest path drawn between start and end
     """
-    start_reduced = (start[0]//reduction_factor, start[1]//reduction_factor)
-    end_reduced = (end[0]//reduction_factor, end[1]//reduction_factor)
+    start_reduced = (int(start[0]//reduction_factor), int(start[1]//reduction_factor))
+    end_reduced = (int(end[0]//reduction_factor), int(end[1]//reduction_factor))
 
     # Get path
     t_start = time.perf_counter()
@@ -75,7 +75,7 @@ def test_path_finding(DIRECTORY, floor_plan, graph, start, end, reduction_factor
     t_find_path = time.perf_counter()
     print(f"Dijkstar find_path (duplicated graph) time: {t_find_path - t_start}")
 
-    path_high_res = expand_coords(path_low_res, reduction_factor)
+    path_high_res = expand_coords(path_low_res, int(reduction_factor))
     t_expand_coords = time.perf_counter()
     print(f"Expanding coords time: {t_expand_coords - t_find_path}")
 

@@ -59,6 +59,10 @@ def find_locations_base_floorplan(floorplans, cropping_offsets, labelled_pngs, b
         # cv2.imshow("test",temp_img)
         # cv2.waitKey()
         for c in contours:
+            if cv2.arcLength(c, True) == 0:
+                continue
+            if not 0.07 < cv2.contourArea(c)/cv2.arcLength(c, True)**2 < 0.09:
+                continue
             M = cv2.moments(c)
             if M["m00"] == 0:
                 continue
@@ -189,6 +193,10 @@ def find_locations_all_but_base_floorplan(floorplan, cropping_offsets, labelled_
         # cv2.imshow("test",temp_img)
         # cv2.waitKey()
         for c in contours:
+            if cv2.arcLength(c, True) == 0:
+                continue
+            if not 0.07 < cv2.contourArea(c)/cv2.arcLength(c, True)**2 < 0.09:
+                continue
             M = cv2.moments(c)
             if M["m00"] == 0:
                 continue
