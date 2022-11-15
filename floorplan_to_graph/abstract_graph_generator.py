@@ -31,9 +31,7 @@ def main():
                 # create node object and add it to graph, with value as []
     outside = Node('0', 0, 'ee', [69,69], '99', connection)
     graph.nodes[outside]= []
-    print(graph)
     for node1 in graph.nodes:
-        print("node1: ", node1.building, node1.floor)
         for node2 in graph.nodes:
             if node1 == node2:
                 continue
@@ -63,12 +61,41 @@ def main():
                     if (node1.check_condition_ee(node2)):
                         graph.nodes[node1].append(node2)
                         graph.nodes[node2].append(node1)
+            
+            if (node1.type == 'ee' or node2.type == 'ee'):
+                    if (node1.check_condition_ee_sh_eh(node2)):
+                        graph.nodes[node1].append(node2)
+                        graph.nodes[node2].append(node1)
     
-    print(graph)
+
+    supernodes = []
+    nodes = graph.nodes.copy()
+    for node in nodes:
+        if [node.building, node.floor] not in supernodes:
+            supernode = Node(node.building, node.floor, "supernode")
+            graph.nodes[supernode] = []
+            supernodes.append([node.building, node.floor])
+
+    for supernode in graph.nodes:
+        if supernode.type != 'supernode':
+            continue
+        for node2 in graph.nodes:
+            if (node2.type != 'supernode' and node2.building == supernode.building and node2.floor == supernode.floor):
+                if (node2.type != 'ea' and node2.type != 'sa'):
+                    graph.nodes[supernode].append(node2)
+                    graph.nodes[node2].append(supernode)
+    
+    for node in graph.nodes:
+        if node.building == '1' or node.building == '3' or node.building == '10':
+            if node.floor == 1 and node.type == 'ee' or node.type== 'supernode':
+                print(node, [str(n) for n in graph.nodes[node]])
+            print()
+    
 
     # convert to djikstar
 
     graph.convert_to_djikstar("full_pipeline_files_test/abstract_graph.pickle")
+
 
     # create all edges
         #iterate through all nodes

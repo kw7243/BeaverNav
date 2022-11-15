@@ -23,21 +23,24 @@ def find_path_same_floor(start_location, end_location, floor_plan):
     # get location of start room as a pixel
     # get location of end room as a pixel
     
-    print(start_location, end_location)
+    # print(start_location, end_location)
     # get scaling factor
     with open(floorplan_name_graph_correspondence_dir) as f:
         scaling_factors = json.load(f)
     scaling_factor = scaling_factors[floor_plan][1]
-    print(scaling_factor)
+    # print(scaling_factor)
     # scale locations
     # get graph
     # ffed into test_path_finding
     pf.test_path_finding(cropped_png_files_dir,floor_plan, pixel_graph, start_location, end_location, scaling_factor)
 
 
-def main():
-    start_building_room = "1-190"
-    destination_building_room = "10-1OOLA"
+def main(start_building_room, destination_building_room):
+    # start_building_room = "1-190"
+    # destination_building_room = "1-115"
+
+    ### 1-190 --> 1-115
+    ### 1-190 --> 10-100LA
 
     start_building =  start_building_room.split('-')[0]
     destination_building =  destination_building_room.split('-')[0]
@@ -68,15 +71,15 @@ def main():
     # find a path from supernodes corresponding to start floor plan to end floor plan
     for node in abstract_graph.get_data():
         if node.type == 'supernode' and node.building == start_building and node.floor == int(start_floor):
-            print("success")
+            # print("success")
             start_supernode = node
         if node.type == 'supernode' and node.building == destination_building and node.floor == int(destination_floor):
-            print("success")
+            # print("success")
             end_supernode = node
     
     abstract_path = find_path(abstract_graph, start_supernode, end_supernode) 
     nodes, edges, costs, total_cost = abstract_path
-    print([str(node) for node in nodes])
+    # print([str(node) for node in nodes])
     # returns a list of Node objects on that path
     # run individual path finding on 0-1, 2-3, 2i -> 2i + 1
 
@@ -85,22 +88,25 @@ def main():
             floor_plan = str(start_building ) + "_" + str(start_floor)
             print("Starting at Building", str(start_building ), "and Floor", str(start_floor ))
             ee_location = nodes[2*i + 1].coordinates
-            print(ee_location)
+            #print(ee_location)
             find_path_same_floor(start_location, ee_location, floor_plan)
             continue
         if i == len(nodes)//2 - 1:
             floor_plan = str(destination_building ) + "_" + str(destination_floor)
             print("End at Building", str(destination_building ), "and Floor", str(destination_floor ))
             ee_location = nodes[2*i].coordinates
-            print(ee_location)
+            #print(ee_location)
             find_path_same_floor(ee_location, end_location,floor_plan)
+            continue
+        
+        if nodes[2*i].type == 'ea' or nodes[2*i].type == 'sa':
             continue
 
         ee_location1 = nodes[2*i].coordinates
         ee_location2 = nodes[2*i+1].coordinates
         print("Then go to Building", str(nodes[2*i].building ), "and Floor", str(nodes[2*i].floor ))
         floor_plan = str(nodes[2*i].building )+'_'+str(nodes[2*i].floor )
-        print(ee_location1,ee_location2)
+        #print(ee_location1,ee_location2)
         find_path_same_floor(ee_location1, ee_location2,floor_plan)
 
 
@@ -113,4 +119,8 @@ def main():
 if __name__ == '__main__':
     for f in os.listdir(results_dir):
         os.remove(results_dir + '/' + f)
-    main()
+    print("")
+    start = str(input("Start Location: "))
+    end = str(input("End Destination: "))
+    print("")
+    main(start, end)

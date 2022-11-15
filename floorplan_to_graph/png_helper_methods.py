@@ -1,6 +1,7 @@
 from PIL import Image
 import numpy as np
 import cv2
+import time
 
 ##############################
 #   IMAGE HELPER FUNCTIONS   #
@@ -25,7 +26,10 @@ def load_color_image(filename):
         img = Image.open(img_handle)
         img = img.convert('RGB')  # in case we were given a greyscale image
         img_data = img.getdata()
+        t_start = time.perf_counter()
         pixels = list(img_data)
+        t_end = time.perf_counter()
+        print("open time", t_end - t_start)
         w, h = img.size
         return {'height': h, 'width': w, 'pixels': pixels}
 
@@ -240,8 +244,11 @@ def save_image_with_path_drawn(image_filename, new_filename, relevant_coords):
     """
     im_copy = load_color_image(f"{image_filename}") # create copy of image
     
+    t_start = time.perf_counter()
     for pixel in relevant_coords:
         set_pixel(im_copy, (255,0,0), *pixel) # color red
+    t_find_path = time.perf_counter()
+    print(f"time: {t_find_path - t_start}")
     
     save_color_image(im_copy, new_filename)
     

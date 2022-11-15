@@ -24,6 +24,10 @@ class Node():
             and str(node2.connection[0]) == str(self.building)
             and str(node2.connection[1]) == str(self.floor)
             and (self.id == node2.id or node2.id == '99' or self.id == '99')) or  (node2.building == self.building and node2.floor == self.floor)
+    def check_condition_ee_sh_eh(self, node2):
+        return  ((node2.building == self.building and node2.floor == self.floor)
+            and (self.type == 'eh' or self.type == 'sh' or node2.type == 'sh' or node2.type == 'sh'))
+  
     def __str__(self):
         return str(["building " + self.building, "floor " + str(self.floor), "type " + self.type,"id " + str(self.id), "connections " + str(self.connection)])
 
