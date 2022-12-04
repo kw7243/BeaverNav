@@ -1,35 +1,9 @@
 import { StyleSheet, Text, View, Image } from 'react-native';
 import React, { useState } from 'react';
-// import { get } from '../utilities';
+import { get } from '../utilities';
 import DirectionsCard from '../components/DirectionsCard';
 import Map from '../components/Map';
 import tw from 'tailwind-react-native-classnames';
-
-const floorPlanQueries = [
-    {
-        floorPlan: "4_1",
-        start: "Building 4 entrance",
-        end: "Building 2",
-        src: require("../local_test/4_1.png")
-    },
-    {
-        floorPlan: "2_1",
-        start: "Building 2 entrance from building 4",
-        end: "Building 6",
-        src: require("../local_test/2_1.png")
-    },
-    {
-        floorPlan: "6_1",
-        start: "Building 6 entrance from building 2",
-        end: "Room 6-132",
-        src: require("../local_test/6_1.png")
-    }
-
-];
-
-const get = (endpoint, floorPlanQuery) => {
-    return floorPlanQuery.src
-};
 
 const DirectionsScreen = () => {
     const MULTIPLE_FLOORS_API = "INSERT HERE";
@@ -53,18 +27,18 @@ const DirectionsScreen = () => {
      *   }
      * ]
      */
-    // const [floorPlanQueries, setFloorPlanQueries] = useState([]);
+    const [floorPlanQueries, setFloorPlanQueries] = useState([]);
 
     // Called when first loading DirectionsScreen
     // with origin + destination
-    // useEffect(() => {
-    //     get(MULTIPLE_FLOORS_API).then((floorQueries) => {
-    //         setFloorPlanQueries(floorQueries); // will have to check if GET response is an array
-    //     });
-    // }, []);
+    useEffect(() => {
+        get(MULTIPLE_FLOORS_API).then((floorQueries) => {
+            setFloorPlanQueries(floorQueries); // will have to check if GET response is an array
+        });
+    }, []);
     
-    // Assumming response type is image (need to change to URL)
-    const floorPlanImage = get(SINGLE_FLOOR_API, floorPlanQueries[index]);
+    // Assumming response type is URI
+    const floorPlanImageURI = get(SINGLE_FLOOR_API, floorPlanQueries[index]);
 
     return (
         <View>
@@ -76,7 +50,7 @@ const DirectionsScreen = () => {
                         aspectRatio: 1,
                     }}
                     resizeMode="contain"
-                    source={floorPlanImage}
+                    source={{uri: floorPlanImageURI}}
                 />
                 {/* <Map/> */}
             </View>
