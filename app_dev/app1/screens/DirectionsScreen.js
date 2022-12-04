@@ -63,6 +63,7 @@ const DirectionsScreen = () => {
     //     });
     // }, []);
     
+    // Assumming response type is image (need to change to URL)
     const floorPlanImage = get(SINGLE_FLOOR_API, floorPlanQueries[index]);
 
     return (
