@@ -88,6 +88,8 @@ def test_path_finding(DIRECTORY, floor_plan, graph, start, end, reduction_factor
 
     print(f"User interface time: {time.perf_counter() - t_start}")
 
+    return new_filename
+
 
 def test_full(DIRECTORY, floor_plan, reduction_factor=16):
     """
