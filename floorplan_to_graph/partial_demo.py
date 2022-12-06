@@ -1,5 +1,5 @@
 import json
-import pickle
+import _pickle as pickle
 import path_finding_testing as pf
 from graph_class import Node, Internal_Graph
 from dijkstar import find_path
