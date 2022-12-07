@@ -111,9 +111,25 @@ def Dijkstar_duplicated_graph(duplicated_graph, start, end):
     end_A = (end, 'horizontal')
     end_B = (end, 'vertical')
 
-    path_info = [find_path(duplicated_graph, start, end) 
-                    for start in [start_A, start_B] 
-                        for end in [end_A, end_B]]
+    path_info = []
+
+    try:
+        path_info.append(find_path(duplicated_graph, start_A, end_A) )
+    except:
+        pass
+    try:
+        path_info.append(find_path(duplicated_graph, start_A, end_B) )
+    except:
+        pass
+    try:
+        path_info.append(find_path(duplicated_graph, start_B, end_A) )
+    except:
+        pass
+    try:
+        path_info.append(find_path(duplicated_graph, start_B, end_B) )
+    except:
+        pass
+    
     
     # From list of paths' info, return the nodes
     # comprising the path w/ the lowest cost

@@ -242,16 +242,15 @@ def save_image_with_path_drawn(image_filename, new_filename, relevant_coords):
     on a copy of an image and saves the new image
     w/ a path drawn
     """
-    im_copy = load_color_image(f"{image_filename}") # create copy of image
+    im_copy = cv2.imread(image_filename) # create copy of image
     
     t_start = time.perf_counter()
     for pixel in relevant_coords:
-        set_pixel(im_copy, (255,0,0), *pixel) # color red
+        im_copy[pixel[1], pixel[0]] = [0,0,255]
     t_find_path = time.perf_counter()
     print(f"time: {t_find_path - t_start}")
     
-    save_color_image(im_copy, new_filename)
-    
+    cv2.imwrite(new_filename, im_copy)    
 
 def crop_image_cv2(filename, new_filename):
     """

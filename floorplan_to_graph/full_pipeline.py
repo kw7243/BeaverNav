@@ -10,6 +10,7 @@ from dijkstar import Graph, find_path
 from png_helper_methods import *
 from collections import deque
 import pickle
+import quickle
 import time
 from text_detection import text_detection_with_east
 import cairosvg
@@ -472,9 +473,11 @@ def create_graph():
     for i, png_file in enumerate(os.listdir(reduced_res_png_dir)):
         if png_file.split('_')[0] not in [str(i) for i in range(1, 21)]:
             continue
-        # if (i > 1):
-        #     continue
+        if f"{png_file[:-4]}_graph.pickle" in os.listdir(graph_storage_dir):
+            print( f"Already created Graph {i}: " + png_file[:-4] + '.png')
+            continue
         print(f"Creating Graph {i}: " + png_file[:-4] + '.png')
+        start_time = time.perf_counter()
 
         text_detection_with_east.drawTextNodes(f"{reduced_res_png_dir}/{png_file}", f"{reduced_res_png_dir}/{png_file}",
                                                f"{txt_dir}/{png_file[:-4]}.json", scale_factor=scaling_factors[png_file])
@@ -485,7 +488,8 @@ def create_graph():
 
         floorplan_graph = preprocessing_via_duplicate_graph(
             internal_rep, distances_to_black_dict)
-
+        end_time = time.perf_counter()
+        # print("Time taken to create graph: " +  str(start_time - end_time))
         with open(f"{graph_storage_dir}/{floorplan_name}_graph.pickle", "wb") as f:
             pickle.dump(floorplan_graph, f)
 
