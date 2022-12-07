@@ -21,15 +21,15 @@ with open( abstract_graph, 'r') as out:
     special_features = json.load(out)
 
 def main():
-    
     for graph_name in os.listdir(graph_storage_dir):
         floor_plan = graph_name[:-13]
         print(floor_plan)
-        if floor_plan != "1_1":
-            continue
+        # if floor_plan != "1_1":
+        #     continue
         if f"{floor_plan}_graph.pickle" in os.listdir(temp_dir):
             continue
         pixel_graph = pickle.load(open(graph_storage_dir + '/' + graph_name, 'rb'))
+        print("loaded")
         scaling_factor = scaling_factors[floor_plan + ".png"]
         with open(txt_dir + '/' + floor_plan + '.json', 'r') as f:
             room_locations = json.load(f)

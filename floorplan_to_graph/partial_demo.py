@@ -1,5 +1,5 @@
 import json
-import pickle
+import _pickle as pickle
 import path_finding_testing as pf
 from graph_class import Node, Internal_Graph
 from dijkstar import find_path
@@ -13,6 +13,8 @@ graph_storage_dir = "full_pipeline_files_test/graph_storage"
 txt_dir = "full_pipeline_files_test/text_locations"
 floorplan_name_graph_correspondence_dir = "full_pipeline_files_test/floorplan_name_graph_correspondence/floorplan_name_graph_correspondence.json"
 cropped_png_files_dir = "full_pipeline_files_test/cropped_png_files"
+
+graph_storage_dir = "full_pipeline_files_test/temp_files"
 
 
 def find_path_same_floor(start_location, end_location, floor_plan):
@@ -36,6 +38,7 @@ def find_path_same_floor(start_location, end_location, floor_plan):
     return pf.test_path_finding(cropped_png_files_dir, floor_plan,
                                 pixel_graph, start_location, end_location, scaling_factor)
 
+import time as time
 
 def main(start_building_room, destination_building_room):
     # start_building_room = "1-190"
@@ -43,6 +46,8 @@ def main(start_building_room, destination_building_room):
 
     # 1-190 --> 1-115
     # 1-190 --> 10-100LA
+    print("PATH_FINDING_STARTED")
+    start_time_all = time.perf_counter()
     list_of_messages = []
 
     start_building = start_building_room.split('-')[0]
@@ -75,6 +80,7 @@ def main(start_building_room, destination_building_room):
         dictionary['text'] = 'same floorplan'
         dictionary['image_data'] = filename
         list_of_messages.append(dictionary)
+        print("FULL TIME TAKEN: ",time.perf_counter() - start_time_all)
         return list_of_messages
 
     # find a path from supernodes corresponding to start floor plan to end floor plan
@@ -142,6 +148,7 @@ def main(start_building_room, destination_building_room):
         dictionary['image_data'] = filename
         list_of_messages.append(dictionary)
 
+    print("FULL TIME TAKEN: ",time.perf_counter() - start_time_all)
     return list_of_messages
 
 

@@ -10,7 +10,6 @@ from dijkstar import Graph, find_path
 from png_helper_methods import *
 from collections import deque
 import pickle
-import quickle
 import time
 from text_detection import text_detection_with_east
 import cairosvg
