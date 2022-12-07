@@ -8,11 +8,10 @@ import random
 
 graph_storage_dir = "full_pipeline_files_test/graph_storage"
 txt_dir = "full_pipeline_files_test/text_locations"
-floorplan_name_graph_correspondence_dir = "full_pipeline_files_test/floorplan_name_graph_correspondence/floorplan_name_graph_correspondence.json"
 cropped_png_files_dir = "full_pipeline_files_test/cropped_png_files"
 reduced_res_png_dir = "full_pipeline_files_test/graph_creation_reduced_res_png"
 temp_dir = "full_pipeline_files_test/temp_files"
-with open(floorplan_name_graph_correspondence_dir) as f:
+with open(f"{reduced_res_png_dir}/scaling_factors.json") as f:
     scaling_factors = json.load(f)
 abstract_graph = "full_pipeline_files_test/special_feature_coordinates.json"
 with open( abstract_graph, 'r') as out:
@@ -28,7 +27,7 @@ def main():
         if f"{floor_plan}_graph.pickle" in os.listdir(temp_dir):
             continue
         pixel_graph = pickle.load(open(graph_storage_dir + '/' + graph_name, 'rb'))
-        scaling_factor = scaling_factors[floor_plan][1]
+        scaling_factor = scaling_factors[floor_plan + ".png"]
         with open(txt_dir + '/' + floor_plan + '.json', 'r') as f:
             room_locations = json.load(f)
         special_feature_coords = special_features[floor_plan][floor_plan]
