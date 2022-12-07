@@ -64,7 +64,7 @@ def main():
                         unreachable_nodes[node_queue[0]] += 1
                         unreachable_nodes[node_queue[1]] += 1
                         random.shuffle(node_queue)
-                        if max(unreachable_nodes.value) < 3:
+                        if max(unreachable_nodes.values()) < 3:
                             continue
                     for (x,y), tag in path:
                         relevant_pixels.add((x,y))
