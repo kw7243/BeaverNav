@@ -1,8 +1,11 @@
 from ast import Str
+from collections import defaultdict
 from math import floor
 import os
 import pickle
 import json
+
+from traitlets import default
 from path_finding_prototype import *
 import random
 
@@ -44,6 +47,7 @@ def main():
             print("Iteration ")
             for iteration in range(2):
                 node_queue = room_locations.copy()
+                unreachable_nodes = defaultdict(0)
                 random.shuffle(node_queue)
                 while (len(node_queue) > 1):
                     start_location = node_queue[0][1]
@@ -54,9 +58,17 @@ def main():
                         end_location.split(',')[1][:-1]))
                     start_reduced = (int(start_location[0]//scaling_factor), int(start_location[1]//scaling_factor))
                     end_reduced = (int(end_location[0]//scaling_factor), int(end_location[1]//scaling_factor))
-                    path = Dijkstar_duplicated_graph(pixel_graph, start_reduced, end_reduced)
+                    try:
+                        path = Dijkstar_duplicated_graph(pixel_graph, start_reduced, end_reduced)
+                    except:
+                        unreachable_nodes[node_queue[0]] += 1
+                        unreachable_nodes[node_queue[1]] += 1
+                        random.shuffle(node_queue)
+                        if max(unreachable_nodes.value) < 3:
+                            continue
                     for (x,y), tag in path:
                         relevant_pixels.add((x,y))
+
                     node_queue.pop(0)
                     node_queue.pop(0)  
                     guarantee_check[start_location] = 1 
