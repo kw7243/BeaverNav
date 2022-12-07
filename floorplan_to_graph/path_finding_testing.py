@@ -75,7 +75,6 @@ def find_corners(path_low_res):
     corners = []
 
     for i in range(1, len(path_low_res)):
-
         curr_pixel = path_low_res[i]
         pixel_before = path_low_res[i-1]
 
@@ -104,7 +103,7 @@ def find_corners(path_low_res):
                 direction = 'horizontal'
                 corners.append(pixel_before)
                 continue
-    return path_low_res
+    return corners
 
 
 def map_corners_lowres_to_highres(path_low_res, r=16):
@@ -138,11 +137,11 @@ def test_path_finding(DIRECTORY, floor_plan, graph, start, end, reduction_factor
     high_res_image = cv2.imread(cropped_filename)
 
 # cv2.line(image, start_point, end_point, color, thickness)
-    for i in range(1, len(high_res_corners)-1):
+    for i in range(1, len(high_res_corners)):
         start_corner = high_res_corners[i-1]
         end_corner = high_res_corners[i]
-        high_res_image = cv2.line(
-            high_res_image, start_corner, end_corner, (0, 0, 255), int(reduction_factor))
+        high_res_image = cv2.arrowedLine(
+            high_res_image, start_corner, end_corner, (0, 0, 255), int(reduction_factor), tipLength=0.1)
     print("FULL DRAWING TIME IS: ", time.perf_counter() - start_time_drawing)
 
     cv2.imwrite(new_filename, high_res_image)
