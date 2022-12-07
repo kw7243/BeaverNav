@@ -8,6 +8,7 @@ from path_finding_prototype import *
 ########################
 results_dir = "full_pipeline_files_test/results"
 
+
 def ask_for_coords():
     """
     Appends user-given coordinates to list
@@ -22,7 +23,7 @@ def ask_for_coords():
             coords.append(coord)
         except ValueError as e:
             pass
-    
+
     return coords
 
 
@@ -31,7 +32,7 @@ def test_crop_and_reduce(DIRECTORY, floor_plan, reduction_factor=16):
     cropped_filename = f"{DIRECTORY}/{floor_plan}_cropped.png"
     reduced_filename = f"{DIRECTORY}/{floor_plan}_reduced.png"
 
-    try: # in case already cropped and reduced already
+    try:  # in case already cropped and reduced already
         return load_color_image(reduced_filename)
 
     except FileNotFoundError as e:
@@ -40,11 +41,12 @@ def test_crop_and_reduce(DIRECTORY, floor_plan, reduction_factor=16):
         end_crop = time.perf_counter()
         print(f"Crop time: {end_crop - start}")
 
-        reduced = reduce_resolution(cropped, reduced_filename, reduction_factor)
+        reduced = reduce_resolution(
+            cropped, reduced_filename, reduction_factor)
         end_reduce = time.perf_counter()
         print(f"Reduce time: {end_reduce - end_crop}")
         print(f"Total time: {end_reduce - start}")
-        return reduced  
+        return reduced
 
 
 def test_duplicate_graph(DIRECTORY, floor_plan, reduced_im):
@@ -57,8 +59,57 @@ def test_duplicate_graph(DIRECTORY, floor_plan, reduced_im):
     # Save graph to pickle file
     with open(f"{DIRECTORY}/{floor_plan}_graph.pickle", "wb") as f:
         pickle.dump(graph, f)
-    
+
     return graph
+
+
+def find_corners(path_low_res):
+    '''
+    Takes in the low resolution path (representing a list of pixels that must be traversed)
+    Returns a sequence of pixels representing the CORNERS ONLY in the path
+    '''
+
+    path_low_res = [coord for coord, tag in path_low_res]
+
+    direction = None
+    corners = []
+
+    for i in range(1, len(path_low_res)):
+
+        curr_pixel = path_low_res[i]
+        pixel_before = path_low_res[i-1]
+
+        vertical_diff = abs(curr_pixel[0] - pixel_before[0])
+        horizontal_diff = abs(curr_pixel[1] - pixel_before[1])
+
+        if direction == 'vertical':
+            if horizontal_diff == 1:
+                corners.append(pixel_before)
+                direction = 'horizontal'
+                continue
+
+        elif direction == 'horizontal':
+            if vertical_diff == 1:
+                corners.append(pixel_before)
+                direction = 'vertical'
+                continue
+
+        elif direction == None:
+            if vertical_diff == 1:
+                direction = 'vertical'
+                corners.append(pixel_before)
+                continue
+
+            elif horizontal_diff == 1:
+                direction = 'horizontal'
+                corners.append(pixel_before)
+                continue
+    return path_low_res
+
+
+def map_corners_lowres_to_highres(path_low_res, r=16):
+    return [(x*r, y*r)
+            for (x, y) in path_low_res]
 
 
 def test_path_finding(DIRECTORY, floor_plan, graph, start, end, reduction_factor=16):
@@ -66,29 +117,67 @@ def test_path_finding(DIRECTORY, floor_plan, graph, start, end, reduction_factor
     Given a graph, a start and end coordinate on the UNALTERED IMAGE,
     return an image w/ the shortest path drawn between start and end
     """
-    start_reduced = (int(start[0]//reduction_factor), int(start[1]//reduction_factor))
-    end_reduced = (int(end[0]//reduction_factor), int(end[1]//reduction_factor))
+    start_reduced = (int(start[0]//reduction_factor),
+                     int(start[1]//reduction_factor))
+    end_reduced = (int(end[0]//reduction_factor),
+                   int(end[1]//reduction_factor))
 
     # Get path
-    t_start = time.perf_counter()
     path_low_res = Dijkstar_duplicated_graph(graph, start_reduced, end_reduced)
-    t_find_path = time.perf_counter()
-    print(f"Dijkstar find_path (duplicated graph) time: {t_find_path - t_start}")
 
-    path_high_res = expand_coords(path_low_res, int(reduction_factor))
-    t_expand_coords = time.perf_counter()
-    print(f"Expanding coords time: {t_expand_coords - t_find_path}")
+    start_time_drawing = time.perf_counter()
+    print("DRAWING IMAGE PROCEDURES STARTED: ")
+    corners = find_corners(path_low_res)
 
-    # Draw path onto CROPPED image
+    high_res_corners = map_corners_lowres_to_highres(
+        corners, r=int(reduction_factor))
+
     cropped_filename = f"{DIRECTORY}/{floor_plan}.png"
     new_filename = f"{results_dir}/{floor_plan}_{start}_{end}_path.png"
 
-    save_image_with_path_drawn(cropped_filename, new_filename, path_high_res)
-    print(f"Draw path time: {time.perf_counter() - t_expand_coords}")
+    high_res_image = cv2.imread(cropped_filename)
 
-    print(f"User interface time: {time.perf_counter() - t_start}")
+# cv2.line(image, start_point, end_point, color, thickness)
+    for i in range(1, len(high_res_corners)-1):
+        start_corner = high_res_corners[i-1]
+        end_corner = high_res_corners[i]
+        high_res_image = cv2.line(
+            high_res_image, start_corner, end_corner, (0, 0, 255), int(reduction_factor))
+    print("FULL DRAWING TIME IS: ", time.perf_counter() - start_time_drawing)
+
+    cv2.imwrite(new_filename, high_res_image)
 
     return new_filename
+
+
+# def test_path_finding(DIRECTORY, floor_plan, graph, start, end, reduction_factor=16):
+#     """
+#     Given a graph, a start and end coordinate on the UNALTERED IMAGE,
+#     return an image w/ the shortest path drawn between start and end
+#     """
+#     start_reduced = (int(start[0]//reduction_factor), int(start[1]//reduction_factor))
+#     end_reduced = (int(end[0]//reduction_factor), int(end[1]//reduction_factor))
+
+#     # Get path
+#     t_start = time.perf_counter()
+#     path_low_res = Dijkstar_duplicated_graph(graph, start_reduced, end_reduced)
+#     t_find_path = time.perf_counter()
+#     print(f"Dijkstar find_path (duplicated graph) time: {t_find_path - t_start}")
+
+#     path_high_res = expand_coords(path_low_res, int(reduction_factor))
+#     t_expand_coords = time.perf_counter()
+#     print(f"Expanding coords time: {t_expand_coords - t_find_path}")
+
+#     # Draw path onto CROPPED image
+#     cropped_filename = f"{DIRECTORY}/{floor_plan}.png"
+#     new_filename = f"{results_dir}/{floor_plan}_{start}_{end}_path.png"
+
+#     save_image_with_path_drawn(cropped_filename, new_filename, path_high_res)
+#     print(f"Draw path time: {time.perf_counter() - t_expand_coords}")
+
+#     print(f"User interface time: {time.perf_counter() - t_start}")
+
+#     return new_filename
 
 
 def test_full(DIRECTORY, floor_plan, reduction_factor=16):
@@ -115,7 +204,8 @@ def test_full(DIRECTORY, floor_plan, reduction_factor=16):
         graph = test_duplicate_graph(DIRECTORY, floor_plan, reduced)
 
     for start, end in zip(start_coords, end_coords):
-        test_path_finding(DIRECTORY, floor_plan, graph, start, end, reduction_factor)
+        test_path_finding(DIRECTORY, floor_plan, graph,
+                          start, end, reduction_factor)
 
 
 def test():
@@ -132,9 +222,9 @@ def test():
 
     # with open(f"{DIRECTORY}/{floor_plan}_after_distances.pickle", "rb") as f:
     #     after = pickle.load(f)
-    
+
     # save_image_with_path_drawn(f"{DIRECTORY}/{floor_plan}_cropped.png", f"{DIRECTORY}/{floor_plan}_distances.png", expand_coords(after.keys()))
+
 
 if __name__ == "__main__":
     test()
-
