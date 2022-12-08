@@ -84,7 +84,7 @@ threshP = 400 # try 200, or 350
 thresh_svg = 20
 
 
-# r = easyocr.Reader(['en'])
+r = easyocr.Reader(['en'])
 # pipeline = keras_ocr.pipeline.Pipeline()
 
 
@@ -857,7 +857,7 @@ def recognizeTextWithKerasOCR(img):
 		(text,box) = boxes[0]
 	return text.upper()
 
-def recognizeText(orig, boxes, google = False, pytess = False, tess = False, easy = True, keras = False, scale = True, smoothen = True):
+def recognizeText(orig, boxes, google = False, pytess = False, tess = False, easy = True, keras = False, scale = True, smoothen = True, offset = [0,0]):
 	results = []
 	(H,W) = orig.shape[:2]
 	im = orig.copy()
@@ -866,7 +866,7 @@ def recognizeText(orig, boxes, google = False, pytess = False, tess = False, eas
 		height = endY - startY
 		width = endX - startX
 		# ROI to be recognized
-		roi = orig[startY:endY,startX:endX]
+		roi = orig[startY + offset[0]:endY+ offset[0],startX + offset[1]:endX+ offset[1]]
 
 		roi = addBorder(roi, 50)
 
@@ -993,7 +993,7 @@ def processText(results, floor_num):
 	return rooms, elevators, stairs, bathrooms, others
 
 
-def getText(lines_img_filename, no_lines_cropped_img_filename, bbox_filename, txt_img_destination,txt_destination, google = False, pytess = False, tess = False, easy = False, keras = True, scale = False, smoothen = False):
+def getText(lines_img_filename, no_lines_cropped_img_filename, bbox_filename, txt_img_destination,txt_destination, offset = [0,0], google = False, pytess = False, tess = False, easy = False, keras = True, scale = False, smoothen = False):
 	start = time.time()
 	floor = lines_img_filename.split("/")[-1][:-4]
 	floor_num = floor.split('_')[-1][-1]
@@ -1006,7 +1006,7 @@ def getText(lines_img_filename, no_lines_cropped_img_filename, bbox_filename, tx
 	with open(bbox_filename, 'r') as handle:
 		boxes = json.load(handle)
 
-	im, results = recognizeText(im, boxes, google, pytess, tess, easy, keras, scale, smoothen)
+	im, results = recognizeText(im, boxes, google, pytess, tess, easy, keras, scale, smoothen, offset = offset)
 
 	rooms, elevators, stairs, bathrooms, others = processText(results, floor_num)
 

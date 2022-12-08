@@ -29,6 +29,7 @@ svg_originals_dir = "full_pipeline_files_test/svg_original_files"
 svg_doors_dots_removed_dir = "full_pipeline_files_test/doors_dots_removed_svg"
 svg_doors_dots_removed_dir_temp = "full_pipeline_files_test/doors_dots_removed_svg_temp"
 cropped_png_files_dir = "full_pipeline_files_test/cropped_png_files"
+cropped_pristine_png_files_dir = "full_pipeline_files_test/cropped_pristine_png_files"
 reduced_res_png_dir = "full_pipeline_files_test/graph_creation_reduced_res_png"
 graph_storage_dir = "full_pipeline_files_test/graph_storage"
 non_text_pngs_dir = "full_pipeline_files_test/non_text_cropped_pngs"
@@ -37,7 +38,7 @@ cropped_png_no_lines_dir = "full_pipeline_files_test/no_lines_cropped_pngs"
 bbox_dir = "full_pipeline_files_test/bounding_boxes"
 modified_png_dir = "full_pipeline_files_test/boxed_text_pngs"
 txt_png_dir = "full_pipeline_files_test/pngs_with_recognized_text"
-txt_dir = "full_pipeline_files_test/text_locations"
+txt_dir = "full_pipeline_files_test/raw_text_locations"
 floorplan_name_graph_correspondence_dir = "full_pipeline_files_test/floorplan_name_graph_correspondence"
 cropped_pristine_png_files = "full_pipeline_files_test/cropped_pristine_png_files"
 cropping_offsets = "full_pipeline_files_test/cropping_offsets"
@@ -418,14 +419,17 @@ def recognize_text():
     print("****************")
     print("STEP 5 HAS BEGUN: RECOGNIZING TEXT")
     print("****************")
+    with open(f"{cropping_offsets}/offsets.json") as f:
+        offsets = json.load(f)
     for i, floorplan in enumerate(os.listdir(modified_png_dir)):
         if f"{floorplan[:-4]}.png" in os.listdir(txt_png_dir) or "DS" in floorplan:
             print(
                 f"Already recognized text on number {i}: " + floorplan[:-4] + '.png')
             continue
         print(f"Recognizing text on number {i}: " + floorplan[:-4] + '.png')
-        text_detection_with_east.getText(f"{cropped_png_files_dir}/{floorplan[:-4]}.png", f"{cropped_png_no_lines_dir}/{floorplan[:-4]}.png",
-                                         f"{bbox_dir}/{floorplan[:-4]}.json", f"{txt_png_dir}/{floorplan[:-4]}.png", f"{txt_dir}/{floorplan[:-4]}.json", easy=True, keras=False)
+        offset = offsets[floorplan[:-4]]
+        text_detection_with_east.getText(f"{cropped_png_files_dir}/{floorplan[:-4]}.png", f"{cropped_pristine_png_files}/{floorplan[:-4]}.png",
+                                         f"{bbox_dir}/{floorplan[:-4]}.json", f"{txt_png_dir}/{floorplan[:-4]}.png", f"{txt_dir}/{floorplan[:-4]}.json", easy=True, keras=False, offset = offset)
     print("DONE WITH STEP 5. TIME TAKEN: ", time.perf_counter() - start_time)
 
 
