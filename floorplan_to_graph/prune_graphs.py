@@ -19,6 +19,7 @@ with open(f"{reduced_res_png_dir}/scaling_factors.json") as f:
 abstract_graph = "full_pipeline_files_test/special_feature_coordinates.json"
 with open( abstract_graph, 'r') as out:
     special_features = json.load(out)
+random.seed(10) # for reproducibility
 
 def main():
     for graph_name in os.listdir(graph_storage_dir):
@@ -26,14 +27,18 @@ def main():
         print(floor_plan)
         # if floor_plan != "1_1":
         #     continue
-        if f"{floor_plan}_graph.pickle" in os.listdir(temp_dir):
+        if f"{floor_plan}_graph.pickle" in os.listdir(temp_dir) or len(floor_plan) < 1:
             continue
         pixel_graph = pickle.load(open(graph_storage_dir + '/' + graph_name, 'rb'))
         print("loaded")
         scaling_factor = scaling_factors[floor_plan + ".png"]
         with open(txt_dir + '/' + floor_plan + '.json', 'r') as f:
             room_locations = json.load(f)
-        special_feature_coords = special_features[floor_plan][floor_plan]
+        try:
+            special_feature_coords = special_features[floor_plan][floor_plan]
+        except:
+            print(f"Floor plan {floor_plan} hasn't been labelled with special features ")
+            continue
         for node_type in special_feature_coords:
             if node_type not in ['sa', 'ea']:
                 for coord_set in special_feature_coords[node_type]:
@@ -43,11 +48,13 @@ def main():
         relevant_pixels = set()
         relevant_nodes = set()
         guarantee_check = {}
-        while len(guarantee_check) < len(room_locations):
+        iteration = 0 # make sure that the program doesn't get held up on some irrelevant floorplan
+        while len(guarantee_check) < len(room_locations) and iteration < 2:
             print("Iteration ")
-            for iteration in range(2):
+            iteration += 1
+            for iteration in range(1):
                 node_queue = room_locations.copy()
-                unreachable_nodes = defaultdict(0)
+                unreachable_nodes = defaultdict(lambda: 0)
                 random.shuffle(node_queue)
                 while (len(node_queue) > 1):
                     start_location = node_queue[0][1]
@@ -61,13 +68,19 @@ def main():
                     try:
                         path = Dijkstar_duplicated_graph(pixel_graph, start_reduced, end_reduced)
                     except:
-                        unreachable_nodes[node_queue[0]] += 1
-                        unreachable_nodes[node_queue[1]] += 1
+                        print("failed to find a path between", node_queue[0], node_queue[1])
+                        unreachable_nodes[start_location] += 1
+                        unreachable_nodes[end_location] += 1
                         random.shuffle(node_queue)
                         if max(unreachable_nodes.values()) < 3:
                             continue
+                        path = []
                     for (x,y), tag in path:
                         relevant_pixels.add((x,y))
+                        # relevant_pixels.add((x,y-1))
+                        # relevant_pixels.add((x,y+1))
+                        # relevant_pixels.add((x-1,y))
+                        # relevant_pixels.add((x+1,y))
 
                     node_queue.pop(0)
                     node_queue.pop(0)  
@@ -90,6 +103,6 @@ def main():
 
 if __name__ == '__main__':
     start_time = time.perf_counter()
-    output = main()
+    main()
     end_time = time.perf_counter()
     print("TIME TAKEN TO PRUNE GRAPH", end_time - start_time)
