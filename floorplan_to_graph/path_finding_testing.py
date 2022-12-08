@@ -103,6 +103,10 @@ def find_corners(path_low_res):
                 direction = 'horizontal'
                 corners.append(pixel_before)
                 continue
+
+    # THIS WAS THE FIX!!!
+    corners.append(curr_pixel)
+
     return corners
 
 
