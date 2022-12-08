@@ -5,7 +5,6 @@ import os
 import pickle
 import json
 
-from traitlets import default
 from path_finding_prototype import *
 import random
 
@@ -33,6 +32,9 @@ def main():
         # if floor_plan.split('_')[1] not in ['1', '2']:
         #     # print(floor_plan.split('-')[1])
         #     continue
+        vasu_buildings = [i for i in range(1, 17)] + [26]
+        if int(floor_plan.split('_')[0]) not in vasu_buildings:
+            continue
         if f"{floor_plan}_graph.pickle" in os.listdir(temp_dir):
             continue
         pixel_graph = pickle.load(
@@ -78,8 +80,8 @@ def main():
                         path = Dijkstar_duplicated_graph(
                             pixel_graph, start_reduced, end_reduced)
                     except:
-                        unreachable_nodes[node_queue[0]] += 1
-                        unreachable_nodes[node_queue[1]] += 1
+                        unreachable_nodes[tuple(node_queue[0])] += 1
+                        unreachable_nodes[tuple(node_queue[1])] += 1
                         random.shuffle(node_queue)
                         if max(unreachable_nodes.values()) < 3:
                             continue
