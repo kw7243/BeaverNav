@@ -53,7 +53,7 @@ def main():
         while len(guarantee_check) < len(room_locations) and iteration < 2:
             print("Iteration ")
             iteration += 1
-            for iteration in range(1):
+            for iteration in range(2):
                 node_queue = room_locations.copy()
                 unreachable_nodes = defaultdict(lambda: 0)
                 random.shuffle(node_queue)
