@@ -84,7 +84,7 @@ threshP = 400 # try 200, or 350
 thresh_svg = 20
 
 
-r = easyocr.Reader(['en'])
+# r = easyocr.Reader(['en'])
 # pipeline = keras_ocr.pipeline.Pipeline()
 
 

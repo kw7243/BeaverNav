@@ -29,9 +29,6 @@ def main():
         #     continue
         if f"{floor_plan}_graph.pickle" in os.listdir(temp_dir) or len(floor_plan) < 1:
             continue
-        pixel_graph = pickle.load(
-            open(graph_storage_dir + '/' + graph_name, 'rb'))
-        print("loaded")
         scaling_factor = scaling_factors[floor_plan + ".png"]
         with open(txt_dir + '/' + floor_plan + '.json', 'r') as f:
             room_locations = json.load(f)
@@ -40,6 +37,9 @@ def main():
         except:
             print(f"Floor plan {floor_plan} hasn't been labelled with special features ")
             continue
+        pixel_graph = pickle.load(
+            open(graph_storage_dir + '/' + graph_name, 'rb'))
+        print("loaded")
         for node_type in special_feature_coords:
             if node_type not in ['sa', 'ea']:
                 for coord_set in special_feature_coords[node_type]:
@@ -49,10 +49,10 @@ def main():
         relevant_pixels = set()
         relevant_nodes = set()
         guarantee_check = {}
-        iteration = 0 # make sure that the program doesn't get held up on some irrelevant floorplan
-        while len(guarantee_check) < len(room_locations) and iteration < 2:
-            print("Iteration ")
-            iteration += 1
+        iter = 0 # make sure that the program doesn't get held up on some irrelevant floorplan
+        while len(guarantee_check) < len(room_locations) and iter < 2:
+            print("Iteration ", iter)
+            iter += 1
             for iteration in range(2):
                 node_queue = room_locations.copy()
                 unreachable_nodes = defaultdict(lambda: 0)

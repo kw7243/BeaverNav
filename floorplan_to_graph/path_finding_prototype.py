@@ -129,7 +129,11 @@ def Dijkstar_duplicated_graph(duplicated_graph, start, end):
         path_info.append(find_path(duplicated_graph, start_B, end_B) )
     except:
         pass
-    
+
+    if len(path_info) == 0:
+        # to throw error
+        path_info.append(find_path(duplicated_graph, start_A, end_A) )
+
     
     # From list of paths' info, return the nodes
     # comprising the path w/ the lowest cost

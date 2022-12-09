@@ -9,7 +9,7 @@ results_dir = "full_pipeline_files_test/results"
 abstract_graph_path = "full_pipeline_files_test/abstract_graph.pickle"
 with open(abstract_graph_path, 'rb') as f:
     abstract_graph = pickle.load(f)
-graph_storage_dir = "full_pipeline_files_test/graph_storage"
+graph_storage_dir = "full_pipeline_files_test/temp_files"
 txt_dir = "full_pipeline_files_test/text_locations"
 floorplan_name_graph_correspondence_dir = "full_pipeline_files_test/floorplan_name_graph_correspondence/floorplan_name_graph_correspondence.json"
 cropped_png_files_dir = "full_pipeline_files_test/cropped_png_files"
