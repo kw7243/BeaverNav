@@ -45,8 +45,8 @@ export function get(endpoint, params = {}) {
 // Returns a Promise to a JSON Object.
 export function post(endpoint, params = {}) {
   return fetch(endpoint, {
-    method: "post",
-    headers: { "Content-type": "application/json" },
+    method: "POST",
+    headers: { "content-type": "application/json" },
     body: JSON.stringify(params),
   })
     .then(convertToJSON) // convert result to JSON object

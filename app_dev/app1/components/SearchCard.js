@@ -24,13 +24,10 @@ const SearchCard = () => {
             placeholder="Start location?"
             style={tw`mx-5 p-2 bg-gray-200 flex-none text-lg rounded-md`}
             onChangeText={(text) => setStartLocation(text)}
-            onSubmitEditing={() => {
+            onChange={(e) => {
               // dispatch setOrigin ACTION to Redux slice
               // send up location and name of chosen origin
-              dispatch(setOrigin({
-                location: {lat: 42.360001, lng: -71.099003}, 
-                // description: data.description
-              }));
+              dispatch(setOrigin(e.nativeEvent.text));
               
               // reset destination in case of back and forth
               dispatch(setDestination(null)); 
@@ -40,13 +37,9 @@ const SearchCard = () => {
             placeholder="Where to?"
             style={tw`mx-5 my-5 p-2 bg-gray-200 flex-none text-lg rounded-md`}
             onChangeText={(text) => setEndLocation(text)}
-            onSubmitEditing={() => {
+            onChange={(e) => {
               // dispatch setOrigin ACTION to Redux slice
-              dispatch(setDestination({
-              	location: {lat: 42.37001, lng: -71.084003}, 
-              	// description: data.description
-              }));
-              
+              dispatch(setDestination(e.nativeEvent.text));
               // if (endLocation) navigation.navigate("RideOptionsCard");
             }}
           />

@@ -39,7 +39,7 @@ const DirectionsCard = (props) => {
         <View style={tw`flex-auto`}>
             <View style={tw`flex py-3 px-5 bg-black bg-opacity-80`}>
                 <Text style={tw`text-center text-white font-bold text-xl`}> 
-                    Walk to {props.floorPlanQueries[props.index].end}
+                    {props.index < props.floorPlanQueries.length && props.floorPlanQueries[props.index].text}
                 </Text>
             </View>
             <SafeAreaView style={tw`flex-none absolute bottom-0 inset-x-0 flex-row justify-between`}>
