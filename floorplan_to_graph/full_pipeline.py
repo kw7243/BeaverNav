@@ -474,7 +474,8 @@ def create_graph():
     with open(reduced_res_png_dir + '/scaling_factors.json', 'r') as out:
         scaling_factors = json.load(out)
     for i, png_file in enumerate(os.listdir(reduced_res_png_dir)):
-        if png_file.split('_')[0] not in [str(i) for i in range(1, 21)]:
+        if png_file.split('_')[0] not in [str(i) for i in range(17,100)]:
+            print( f"Skipping Graph {i}: " + png_file[:-4] + '.png')
             continue
         if f"{png_file[:-4]}_graph.pickle" in os.listdir(graph_storage_dir):
             print( f"Already created Graph {i}: " + png_file[:-4] + '.png')
