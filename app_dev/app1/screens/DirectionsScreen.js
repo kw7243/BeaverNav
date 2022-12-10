@@ -11,7 +11,7 @@ import { selectOrigin, selectDestination } from '../slices/navSlice';
 
 const DirectionsScreen = () => {
     const START_REQUEST_URL = "http://45.33.64.67/route";
-    const REQUEST_IMAGE_URL = "http://45.33.64.67/route/images";
+    const REQUEST_IMAGE_URL = "http://45.33.64.67/route/image";
 
     // `index` tracks the current floor plan and displayed directions
     const [index, setIndex] = useState(0);
@@ -53,15 +53,22 @@ const DirectionsScreen = () => {
         console.log(floorPlanQueries.length)
         if (index < floorPlanQueries.length) {
             console.log('getting image')
-            console.log(floorPlanQueries[index].image_filepath)
+            console.log(floorPlanQueries[index].image_data)
             
-            fetch(`${REQUEST_IMAGE_URL}?path=${encodeURIComponent(floorPlanQueries[index].image_filepath)}`).then(res => {
-                res.blob().then(blob => {
-                    // Look at https://stackoverflow.com/questions/38506971/react-native-populate-image-with-blob-that-has-been-converted-to-a-url
-                    
-
-                })
-            })
+            // fetch(`${REQUEST_IMAGE_URL}?path=${encodeURIComponent(floorPlanQueries[index].image_data)}`).then(res => {
+            //     res.blob().then(blob => {
+            //         // Look at https://stackoverflow.com/questions/38506971/react-native-populate-image-with-blob-that-has-been-converted-to-a-url
+            //         const reader = new FileReader();
+            //         reader.readAsDataURL(blob);
+            //         reader.onloadend = function() {
+            //             const base64Data = reader.result;
+            //             console.log(`data:image/png;base64,${base64Data}`);
+            //             setFloorPlanImg(`data:image/png;base64,${base64Data}`);
+            //         };
+            //     })
+                
+            //     // res.text().then(base64 => setFloorPlanImg(base64))
+            // })
         }
     }, [floorPlanQueries])
 
@@ -71,15 +78,16 @@ const DirectionsScreen = () => {
         <View>
             <View style={[tw`flex-initial h-5/6`]}>
                 {
-                floorPlanImg !== undefined &&
+                floorPlanQueries[index] !== undefined &&
                 <Image 
                     style={{
                         width: "100%",
                         height: "100%",
-                        aspectRatio: 1,
-                    }}
+                    }} 
                     resizeMode="contain"
-                    source={{ uri: floorPlanImg }}
+                    source={{
+                        uri: `${REQUEST_IMAGE_URL}?path=${encodeURIComponent(floorPlanQueries[index].image_data)}`
+                    }}
                 />
                 }
                 {/* <Map/> */}
