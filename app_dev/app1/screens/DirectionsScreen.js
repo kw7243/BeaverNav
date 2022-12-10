@@ -5,6 +5,7 @@ import DirectionsCard from '../components/DirectionsCard';
 import Map from '../components/Map';
 import tw from 'tailwind-react-native-classnames';
 
+
 import { useSelector } from 'react-redux';
 import { selectOrigin, selectDestination } from '../slices/navSlice';
 
@@ -53,15 +54,12 @@ const DirectionsScreen = () => {
         if (index < floorPlanQueries.length) {
             console.log('getting image')
             console.log(floorPlanQueries[index].image_filepath)
+            
             fetch(`${REQUEST_IMAGE_URL}?path=${encodeURIComponent(floorPlanQueries[index].image_filepath)}`).then(res => {
                 res.blob().then(blob => {
                     // Look at https://stackoverflow.com/questions/38506971/react-native-populate-image-with-blob-that-has-been-converted-to-a-url
-                    const reader = new FileReader();
-                    reader.readAsDataURL(blob);
-                    reader.onloadend = () => {
-                        console.log(reader.result)
-                        setFloorPlanImg(reader.result)
-                    }
+                    
+
                 })
             })
         }
