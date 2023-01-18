@@ -93,7 +93,7 @@ const DirectionsScreen = () => {
                 {/* <Map/> */}
             </View>
             <View style={tw`h-1/6`}>
-                <DirectionsCard 
+                <DirectionsCard
                     floorPlanQueries={floorPlanQueries}
                     index={index}
                     setIndex={setIndex}
