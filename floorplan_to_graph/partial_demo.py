@@ -11,7 +11,7 @@ with open(abstract_graph_path, 'rb') as f:
     abstract_graph = pickle.load(f)
 graph_storage_dir = "full_pipeline_files_test/temp_files"
 txt_dir = "full_pipeline_files_test/text_locations"
-floorplan_name_graph_correspondence_dir = "full_pipeline_files_test/floorplan_name_graph_correspondence/floorplan_name_graph_correspondence.json"
+floorplan_name_graph_correspondence_dir = "full_pipeline_files_test/graph_creation_reduced_res_png/scaling_factors.json"
 cropped_png_files_dir = "full_pipeline_files_test/cropped_png_files"
 
 graph_storage_dir = "full_pipeline_files_test/temp_files"
@@ -30,7 +30,7 @@ def find_path_same_floor(start_location, end_location, floor_plan):
     # get scaling factor
     with open(floorplan_name_graph_correspondence_dir) as f:
         scaling_factors = json.load(f)
-    scaling_factor = scaling_factors[floor_plan][1]
+    scaling_factor = scaling_factors[floor_plan + '.png']
     # print(scaling_factor)
     # scale locations
     # get graph
@@ -98,17 +98,29 @@ def main(start_building_room, destination_building_room):
     # returns a list of Node objects on that path
     # run individual path finding on 0-1, 2-3, 2i -> 2i + 1
 
+    def staircase_instruction(node, next_node):
+        if node.type == 'sh':
+            return f"\nTake staircase to floor {next_node.floor}."
+        elif node.type == 'eh':
+            return f"\nTake elevator to floor {next_node.floor}."
+        else:
+            return ''
+
+    print(nodes)
     for i in range(len(nodes)//2):
         dictionary = {}
 
         if i == 0:
             floor_plan = str(start_building) + "_" + str(start_floor)
-            print("Starting at Building", str(start_building),
-                  "and Floor", str(start_floor))
+            print("Starting at Building ", str(start_building),
+                  " and Floor ", str(start_floor))
 
-            dictionary['text'] = "Starting at Building" + \
-                str(start_building) + "and Floor" + str(start_floor)
+            dictionary['text'] = "Starting at Building " + \
+                str(start_building) + " and Floor " + str(start_floor)
             ee_location = nodes[2*i + 1].coordinates
+            if len(nodes) >= 2:
+                dictionary['text'] += staircase_instruction(nodes[2*i + 1], nodes[2*i + 3])
+                print(dictionary['text'])
             # print(ee_location)
             filename = find_path_same_floor(
                 start_location, ee_location, floor_plan)
@@ -119,11 +131,11 @@ def main(start_building_room, destination_building_room):
         if i == len(nodes)//2 - 1:
             floor_plan = str(destination_building) + \
                 "_" + str(destination_floor)
-            print("End at Building", str(destination_building),
-                  "and Floor", str(destination_floor))
-            dictionary['text'] = "End at Building" + \
+            print("End at Building ", str(destination_building),
+                  " and Floor ", str(destination_floor))
+            dictionary['text'] = " End at Building " + \
                 str(destination_building) + \
-                "and Floor" + str(destination_floor)
+                " and Floor " + str(destination_floor)
             ee_location = nodes[2*i].coordinates
             # print(ee_location)
             filename = find_path_same_floor(
@@ -137,11 +149,12 @@ def main(start_building_room, destination_building_room):
 
         ee_location1 = nodes[2*i].coordinates
         ee_location2 = nodes[2*i+1].coordinates
-        print("Then go to Building", str(
-            nodes[2*i].building), "and Floor", str(nodes[2*i].floor))
+        print("Then go to Building ", str(
+            nodes[2*i].building), " and Floor ", str(nodes[2*i].floor))
 
-        dictionary['text'] = "Then go to Building" + \
-            str(nodes[2*i].building) + "and Floor" + str(nodes[2*i].floor)
+        dictionary['text'] = "Then go to Building " + \
+            str(nodes[2*i].building) + " and Floor " + str(nodes[2*i].floor) + staircase_instruction(nodes[2*i + 1], nodes[2*i + 3])
+        print(dictionary['text'])
         floor_plan = str(nodes[2*i].building)+'_'+str(nodes[2*i].floor)
         # print(ee_location1,ee_location2)
         filename = find_path_same_floor(ee_location1, ee_location2, floor_plan)

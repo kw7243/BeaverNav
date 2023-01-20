@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@reduxjs/toolkit": "^1.8.4",
+    "react-native-safe-area-context": "^4.3.1"
+  }
+}

@@ -132,13 +132,42 @@ def test_path_finding(DIRECTORY, floor_plan, graph, start, end, reduction_factor
     print("DRAWING IMAGE PROCEDURES STARTED: ")
     corners = find_corners(path_low_res)
 
+    print("floorplan is: ",floor_plan)
+    if floor_plan == '8_1':
+        reduction_factor = 17
+    
     high_res_corners = map_corners_lowres_to_highres(
-        corners, r=int(reduction_factor))
+            corners, r=int(reduction_factor))
 
     cropped_filename = f"{DIRECTORY}/{floor_plan}.png"
     new_filename = f"{results_dir}/{floor_plan}_{start}_{end}_path.png"
 
     high_res_image = cv2.imread(cropped_filename)
+
+    # Drawing start/end locations
+    start_loc = high_res_corners[0]
+    end_loc = high_res_corners[-1]
+
+    cv2.circle(high_res_image, start_loc, 5 *
+               int(reduction_factor), (255, 0, 0), -1)
+    cv2.circle(high_res_image, start_loc, 5*int(reduction_factor),
+               (255, 255, 255), int(1*(reduction_factor)))
+    cv2.circle(high_res_image, start_loc, 5*int(reduction_factor),
+               (0, 0, 0), int(0.5*(reduction_factor)))
+
+    rows, cols = high_res_image.shape[:2]
+    print((int(0.05*rows), int(0.95*cols)))
+    cv2.putText(high_res_image, 'Start', (int(0.9*cols), int(0.1*rows)), cv2.FONT_HERSHEY_SIMPLEX, int(
+        reduction_factor/2), (255, 0, 0), int(2*reduction_factor), cv2.LINE_AA)
+    cv2.putText(high_res_image, 'End', (int(0.9*cols), int(0.2*rows)), cv2.FONT_HERSHEY_SIMPLEX, int(
+        reduction_factor/2), (55, 175, 212), int(2*reduction_factor), cv2.LINE_AA)
+
+    cv2.circle(high_res_image, end_loc, 5 *
+               int(reduction_factor), (55, 175, 212), -1)
+    cv2.circle(high_res_image, end_loc, 5*int(reduction_factor),
+               (55, 175, 212), int(1*(reduction_factor)))
+    cv2.circle(high_res_image, end_loc, 5*int(reduction_factor),
+               (255, 255, 255), int(0.5*(reduction_factor)))
 
 # cv2.line(image, start_point, end_point, color, thickness)
     for i in range(1, len(high_res_corners)):
