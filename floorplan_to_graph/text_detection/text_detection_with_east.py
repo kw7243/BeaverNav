@@ -37,7 +37,7 @@ import keras_ocr
 # PARAMS
 
 # FILE INPUT parameters - used for testing
-mypath = beavernav + '/PDF_floor_plans'
+mypath = beavernav + 'backend_file_storage/PDF_floor_plans'
 mod = beavernav + '/text_detection/modified_png_floor_plans'
 nontextpngs = beavernav + "/text_detection/nontext_PNG_floor_plans"
 cropped_png_dir = beavernav + "/cropped_png_floor_plans"
@@ -45,7 +45,7 @@ txt_png_dir = beavernav + "/text_detection/text_png_floor_plans"
 bbox_dir = beavernav + '/text_detection/text_bounding_boxes'
 txt_dir = beavernav + '/text_detection/text_files'
 png_dir = beavernav + '/png_floor_plans'
-svg_dir = beavernav + '/SVG_floor_plans'
+svg_dir = beavernav + '/svg_original_files'
 mod_svg_dir = beavernav + '/text_detection/modified_svg_floor_plans'
 png_no_lines_dir = beavernav+'/text_detection/png_lines_removed'
 cropped_png_no_lines_dir = beavernav + '/text_detection/cropped_lines_removed_pngs'

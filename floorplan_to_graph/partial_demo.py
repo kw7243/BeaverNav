@@ -5,16 +5,16 @@ from graph_class import Node, Internal_Graph
 from dijkstar import find_path
 import os
 
-results_dir = "full_pipeline_files_test/results"
-abstract_graph_path = "full_pipeline_files_test/abstract_graph.pickle"
+results_dir = "backend_file_storage/results"
+abstract_graph_path = "backend_file_storage/abstract_graph.pickle"
 with open(abstract_graph_path, 'rb') as f:
     abstract_graph = pickle.load(f)
-graph_storage_dir = "full_pipeline_files_test/temp_files"
-txt_dir = "full_pipeline_files_test/text_locations"
-floorplan_name_graph_correspondence_dir = "full_pipeline_files_test/graph_creation_reduced_res_png/scaling_factors.json"
-cropped_png_files_dir = "full_pipeline_files_test/cropped_png_files"
+graph_storage_dir = "backend_file_storage/pruned_graphs"
+txt_dir = "backend_file_storage/text_locations"
+floorplan_name_graph_correspondence_dir = "backend_file_storage/graph_creation_reduced_res_png/scaling_factors.json"
+cropped_png_files_dir = "backend_file_storage/cropped_png_files"
 
-graph_storage_dir = "full_pipeline_files_test/temp_files"
+graph_storage_dir = "backend_file_storage/pruned_graphs"
 
 
 def find_path_same_floor(start_location, end_location, floor_plan):

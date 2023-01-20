@@ -6,11 +6,11 @@ import json
 from pathlib import Path
 import copy
 
-labelled_pngs = "full_pipeline_files_test/labelled_pngs"
-cropped_png_files_dir = "full_pipeline_files_test/cropped_png_files"
-cropping_offsets= "full_pipeline_files_test/cropping_offsets"
-labelling_legend = "full_pipeline_files_test/labelling_legend.json"
-final_output_name = "full_pipeline_files_test/special_feature_coordinates.json"
+labelled_pngs = "backend_file_storage/labelled_pngs"
+cropped_png_files_dir = "backend_file_storage/cropped_png_files"
+cropping_offsets= "backend_file_storage/cropping_offsets"
+labelling_legend = "backend_file_storage/labelling_legend.json"
+final_output_name = "backend_file_storage/special_feature_coordinates.json"
 
 def process_string_coord(coord):
     coord = coord.replace('(','')

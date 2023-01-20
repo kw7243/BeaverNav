@@ -6,7 +6,7 @@ from path_finding_prototype import *
 ########################
 #        TESTING       #
 ########################
-results_dir = "full_pipeline_files_test/results"
+results_dir = "backend_file_storage/results"
 
 
 def ask_for_coords():

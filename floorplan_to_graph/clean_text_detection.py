@@ -1,6 +1,6 @@
 import os
-txt_dir = "full_pipeline_files_test/raw_text_locations"
-new_txt_dir = "full_pipeline_files_test/text_locations"
+txt_dir = "backend_file_storage/raw_text_locations"
+new_txt_dir = "backend_file_storage/text_locations"
 import json
 import re 
 

@@ -8,14 +8,14 @@ import json
 from path_finding_prototype import *
 import random
 
-graph_storage_dir = "full_pipeline_files_test/graph_storage"
-txt_dir = "full_pipeline_files_test/text_locations"
-cropped_png_files_dir = "full_pipeline_files_test/cropped_png_files"
-reduced_res_png_dir = "full_pipeline_files_test/graph_creation_reduced_res_png"
-temp_dir = "full_pipeline_files_test/temp_files"
+graph_storage_dir = "backend_file_storage/graph_storage"
+txt_dir = "backend_file_storage/text_locations"
+cropped_png_files_dir = "backend_file_storage/cropped_png_files"
+reduced_res_png_dir = "backend_file_storage/graph_creation_reduced_res_png"
+temp_dir = "backend_file_storage/temp_files"
 with open(f"{reduced_res_png_dir}/scaling_factors.json") as f:
     scaling_factors = json.load(f)
-abstract_graph = "full_pipeline_files_test/special_feature_coordinates.json"
+abstract_graph = "backend_file_storage/special_feature_coordinates.json"
 with open(abstract_graph, 'r') as out:
     special_features = json.load(out)
 random.seed(10) # for reproducibility

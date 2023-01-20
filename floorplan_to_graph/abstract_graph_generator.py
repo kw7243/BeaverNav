@@ -1,7 +1,7 @@
 import json
 from graph_class import Node, Internal_Graph
 
-abstract_graph = "full_pipeline_files_test/special_feature_coordinates.json"
+abstract_graph = "backend_file_storage/special_feature_coordinates.json"
 
 def main():
     # read in special features
@@ -94,7 +94,7 @@ def main():
 
     # convert to djikstar
 
-    graph.convert_to_djikstar("full_pipeline_files_test/abstract_graph.pickle")
+    graph.convert_to_djikstar("backend_file_storage/abstract_graph.pickle")
 
 
     # create all edges
