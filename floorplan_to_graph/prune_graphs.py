@@ -7,28 +7,22 @@ import json
 
 from path_finding_prototype import *
 import random
-beavernav = os. getcwd() + ''
+from create_file_paths import *
 
-graph_storage_dir = beavernav + "backend_file_storage/graph_storage"
-txt_dir = beavernav + "backend_file_storage/text_locations"
-cropped_png_files_dir = beavernav + "backend_file_storage/cropped_png_files"
-reduced_res_png_dir = beavernav + "backend_file_storage/graph_creation_reduced_res_png"
-temp_dir = beavernav + "backend_file_storage/temp_files"
 with open(f"{reduced_res_png_dir}/scaling_factors.json") as f:
     scaling_factors = json.load(f)
-abstract_graph = beavernav + "backend_file_storage/special_feature_coordinates.json"
-with open(abstract_graph, 'r') as out:
+with open(special_features, 'r') as out:
     special_features = json.load(out)
 random.seed(10) # for reproducibility
 
 
 def main():
-    for graph_name in os.listdir(graph_storage_dir):
+    for graph_name in os.listdir(pruned_graphs):
         floor_plan = graph_name[:-13]
         print(floor_plan)
         # if floor_plan != "1_1":
         #     continue
-        if f"{floor_plan}_graph.pickle" in os.listdir(temp_dir) or len(floor_plan) < 1:
+        if f"{floor_plan}_graph.pickle" in os.listdir(pruned_graphs) or len(floor_plan) < 1:
             continue
         scaling_factor = scaling_factors[floor_plan + ".png"]
         with open(txt_dir + '/' + floor_plan + '.json', 'r') as f:
@@ -39,7 +33,7 @@ def main():
             print(f"Floor plan {floor_plan} hasn't been labelled with special features ")
             continue
         pixel_graph = pickle.load(
-            open(graph_storage_dir + '/' + graph_name, 'rb'))
+            open(pruned_graphs + '/' + graph_name, 'rb'))
         print("loaded")
         for node_type in special_feature_coords:
             if node_type not in ['sa', 'ea']:
@@ -90,14 +84,14 @@ def main():
                     # print(start_location,end_location)
         # print(relevant_pixels)
         save_image_with_path_drawn(
-            f"{reduced_res_png_dir}/{floor_plan}.png", f"{temp_dir}/{floor_plan}.png", relevant_pixels)
+            f"{reduced_res_png_dir}/{floor_plan}.png", f"{pruned_graphs}/{floor_plan}.png", relevant_pixels)
 
         large_node_list = pixel_graph.get_data().copy()
         for node in large_node_list:
             if node[0] not in relevant_pixels:
                 pixel_graph.remove_node(node)
 
-        with open(f"{temp_dir}/{floor_plan}_graph.pickle", "wb") as f:
+        with open(f"{pruned_graphs}/{floor_plan}_graph.pickle", "wb") as f:
             pickle.dump(pixel_graph, f)
 
 

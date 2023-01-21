@@ -17,6 +17,7 @@ import random
 import json
 import argparse
 import read_labels_new
+from create_file_paths import *
 
 direction_vector = {
     "up": (-1, 0),
@@ -24,26 +25,6 @@ direction_vector = {
     "left": (0, -1),
     "right": (0, +1)
 }
-
-svg_originals_dir = "backend_file_storage/svg_original_files"
-svg_doors_dots_removed_dir = "backend_file_storage/doors_dots_removed_svg"
-svg_doors_dots_removed_dir_temp = "backend_file_storage/doors_dots_removed_svg_temp"
-cropped_png_files_dir = "backend_file_storage/cropped_png_files"
-cropped_pristine_png_files_dir = "backend_file_storage/cropped_pristine_png_files"
-reduced_res_png_dir = "backend_file_storage/graph_creation_reduced_res_png"
-graph_storage_dir = "backend_file_storage/graph_storage"
-non_text_pngs_dir = "backend_file_storage/non_text_cropped_pngs"
-svg_no_lines_dir = "backend_file_storage/no_lines_svgs"
-cropped_png_no_lines_dir = "backend_file_storage/no_lines_cropped_pngs"
-bbox_dir = "backend_file_storage/bounding_boxes"
-modified_png_dir = "backend_file_storage/boxed_text_pngs"
-txt_png_dir = "backend_file_storage/pngs_with_recognized_text"
-txt_dir = "backend_file_storage/raw_text_locations"
-floorplan_name_graph_correspondence_dir = "backend_file_storage/floorplan_name_graph_correspondence"
-cropped_pristine_png_files = "backend_file_storage/cropped_pristine_png_files"
-cropping_offsets = "backend_file_storage/cropping_offsets"
-temp_dir = 'backend_file_storage/pruned_graphs'
-
 
 def pixel_valid(image, x, y):
     return sum(get_pixel(image, x, y)) > 250*3

@@ -4,22 +4,15 @@ from floorplan_graph_creation import *
 import path_finding_testing
 from dijkstar import find_path
 import os
+from create_file_paths import *
 
-results_dir = "backend_file_storage/results"
-abstract_graph_path = "backend_file_storage/abstract_graph.pickle"
-with open(abstract_graph_path, 'rb') as f:
+with open(abstract_graph, 'rb') as f:
     abstract_graph = pickle.load(f)
-graph_storage_dir = "backend_file_storage/pruned_graphs"
-txt_dir = "backend_file_storage/text_locations"
-floorplan_name_graph_correspondence_dir = "backend_file_storage/graph_creation_reduced_res_png/scaling_factors.json"
-cropped_png_files_dir = "backend_file_storage/cropped_png_files"
-
-graph_storage_dir = "backend_file_storage/pruned_graphs"
 
 
 def find_path_same_floor(start_location, end_location, floor_plan):
     graph_name = floor_plan + "_graph.pickle"
-    pixel_graph = pickle.load(open(graph_storage_dir + '/' + graph_name, 'rb'))
+    pixel_graph = pickle.load(open(pruned_graphs + '/' + graph_name, 'rb'))
 
     # print(room_locations)
 
@@ -28,7 +21,7 @@ def find_path_same_floor(start_location, end_location, floor_plan):
 
     # print(start_location, end_location)
     # get scaling factor
-    with open(floorplan_name_graph_correspondence_dir) as f:
+    with open(scaling_factors_path) as f:
         scaling_factors = json.load(f)
     scaling_factor = scaling_factors[floor_plan + '.png']
     # print(scaling_factor)

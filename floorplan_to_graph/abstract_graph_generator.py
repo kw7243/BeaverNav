@@ -1,12 +1,10 @@
 import json
 from graph_class import Node, Internal_Graph
-
-beavernav = os. getcwd() + ''
-abstract_graph = beavernav + "backend_file_storage/special_feature_coordinates.json"
+from create_file_paths import *
 
 def main():
     # read in special features
-    with open( abstract_graph, 'r') as out:
+    with open( special_features, 'r') as out:
         special_features = json.load(out)
     graph = Internal_Graph()
     # create all nodes
@@ -95,7 +93,7 @@ def main():
 
     # convert to djikstar
 
-    graph.convert_to_djikstar("backend_file_storage/abstract_graph.pickle")
+    graph.convert_to_djikstar(abstract_graph)
 
 
     # create all edges
