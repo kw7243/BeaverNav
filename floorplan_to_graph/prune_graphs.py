@@ -7,15 +7,16 @@ import json
 
 from path_finding_prototype import *
 import random
+beavernav = os. getcwd() + ''
 
-graph_storage_dir = "backend_file_storage/graph_storage"
-txt_dir = "backend_file_storage/text_locations"
-cropped_png_files_dir = "backend_file_storage/cropped_png_files"
-reduced_res_png_dir = "backend_file_storage/graph_creation_reduced_res_png"
-temp_dir = "backend_file_storage/temp_files"
+graph_storage_dir = beavernav + "backend_file_storage/graph_storage"
+txt_dir = beavernav + "backend_file_storage/text_locations"
+cropped_png_files_dir = beavernav + "backend_file_storage/cropped_png_files"
+reduced_res_png_dir = beavernav + "backend_file_storage/graph_creation_reduced_res_png"
+temp_dir = beavernav + "backend_file_storage/temp_files"
 with open(f"{reduced_res_png_dir}/scaling_factors.json") as f:
     scaling_factors = json.load(f)
-abstract_graph = "backend_file_storage/special_feature_coordinates.json"
+abstract_graph = beavernav + "backend_file_storage/special_feature_coordinates.json"
 with open(abstract_graph, 'r') as out:
     special_features = json.load(out)
 random.seed(10) # for reproducibility

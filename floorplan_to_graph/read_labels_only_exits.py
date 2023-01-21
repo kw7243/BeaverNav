@@ -5,12 +5,13 @@ import os
 import json
 from pathlib import Path
 import copy
+beavernav = os. getcwd() + ''
 
-labelled_pngs = "backend_file_storage/labelled_pngs"
-cropped_png_files_dir = "backend_file_storage/cropped_png_files"
-cropping_offsets= "backend_file_storage/cropping_offsets"
-labelling_legend = "backend_file_storage/labelling_legend.json"
-final_output_name = "backend_file_storage/special_feature_coordinates.json"
+labelled_pngs = beavernav + "backend_file_storage/labelled_pngs"
+cropped_png_files_dir = beavernav + "backend_file_storage/cropped_png_files"
+cropping_offsets= beavernav + "backend_file_storage/cropping_offsets"
+labelling_legend = beavernav + "backend_file_storage/labelling_legend.json"
+final_output_name = beavernav + "backend_file_storage/special_feature_coordinates.json"
 
 def process_string_coord(coord):
     coord = coord.replace('(','')

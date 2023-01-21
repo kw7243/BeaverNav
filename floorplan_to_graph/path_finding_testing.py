@@ -1,12 +1,14 @@
 import time
 import pickle
 from path_finding_prototype import *
+import os
 #from deprecated_methods import distance_to_black
 
 ########################
 #        TESTING       #
 ########################
-results_dir = "backend_file_storage/results"
+beavernav = os. getcwd() + ''
+results_dir = beavernav + "backend_file_storage/results"
 
 
 def ask_for_coords():

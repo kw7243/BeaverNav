@@ -1,7 +1,8 @@
 import json
 from graph_class import Node, Internal_Graph
 
-abstract_graph = "backend_file_storage/special_feature_coordinates.json"
+beavernav = os. getcwd() + ''
+abstract_graph = beavernav + "backend_file_storage/special_feature_coordinates.json"
 
 def main():
     # read in special features

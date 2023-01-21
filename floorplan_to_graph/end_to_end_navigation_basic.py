@@ -1,7 +1,7 @@
 import json
 import _pickle as pickle
-import path_finding_testing as pf
-from graph_class import Node, Internal_Graph
+from floorplan_graph_creation import *
+import path_finding_testing
 from dijkstar import find_path
 import os
 
@@ -35,7 +35,7 @@ def find_path_same_floor(start_location, end_location, floor_plan):
     # scale locations
     # get graph
     # ffed into test_path_finding
-    return pf.test_path_finding(cropped_png_files_dir, floor_plan,
+    return path_finding_testing.test_path_finding(cropped_png_files_dir, floor_plan,
                                 pixel_graph, start_location, end_location, scaling_factor)
 
 import time as time

@@ -1,6 +1,7 @@
 import os
-txt_dir = "backend_file_storage/raw_text_locations"
-new_txt_dir = "backend_file_storage/text_locations"
+beavernav = os. getcwd() + ''
+txt_dir = beavernav + "backend_file_storage/raw_text_locations"
+new_txt_dir = beavernav +  "backend_file_storage/text_locations"
 import json
 import re 
 
