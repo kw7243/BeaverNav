@@ -17,12 +17,12 @@ random.seed(10) # for reproducibility
 
 
 def main():
-    for graph_name in os.listdir(pruned_graphs):
+    for graph_name in os.listdir(graph_storage_dir):
         floor_plan = graph_name[:-13]
         print(floor_plan)
         # if floor_plan != "1_1":
         #     continue
-        if f"{floor_plan}_graph.pickle" in os.listdir(pruned_graphs) or len(floor_plan) < 1:
+        if (f"{floor_plan}_graph.pickle" in os.listdir(pruned_graphs) or len(floor_plan) < 1) :
             continue
         scaling_factor = scaling_factors[floor_plan + ".png"]
         with open(txt_dir + '/' + floor_plan + '.json', 'r') as f:
@@ -33,7 +33,7 @@ def main():
             print(f"Floor plan {floor_plan} hasn't been labelled with special features ")
             continue
         pixel_graph = pickle.load(
-            open(pruned_graphs + '/' + graph_name, 'rb'))
+            open(graph_storage_dir + '/' + graph_name, 'rb'))
         print("loaded")
         for node_type in special_feature_coords:
             if node_type not in ['sa', 'ea']:

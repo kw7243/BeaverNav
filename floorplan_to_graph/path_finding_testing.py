@@ -135,6 +135,8 @@ def test_path_finding(DIRECTORY, floor_plan, graph, start, end, reduction_factor
     print("floorplan is: ",floor_plan)
     if floor_plan == '8_1':
         reduction_factor = 17
+    if floor_plan == '8_3':
+        reduction_factor = 16
     
     high_res_corners = map_corners_lowres_to_highres(
             corners, r=int(reduction_factor))

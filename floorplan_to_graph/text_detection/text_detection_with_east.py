@@ -37,7 +37,7 @@ import keras_ocr
 # PARAMS
 
 # FILE INPUT parameters - used for testing
-mypath = beavernav + 'backend_file_storage/PDF_floor_plans'
+mypath = beavernav + '/backend_file_storage/original_PDF_floor_plans'
 mod = beavernav + '/text_detection/modified_png_floor_plans'
 nontextpngs = beavernav + "/text_detection/nontext_PNG_floor_plans"
 cropped_png_dir = beavernav + "/cropped_png_floor_plans"

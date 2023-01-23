@@ -1,3 +1,7 @@
+"""
+Import this file for any file paths 
+"""
+
 import os
 beavernav = os. getcwd() + '/'
 svg_originals_dir = beavernav + "backend_file_storage/svg_original_files"
@@ -14,6 +18,7 @@ bbox_dir = beavernav + "backend_file_storage/bounding_boxes"
 modified_png_dir = beavernav + "backend_file_storage/boxed_text_pngs"
 txt_png_dir = beavernav + "backend_file_storage/pngs_with_recognized_text"
 txt_dir = beavernav + "backend_file_storage/raw_text_locations"
+cleaned_txt_dir = beavernav + "backend_file_storage/text_locations"
 floorplan_name_graph_correspondence_dir = beavernav + "backend_file_storage/floorplan_name_graph_correspondence/floorplan_name_graph_correspondence.json"
 cropped_pristine_png_files = beavernav + "backend_file_storage/cropped_pristine_png_files"
 cropping_offsets = beavernav + "backend_file_storage/cropping_offsets"
@@ -26,3 +31,5 @@ labelled_pngs = beavernav + "backend_file_storage/labelled_pngs"
 labelling_legend = beavernav + "backend_file_storage/labelling_legend.json"
 scaling_factors_path = reduced_res_png_dir + "/scaling_factors.json"
 results_dir = beavernav + "backend_file_storage/results"
+testing_results = beavernav + "backend_file_storage/testing_results.json"
+testing_errors = beavernav + "backend_file_storage/testing_errors.json"
