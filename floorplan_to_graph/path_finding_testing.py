@@ -1,12 +1,12 @@
 import time
 import pickle
 from path_finding_prototype import *
+from create_file_paths import *
 #from deprecated_methods import distance_to_black
 
 ########################
 #        TESTING       #
 ########################
-results_dir = "full_pipeline_files_test/results"
 
 
 def ask_for_coords():
@@ -135,6 +135,8 @@ def test_path_finding(DIRECTORY, floor_plan, graph, start, end, reduction_factor
     print("floorplan is: ",floor_plan)
     if floor_plan == '8_1':
         reduction_factor = 17
+    if floor_plan == '8_3':
+        reduction_factor = 16
     
     high_res_corners = map_corners_lowres_to_highres(
             corners, r=int(reduction_factor))

@@ -17,6 +17,7 @@ import random
 import json
 import argparse
 import read_labels_new
+from create_file_paths import *
 
 direction_vector = {
     "up": (-1, 0),
@@ -24,26 +25,6 @@ direction_vector = {
     "left": (0, -1),
     "right": (0, +1)
 }
-
-svg_originals_dir = "full_pipeline_files_test/svg_original_files"
-svg_doors_dots_removed_dir = "full_pipeline_files_test/doors_dots_removed_svg"
-svg_doors_dots_removed_dir_temp = "full_pipeline_files_test/doors_dots_removed_svg_temp"
-cropped_png_files_dir = "full_pipeline_files_test/cropped_png_files"
-cropped_pristine_png_files_dir = "full_pipeline_files_test/cropped_pristine_png_files"
-reduced_res_png_dir = "full_pipeline_files_test/graph_creation_reduced_res_png"
-graph_storage_dir = "full_pipeline_files_test/graph_storage"
-non_text_pngs_dir = "full_pipeline_files_test/non_text_cropped_pngs"
-svg_no_lines_dir = "full_pipeline_files_test/no_lines_svgs"
-cropped_png_no_lines_dir = "full_pipeline_files_test/no_lines_cropped_pngs"
-bbox_dir = "full_pipeline_files_test/bounding_boxes"
-modified_png_dir = "full_pipeline_files_test/boxed_text_pngs"
-txt_png_dir = "full_pipeline_files_test/pngs_with_recognized_text"
-txt_dir = "full_pipeline_files_test/raw_text_locations"
-floorplan_name_graph_correspondence_dir = "full_pipeline_files_test/floorplan_name_graph_correspondence"
-cropped_pristine_png_files = "full_pipeline_files_test/cropped_pristine_png_files"
-cropping_offsets = "full_pipeline_files_test/cropping_offsets"
-temp_dir = 'full_pipeline_files_test/temp_files'
-
 
 def pixel_valid(image, x, y):
     return sum(get_pixel(image, x, y)) > 250*3
@@ -467,17 +448,16 @@ def create_low_res_png():
     # print(internal_rep["width"])
     # print(internal_rep["height"])
 
-
+"""
+DEPRECATED. USE PRUNE_GRAPHS.PY INSTEAD
+"""
 def create_graph():
     floorplan_to_graph = {}
     scaling_factors = {}
     with open(reduced_res_png_dir + '/scaling_factors.json', 'r') as out:
         scaling_factors = json.load(out)
     for i, png_file in enumerate(os.listdir(reduced_res_png_dir)):
-        if png_file.split('_')[0] not in [str(i) for i in range(17,100)]:
-            print( f"Skipping Graph {i}: " + png_file[:-4] + '.png')
-            continue
-        if f"{png_file[:-4]}_graph.pickle" in os.listdir(graph_storage_dir):
+        if f"{png_file[:-4]}_graph.pickle" in os.listdir(graph_storage_dir) or png_file != "56_5.png":
             print( f"Already created Graph {i}: " + png_file[:-4] + '.png')
             continue
         print(f"Creating Graph {i}: " + png_file[:-4] + '.png')

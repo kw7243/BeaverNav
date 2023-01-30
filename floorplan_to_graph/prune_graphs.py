@@ -7,16 +7,11 @@ import json
 
 from path_finding_prototype import *
 import random
+from create_file_paths import *
 
-graph_storage_dir = "full_pipeline_files_test/graph_storage"
-txt_dir = "full_pipeline_files_test/text_locations"
-cropped_png_files_dir = "full_pipeline_files_test/cropped_png_files"
-reduced_res_png_dir = "full_pipeline_files_test/graph_creation_reduced_res_png"
-temp_dir = "full_pipeline_files_test/temp_files"
 with open(f"{reduced_res_png_dir}/scaling_factors.json") as f:
     scaling_factors = json.load(f)
-abstract_graph = "full_pipeline_files_test/special_feature_coordinates.json"
-with open(abstract_graph, 'r') as out:
+with open(special_features, 'r') as out:
     special_features = json.load(out)
 random.seed(10) # for reproducibility
 
@@ -27,7 +22,7 @@ def main():
         print(floor_plan)
         # if floor_plan != "1_1":
         #     continue
-        if f"{floor_plan}_graph.pickle" in os.listdir(temp_dir) or len(floor_plan) < 1:
+        if (f"{floor_plan}_graph.pickle" in os.listdir(pruned_graphs) or len(floor_plan) < 1) :
             continue
         scaling_factor = scaling_factors[floor_plan + ".png"]
         with open(txt_dir + '/' + floor_plan + '.json', 'r') as f:
@@ -89,14 +84,14 @@ def main():
                     # print(start_location,end_location)
         # print(relevant_pixels)
         save_image_with_path_drawn(
-            f"{reduced_res_png_dir}/{floor_plan}.png", f"{temp_dir}/{floor_plan}.png", relevant_pixels)
+            f"{reduced_res_png_dir}/{floor_plan}.png", f"{pruned_graphs}/{floor_plan}.png", relevant_pixels)
 
         large_node_list = pixel_graph.get_data().copy()
         for node in large_node_list:
             if node[0] not in relevant_pixels:
                 pixel_graph.remove_node(node)
 
-        with open(f"{temp_dir}/{floor_plan}_graph.pickle", "wb") as f:
+        with open(f"{pruned_graphs}/{floor_plan}_graph.pickle", "wb") as f:
             pickle.dump(pixel_graph, f)
 
 

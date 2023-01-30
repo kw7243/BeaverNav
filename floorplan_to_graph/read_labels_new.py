@@ -5,12 +5,7 @@ import os
 import json
 from pathlib import Path
 import copy
-
-labelled_pngs = "full_pipeline_files_test/labelled_pngs"
-cropped_png_files_dir = "full_pipeline_files_test/cropped_png_files"
-cropping_offsets= "full_pipeline_files_test/cropping_offsets"
-labelling_legend = "full_pipeline_files_test/labelling_legend.json"
-final_output_name = "full_pipeline_files_test/special_feature_coordinates.json"
+from create_file_paths import *
 
 def process_string_coord(coord):
     coord = coord.replace('(','')
@@ -347,7 +342,7 @@ def main(prints = True):
                     coord[1] = min(coord[1], H)
                     final_output[k][k2][k3][i] = coord            
   
-    with open(final_output_name,"w") as f:
+    with open(special_features,"w") as f:
         json.dump(final_output,f,indent = 0)
     
     return final_output
