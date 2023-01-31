@@ -1,14 +1,14 @@
 import os
-beavernav = os. getcwd() + ''
-txt_dir = beavernav + "backend_file_storage/raw_text_locations"
-new_txt_dir = beavernav +  "backend_file_storage/text_locations"
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+from create_file_paths import *
 import json
 import re 
 
 def main():
     problem_floors = []
     for i, floor in enumerate(os.listdir(txt_dir)):
-        if "DS" in floor:
+        if "DS" in floor or ("32_D" not in floor and "32_G" not in floor):
             continue
         with open(f"{txt_dir}/{floor}", 'r') as f:
             text = json.load(f)
@@ -34,15 +34,15 @@ def main():
                     if len(new_t) > 3:
                         new_t = floor[3:5] + new_t[2:]
                     else: print(floor+" "+new_t)
-                    continue
-                if len(new_t) > 2:
+                    # continue
+                elif len(new_t) > 2:
                     new_t = floor[-6] + new_t[1:]
-                    continue
+                    # continue
                 print(floor+" "+new_t)
                 if floor not in problem_floors: problem_floors.append(floor)
             newtext.append([new_t, t[1]])
         if len(newtext) == 0: print(floor)
-        with open(f"{new_txt_dir}/{floor}", 'w') as f:
+        with open(f"{cleaned_txt_dir}/{floor}", 'w') as f:
              json.dump(newtext, f, indent=5)
     # FOR FUTURE TODO, DEAL WITH REMAINING PROBLEMS       
     print(problem_floors)

@@ -1,18 +1,19 @@
 import json
 from graph_class import Node, Internal_Graph
 from create_file_paths import *
+import create_file_paths
 
 def main():
     # read in special features
-    with open( special_features, 'r') as out:
-        special_features = json.load(out)
+    with open( create_file_paths.special_features, 'r') as out:
+        connections = json.load(out)
     graph = Internal_Graph()
     # create all nodes
         # iterate through all the special features names
-    for building_floor in special_features:
-        for type in special_features[building_floor][building_floor]:
+    for building_floor in connections:
+        for type in connections[building_floor][building_floor]:
             # iterate through types
-            for coords in special_features[building_floor][building_floor][type]:
+            for coords in connections[building_floor][building_floor][type]:
                 # iterate through coordinates/ids
                 building,floor = building_floor.split('_')
                 if (floor[0] == 'D'):

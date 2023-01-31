@@ -60,15 +60,16 @@ def run_all_tests(correct_paths, all_rooms):
         try:
             end_to_end_navigation_basic.main(start_room, end_room)
         except Exception as e:
-            errors.append("NAVIGATION FAILED FROM " +  start_room +  " TO " + end_room + " "  + e)
+            errors.append("NAVIGATION FAILED FROM " +  start_room +  " TO " + end_room + " "  + str(e))
             print("NAVIGATION FAILED FROM ", start_room, " TO ", end_room)
             print(e)
         correct_paths.append((start_room, end_room))
         print(correct_paths)
-        with open(testing_results, 'w') as f:
-            json.dump(f, correct_paths)
+    print(errors)
+    with open(testing_results, 'w') as f:
+        json.dump( correct_paths, f, indent=5)
     with open(testing_errors, 'w') as f:
-            json.dump(f, errors)
+            json.dump(errors, f, indent=5)
 
 # catch error and print the rooms that caused it 
 
@@ -76,11 +77,11 @@ def main():
     generate_list_of_floorplans()
     all_rooms = generate_list_of_rooms()
     correct_paths = []
-    # try:
-    #     with open(testing_results, 'r') as f:
-    #         correct_paths = json.load(f)
-    # except:
-    #     pass
+    try:
+        with open(testing_results, 'r') as f:
+            correct_paths = json.load(f)
+    except:
+        pass
     run_all_tests(correct_paths, all_rooms)
 
 

@@ -1,3 +1,4 @@
+from curses.ascii import isalpha
 import json
 import _pickle as pickle
 from floorplan_graph_creation import *
@@ -46,9 +47,13 @@ def main(start_building_room, destination_building_room):
     start_building = start_building_room.split('-')[0]
     destination_building = destination_building_room.split('-')[0]
 
+    
     start_floor = start_building_room.split('-')[1][0]
     destination_floor = destination_building_room.split('-')[1][0]
 
+    if start_building == "32" and start_floor.isalpha() : start_floor = start_building_room.split('-')[1][:2] 
+    if destination_building == "32" and destination_floor.isalpha() : destination_floor = destination_building_room.split('-')[1][:2] 
+    if start_building == "56" and "00" in start_building_room.split('-')[1]: start_floor = "00"
 
     with open(cleaned_txt_dir + '/' + str(start_building) + "_" + str(start_floor) + '.json', 'r') as f:
         room_locations_start = json.load(f)
@@ -89,10 +94,23 @@ def main(start_building_room, destination_building_room):
 
     # find a path from supernodes corresponding to start floor plan to end floor plan
     for node in abstract_graph.get_data():
-        if node.type == 'supernode' and node.building == start_building and node.floor == int(start_floor):
+        compare_floor = start_floor
+        if "G" in start_floor:
+            compare_floor = int(start_floor[1:]) + 40
+        if "D" in start_floor:
+            compare_floor = int(start_floor[1:]) + 20
+
+        compare_floor_2 = destination_floor
+        if "G" in destination_floor:
+            compare_floor_2 = int(destination_floor[1:]) + 40
+        if "D" in destination_floor:
+            compare_floor_2 = int(destination_floor[1:]) + 20
+        print()
+
+        if node.type == 'supernode' and node.building == start_building and node.floor == int(compare_floor):
             # print("success")
             start_supernode = node
-        if node.type == 'supernode' and node.building == destination_building and node.floor == int(destination_floor):
+        if node.type == 'supernode' and node.building == destination_building and node.floor == int(compare_floor_2):
             # print("success")
             end_supernode = node
 
