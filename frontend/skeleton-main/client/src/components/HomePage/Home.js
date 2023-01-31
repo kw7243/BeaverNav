@@ -23,11 +23,12 @@ export default function Home() {
                 'Content-Type': 'application/json',
             },
         });
-
         const data = await res.json()
         setLoginData(data);
         localStorage.setItem('loginData', JSON.stringify(data));
     };
+
+
 
     const handleLogout = () => {
         localStorage.removeItem('loginData');
