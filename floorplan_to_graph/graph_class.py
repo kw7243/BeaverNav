@@ -12,13 +12,15 @@ class Node():
     def check_condition_ea_sa(self, node2):
         return (self.building == node2.building
             and self.id == node2.id
-            and abs(self.floor - node2.floor) == 1
+            and abs(self.floor%10 - node2.floor%10) == 1
             and self.type == node2.type)
     def check_condition_eh_sh(self, node2):
         return (self.building == node2.building
             and self.id == node2.id
             and self.floor == node2.floor)
     def check_condition_ee(self, node2):
+        if "G" in str(self.connection[1]): self.connection[1] = int(self.connection[1][1:]) + 20
+        if "D" in str(self.connection[1]): self.connection[1] = int(self.connection[1][1:]) + 40
         return  (str(self.connection[0]) == str(node2.building)
             and str(self.connection[1]) == str(node2.floor)
             and str(node2.connection[0]) == str(self.building)

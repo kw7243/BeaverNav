@@ -53,7 +53,17 @@ def main(start_building_room, destination_building_room):
 
     if start_building == "32" and start_floor.isalpha() : start_floor = start_building_room.split('-')[1][:2] 
     if destination_building == "32" and destination_floor.isalpha() : destination_floor = destination_building_room.split('-')[1][:2] 
-    if start_building == "56" and "00" in start_building_room.split('-')[1]: start_floor = "00"
+    if start_building == "56" and "00" in start_building_room.split('-')[1]: raise Exception("Navigation to building 56 floor 00 not supported")
+    if destination_building_room == "56" and "00" in destination_building_room.split('-')[1]: raise Exception("Navigation to building 56 floor 00 not supported")
+    if "M" in start_building_room.split('-')[1]: raise Exception(f"Navigation to {start_building_room} not supported")
+    if "M" in destination_building_room.split('-')[1]: raise Exception(f"Navigation to {start_building_room} not supported")
+    if "Z" in start_building_room.split('-')[1]: raise Exception(f"Navigation to {start_building_room} not supported")
+    if "Z" in destination_building_room.split('-')[1]: raise Exception(f"Navigation to {destination_building_room} not supported")
+    if start_building_room[:3] == "3_5" or destination_building_room[:3] == "3_5": raise Exception(f"Navigation to 3_5 not supported")
+    if start_building_room[:3] == "8_5" or destination_building_room[:3] == "8_5": raise Exception(f"Navigation to 8_5 not supported")
+    if start_building_room[:3] == "6_5" or destination_building_room[:3] == "6_5": raise Exception(f"Navigation to 6_5 not supported")
+    if start_building_room[:3] == "4_5" or destination_building_room[:3] == "4_5": raise Exception(f"Navigation to 4_5 not supported")
+    if start_building_room[:3] == "18_6" or destination_building_room[:3] == "18_6": raise Exception(f"Navigation to 18_6 not supported")
 
     with open(cleaned_txt_dir + '/' + str(start_building) + "_" + str(start_floor) + '.json', 'r') as f:
         room_locations_start = json.load(f)

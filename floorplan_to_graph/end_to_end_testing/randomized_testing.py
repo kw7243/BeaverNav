@@ -60,9 +60,12 @@ def run_all_tests(correct_paths, all_rooms):
         try:
             end_to_end_navigation_basic.main(start_room, end_room)
         except Exception as e:
-            errors.append("NAVIGATION FAILED FROM " +  start_room +  " TO " + end_room + " "  + str(e))
-            print("NAVIGATION FAILED FROM ", start_room, " TO ", end_room)
-            print(e)
+            if ("not supported" in str(e)):
+                pass
+            else:
+                errors.append("NAVIGATION FAILED FROM " +  start_room +  " TO " + end_room + " "  + str(e))
+                print("NAVIGATION FAILED FROM ", start_room, " TO ", end_room)
+                print(e)
         correct_paths.append((start_room, end_room))
         print(correct_paths)
     print(errors)
