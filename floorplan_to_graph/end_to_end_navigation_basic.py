@@ -13,7 +13,7 @@ with open(abstract_graph, 'rb') as f:
 
 def find_path_same_floor(start_location, end_location, floor_plan):
     graph_name = floor_plan + "_graph.pickle"
-    pixel_graph = pickle.load(open(pruned_graphs + '/' + graph_name, 'rb'))
+    pixel_graph = pickle.load(open(graph_storage_dir + '/' + graph_name, 'rb'))
 
     # print(room_locations)
 

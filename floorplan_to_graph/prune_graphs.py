@@ -45,7 +45,7 @@ def main():
         relevant_nodes = set()
         guarantee_check = {}
         iter = 0 # make sure that the program doesn't get held up on some irrelevant floorplan
-        while len(guarantee_check) < len(room_locations) and iter < 2:
+        while (len(guarantee_check) / len(room_locations) + iter/100) < 0.99:
             print("Iteration ", iter)
             iter += 1
             for iteration in range(2):

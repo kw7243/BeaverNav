@@ -457,8 +457,10 @@ def create_graph():
     with open(reduced_res_png_dir + '/scaling_factors.json', 'r') as out:
         scaling_factors = json.load(out)
     for i, png_file in enumerate(os.listdir(reduced_res_png_dir)):
-        if f"{png_file[:-4]}_graph.pickle" in os.listdir(graph_storage_dir) or png_file != "6_2.png":
+        if f"{png_file[:-4]}_graph.pickle" in os.listdir(graph_storage_dir) :
             print( f"Already created Graph {i}: " + png_file[:-4] + '.png')
+            continue
+        if ".DS" in png_file or png_file not in ["6C_2.png", "6C_1.png", "6C_3.png", "32_2.png", "6_3.png", "32_G5.png", "12_2.png"]:
             continue
         print(f"Creating Graph {i}: " + png_file[:-4] + '.png')
         start_time = time.perf_counter()
