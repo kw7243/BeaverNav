@@ -1,0 +1,20 @@
+/* if you have the gssapi libraries */
+#undef SHIBSP_HAVE_GSSAPI
+
+/* if you have the GNU gssapi libraries */
+#undef SHIBSP_HAVE_GSSGNU
+
+/* if you have the Heimdal gssapi libraries */
+#undef SHIBSP_HAVE_GSSHEIMDAL
+
+/* if you have the MIT gssapi libraries */
+#undef SHIBSP_HAVE_GSSMIT
+
+/* Define to 1 if log4cpp library is used. */
+#undef SHIBSP_LOG4CPP
+
+/* Define to 1 if log4shib library is used. */
+#undef SHIBSP_LOG4SHIB
+
+/* Define to 1 if you have the <sys/socket.h> header file. */
+#undef SHIBSP_HAVE_SYS_SOCKET_H

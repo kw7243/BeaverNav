@@ -1,0 +1,247 @@
+/* config.h.in.  Generated from configure.ac by autoheader.  */
+
+/* Defined if the requested minimum BOOST version is satisfied */
+#undef HAVE_BOOST
+
+/* Define to 1 if you have <boost/algorithm/string.hpp> */
+#undef HAVE_BOOST_ALGORITHM_STRING_HPP
+
+/* Define to 1 if you have <boost/bind.hpp> */
+#undef HAVE_BOOST_BIND_HPP
+
+/* Define to 1 if you have <boost/lambda/lambda.hpp> */
+#undef HAVE_BOOST_LAMBDA_LAMBDA_HPP
+
+/* Define to 1 if you have <boost/ptr_container/ptr_array.hpp> */
+#undef HAVE_BOOST_PTR_CONTAINER_PTR_ARRAY_HPP
+
+/* Define to 1 if you have <boost/ptr_container/ptr_deque.hpp> */
+#undef HAVE_BOOST_PTR_CONTAINER_PTR_DEQUE_HPP
+
+/* Define to 1 if you have <boost/ptr_container/ptr_list.hpp> */
+#undef HAVE_BOOST_PTR_CONTAINER_PTR_LIST_HPP
+
+/* Define to 1 if you have <boost/ptr_container/ptr_map.hpp> */
+#undef HAVE_BOOST_PTR_CONTAINER_PTR_MAP_HPP
+
+/* Define to 1 if you have <boost/ptr_container/ptr_set.hpp> */
+#undef HAVE_BOOST_PTR_CONTAINER_PTR_SET_HPP
+
+/* Define to 1 if you have <boost/ptr_container/ptr_vector.hpp> */
+#undef HAVE_BOOST_PTR_CONTAINER_PTR_VECTOR_HPP
+
+/* Define to 1 if you have <boost/scoped_ptr.hpp> */
+#undef HAVE_BOOST_SCOPED_PTR_HPP
+
+/* Define to 1 if you have <boost/shared_ptr.hpp> */
+#undef HAVE_BOOST_SHARED_PTR_HPP
+
+/* Define to 1 if you have <boost/tuple/tuple.hpp> */
+#undef HAVE_BOOST_TUPLE_TUPLE_HPP
+
+/* Define if ctime_r is present with 2 parameters. */
+#undef HAVE_CTIME_R_2
+
+/* Define if ctime_r is present with 3 parameters. */
+#undef HAVE_CTIME_R_3
+
+/* Define to 1 if you have the declaration of
+   `GSS_C_NT_EXPORT_NAME_COMPOSITE', and to 0 if you don't. */
+#undef HAVE_DECL_GSS_C_NT_EXPORT_NAME_COMPOSITE
+
+/* Define to 1 if you have the declaration of `gss_get_name_attribute', and to
+   0 if you don't. */
+#undef HAVE_DECL_GSS_GET_NAME_ATTRIBUTE
+
+/* Define to 1 if you have the declaration of `strerror_r', and to 0 if you
+   don't. */
+#undef HAVE_DECL_STRERROR_R
+
+/* Define to 1 if you have the <dirent.h> header file, and it defines `DIR'.
+   */
+#undef HAVE_DIRENT_H
+
+/* Define to 1 if you have the <dlfcn.h> header file. */
+#undef HAVE_DLFCN_H
+
+/* Define to 1 if you have the `getgrnam' function. */
+#undef HAVE_GETGRNAM
+
+/* Define to 1 if you have the `getpwnam' function. */
+#undef HAVE_GETPWNAM
+
+/* Define to 1 if you have the `gmtime_r' function. */
+#undef HAVE_GMTIME_R
+
+/* Define to 1 if you have the <grp.h> header file. */
+#undef HAVE_GRP_H
+
+/* Define to 1 if you have the `initgroups' function. */
+#undef HAVE_INITGROUPS
+
+/* Define to 1 if you have the <inttypes.h> header file. */
+#undef HAVE_INTTYPES_H
+
+/* Define to 1 if you have the `localtime_r' function. */
+#undef HAVE_LOCALTIME_R
+
+/* Define to 1 if libmemcached supports error handling function. */
+#undef HAVE_MEMCACHED_LAST_ERROR_MESSAGE
+
+/* define if the compiler implements namespaces */
+#undef HAVE_NAMESPACES
+
+/* Define to 1 if you have the <ndir.h> header file, and it defines `DIR'. */
+#undef HAVE_NDIR_H
+
+/* Define if you have POSIX threads libraries and header files. */
+#undef HAVE_PTHREAD
+
+/* Have PTHREAD_PRIO_INHERIT. */
+#undef HAVE_PTHREAD_PRIO_INHERIT
+
+/* Define to 1 if you have the <pwd.h> header file. */
+#undef HAVE_PWD_H
+
+/* Define to 1 if you have the sd_notify function. */
+#undef HAVE_SD_NOTIFY
+
+/* Define if the SOCK_CLOEXEC flag is supported */
+#undef HAVE_SOCK_CLOEXEC
+
+/* Define to 1 if you have the <stdint.h> header file. */
+#undef HAVE_STDINT_H
+
+/* Define to 1 if you have the <stdio.h> header file. */
+#undef HAVE_STDIO_H
+
+/* Define to 1 if you have the <stdlib.h> header file. */
+#undef HAVE_STDLIB_H
+
+/* Define to 1 if you have the `strcasecmp' function. */
+#undef HAVE_STRCASECMP
+
+/* Define to 1 if you have the `strchr' function. */
+#undef HAVE_STRCHR
+
+/* Define to 1 if you have the `strdup' function. */
+#undef HAVE_STRDUP
+
+/* Define if you have `strerror_r'. */
+#undef HAVE_STRERROR_R
+
+/* Define to 1 if you have the `strftime' function. */
+#undef HAVE_STRFTIME
+
+/* Define to 1 if you have the <strings.h> header file. */
+#undef HAVE_STRINGS_H
+
+/* Define to 1 if you have the <string.h> header file. */
+#undef HAVE_STRING_H
+
+/* Define to 1 if you have the `strstr' function. */
+#undef HAVE_STRSTR
+
+/* Define to 1 if you have the `strtok_r' function. */
+#undef HAVE_STRTOK_R
+
+/* Define to 1 if `sa_len' is a member of `struct sockaddr'. */
+#undef HAVE_STRUCT_SOCKADDR_SA_LEN
+
+/* Define to 1 if the system has the type `struct sockaddr_storage'. */
+#undef HAVE_STRUCT_SOCKADDR_STORAGE
+
+/* Define to 1 if you have the <sys/dir.h> header file, and it defines `DIR'.
+   */
+#undef HAVE_SYS_DIR_H
+
+/* Define to 1 if you have the <sys/ndir.h> header file, and it defines `DIR'.
+   */
+#undef HAVE_SYS_NDIR_H
+
+/* Define to 1 if you have the <sys/socket.h> header file. */
+#undef HAVE_SYS_SOCKET_H
+
+/* Define to 1 if you have the <sys/stat.h> header file. */
+#undef HAVE_SYS_STAT_H
+
+/* Define to 1 if you have the <sys/types.h> header file. */
+#undef HAVE_SYS_TYPES_H
+
+/* Define to 1 if you have the <sys/utsname.h> header file. */
+#undef HAVE_SYS_UTSNAME_H
+
+/* Define to 1 if you have the `timegm' function. */
+#undef HAVE_TIMEGM
+
+/* Define to 1 if you have the <unistd.h> header file. */
+#undef HAVE_UNISTD_H
+
+/* Define to the sub-directory where libtool stores uninstalled libraries. */
+#undef LT_OBJDIR
+
+/* Name of package */
+#undef PACKAGE
+
+/* Define to the address where bug reports for this package should be sent. */
+#undef PACKAGE_BUGREPORT
+
+/* Define to the full name of this package. */
+#undef PACKAGE_NAME
+
+/* Define to the full name and version of this package. */
+#undef PACKAGE_STRING
+
+/* Define to the one symbol short name of this package. */
+#undef PACKAGE_TARNAME
+
+/* Define to the home page for this package. */
+#undef PACKAGE_URL
+
+/* Define to the version of this package. */
+#undef PACKAGE_VERSION
+
+/* Define to necessary symbol if this constant uses a non-standard name on
+   your system. */
+#undef PTHREAD_CREATE_JOINABLE
+
+/* if you have the gssapi libraries */
+#undef SHIBSP_HAVE_GSSAPI
+
+/* if you have the GNU gssapi libraries */
+#undef SHIBSP_HAVE_GSSGNU
+
+/* if you have the Heimdal gssapi libraries */
+#undef SHIBSP_HAVE_GSSHEIMDAL
+
+/* if you have the MIT gssapi libraries */
+#undef SHIBSP_HAVE_GSSMIT
+
+/* Define to 1 if you have the <sys/socket> header file. */
+#undef SHIBSP_HAVE_SYS_SOCKET_H
+
+/* Define to 1 if log4cpp library is used. */
+#undef SHIBSP_LOG4CPP
+
+/* Define to 1 if log4shib library is used. */
+#undef SHIBSP_LOG4SHIB
+
+/* Define to 1 if all of the C90 standard headers exist (not just the ones
+   required in a freestanding environment). This macro is provided for
+   backward compatibility; new code need not use it. */
+#undef STDC_HEADERS
+
+/* Define to 1 if strerror_r returns char *. */
+#undef STRERROR_R_CHAR_P
+
+/* Define to 1 if your <sys/time.h> declares `struct tm'. */
+#undef TM_IN_SYS_TIME
+
+/* Version number of package */
+#undef VERSION
+
+/* Define to empty if `const' does not conform to ANSI C. */
+#undef const
+
+/* Define to `unsigned int' if <sys/types.h> does not define. */
+#undef size_t

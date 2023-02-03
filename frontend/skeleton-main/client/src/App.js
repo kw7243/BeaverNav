@@ -1,23 +1,20 @@
-import React, { useState, useEffect } from "react";
-import { Router } from "@reach/router";
+import { BrowserRouter as Router, Route} from "react-router-dom";
+import { Routes } from "react-router-dom";
 import jwt_decode from "jwt-decode";
 
-import NotFound from "./components/NotFound.js";
 import Skeleton from "./components/Skeleton.js";
 
-import "utilities.css";
+import "./utilities.css";
 
-import { socket } from "client-socket.js";
+import { socket } from "./client-socket";
 
-import { get, post } from "utilities";
+import { get, post } from "./utilities";
 
 import './App.css';
-import SearchMap from './components/SearchMap.js';
-import React, { useState } from "react"
-import Navbar from "./components/HomePage/Navbar"
-import Home from "./components/HomePage/Home"
+import Navbar from "./components/Navbar"
 import About from './components/About';
-import { Route, Routes} from "react-router-dom"
+
+import React, { useState, useEffect } from 'react';
 
 
 /**
@@ -53,25 +50,14 @@ const App = () => {
   return (
     <>
       <Router>
-        <Skeleton path="/" handleLogin={handleLogin} handleLogout={handleLogout} userId={userId} />
-        <NotFound default />
+        <div><Navbar /></div>
+          <Routes>
+            <Route path="/" element={<Skeleton />}/>
+            <Route path="/about" element={<About />}/>
+          </Routes>
       </Router>
     </>
   );
 };
-
-function App () {
-  return (
-    <>
-      <Navbar />
-      <div className='container'>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-        </Routes>
-      </div>
-    </>
-  )
-}
 
 export default App
