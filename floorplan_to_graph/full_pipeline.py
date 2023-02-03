@@ -460,13 +460,13 @@ def create_graph():
         if f"{png_file[:-4]}_graph.pickle" in os.listdir(graph_storage_dir) :
             print( f"Already created Graph {i}: " + png_file[:-4] + '.png')
             continue
-        if ".DS" in png_file or png_file not in ["6C_2.png", "6C_1.png", "6C_3.png", "32_2.png", "6_3.png", "32_G5.png", "12_2.png"]:
+        if ".DS" in png_file or png_file not in ['1_1.png', '2_1.png', '3_0.png', '3_1.png', '4_1.png', '5_1.png', '6_1.png', '7_0.png', '7_1.png', '8_1.png', '9_1.png', '10_1.png', '11_1.png', '12_1.png', '13_1.png', '14_1.png', '16_1.png', '17_1.png', '18_1.png', '24_0.png', '26_1.png', '32_1.png', '32_2.png', '33_1.png', '34_1.png', '36_1.png', '37_1.png', '39_1.png', '56_1.png', '57_1.png', '66_1.png', '68_1.png']:
             continue
         print(f"Creating Graph {i}: " + png_file[:-4] + '.png')
         start_time = time.perf_counter()
 
-        text_detection_with_east.drawTextNodes(f"{reduced_res_png_dir}/{png_file}", f"{reduced_res_png_dir}/{png_file}",
-                                               f"{txt_dir}/{png_file[:-4]}.json", scale_factor=scaling_factors[png_file])
+        # text_detection_with_east.drawTextNodes(f"{reduced_res_png_dir}/{png_file}", f"{reduced_res_png_dir}/{png_file}",
+        #                                        f"{txt_dir}/{png_file[:-4]}.json", scale_factor=scaling_factors[png_file])
         floorplan_name = png_file[:-4]
 
         internal_rep = load_color_image(reduced_res_png_dir + '/' + png_file)

@@ -40,6 +40,12 @@ def main():
                 for coord_set in special_feature_coords[node_type]:
                     string_version = str((coord_set[0], coord_set[1]))
                     room_locations.append([node_type, string_version])
+        old_rooms = room_locations.copy()
+        room_locations = []
+        for room in old_rooms:
+            if room [0] in ["ELEV", "STAIR"]:
+                continue
+            room_locations.append(room)
         # print(room_locations)
         relevant_pixels = set()
         relevant_nodes = set()
@@ -71,7 +77,7 @@ def main():
                         unreachable_nodes[start_location] += 1
                         unreachable_nodes[end_location] += 1
                         random.shuffle(node_queue)
-                        if max(unreachable_nodes.values()) < 3:
+                        if max(unreachable_nodes.values()) < 5:
                             continue
                         path = []
                     for (x,y), tag in path:

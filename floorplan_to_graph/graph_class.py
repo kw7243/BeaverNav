@@ -36,7 +36,7 @@ class Node():
     
 class Internal_Graph():
     def __init__(self, nodes = {}):
-        self.nodes = nodes # dictionary of nodes, with values being lists of their neighbors
+        self.nodes = nodes # dictionary of nodes, with values being lists of tuples of (neighbor, weight)
         self.graph = Graph()
     def __str__(self):
         s = ''
@@ -49,9 +49,9 @@ class Internal_Graph():
     def convert_to_djikstar(self, file_name):
         graph = Graph(undirected = True)
         for node in self.nodes:
-            for node_neighbor in self.nodes[node]:
+            for (node_neighbor, weight) in self.nodes[node]:
                 if node.type == 'supernode' or node_neighbor.type == 'supernode':
-                    graph.add_edge(node,node_neighbor,100)
-                else: graph.add_edge(node,node_neighbor,1)
+                    graph.add_edge(node,node_neighbor,1000000000)
+                else: graph.add_edge(node,node_neighbor,weight)
         with open(file_name, 'wb') as f:
             pickle.dump(graph,f)

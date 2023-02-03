@@ -6,15 +6,25 @@ import path_finding_testing
 from dijkstar import find_path
 import os
 from create_file_paths import *
+import time
 
 with open(abstract_graph, 'rb') as f:
     abstract_graph = pickle.load(f)
 
+start_time = time.perf_counter()
+print("Loading outdoor graph ")
+with open(outdoor_graph, 'rb') as f:
+    outside = pickle.load(f)
+end_time = time.perf_counter()
+print("Finished loading outdoor graph", end_time - start_time, "seconds")
+
 
 def find_path_same_floor(start_location, end_location, floor_plan):
     graph_name = floor_plan + "_graph.pickle"
-    pixel_graph = pickle.load(open(graph_storage_dir + '/' + graph_name, 'rb'))
-
+    if floor_plan != "0_0":
+        pixel_graph = pickle.load(open(pruned_graphs + '/' + graph_name, 'rb'))
+    else: 
+        pixel_graph = outside
     # print(room_locations)
 
     # get location of start room as a pixel
@@ -115,7 +125,6 @@ def main(start_building_room, destination_building_room):
             compare_floor_2 = int(destination_floor[1:]) + 40
         if "D" in destination_floor:
             compare_floor_2 = int(destination_floor[1:]) + 20
-        print()
 
         if node.type == 'supernode' and node.building == start_building and node.floor == int(compare_floor):
             # print("success")

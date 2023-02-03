@@ -2,11 +2,25 @@ import json
 from graph_class import Node, Internal_Graph
 from create_file_paths import *
 import create_file_paths
+import math
+
+def manhattan_distance(node1, node2, distance_scales):
+    weight = math.abs(node1.coordinates[0] - node2.coordinates[0]) + math.abs(node1.coordinates[1] - node2.coordinates[1])
+    weight = weight * distance_scales[f"{node1.building}_{node1.floor}"]
+    if not node1.check_condition_eh_sh(node2):
+        return 1
+    return weight
+
 
 def main():
     # read in special features
     with open( create_file_paths.special_features, 'r') as out:
         connections = json.load(out)
+
+    
+    with open(f"{distance_scale_dir}/distance_scales.json", 'w') as f:
+        distance_scales = json.load(f)
+
     graph = Internal_Graph()
     # create all nodes
         # iterate through all the special features names
@@ -40,32 +54,36 @@ def main():
             if (node1.type == 'ea'):
                 if (node2.type == 'ea'):
                     if (node1.check_condition_ea_sa(node2)):
-                        graph.nodes[node1].append(node2)
-                        graph.nodes[node2].append(node1)
+                        graph.nodes[node1].append((node2, 20))
+                        graph.nodes[node2].append((node1, 20))
                 if (node2.type == 'eh'):
                     if (node1.check_condition_eh_sh(node2)):
-                        graph.nodes[node1].append(node2)
-                        graph.nodes[node2].append(node1)
+                        weight = manhattan_distance(node1, node2, distance_scales)
+                        graph.nodes[node1].append(node2, weight)
+                        graph.nodes[node2].append(node1, weight)
             
             if (node1.type == 'sa'):
                 if (node2.type == 'sa'):
                     if (node1.check_condition_ea_sa(node2)):
-                        graph.nodes[node1].append(node2)
-                        graph.nodes[node2].append(node1)
+                        graph.nodes[node1].append((node2, 20))
+                        graph.nodes[node2].append((node1, 20))
                 if (node2.type == 'sh'):
                     if (node1.check_condition_eh_sh(node2)):
-                        graph.nodes[node1].append(node2)
-                        graph.nodes[node2].append(node1)
+                        weight = manhattan_distance(node1, node2, distance_scales)
+                        graph.nodes[node1].append(node2, weight)
+                        graph.nodes[node2].append(node1, weight)
             
             if (node1.type == 'ee' and node2.type == 'ee'):
                     if (node1.check_condition_ee(node2)):
-                        graph.nodes[node1].append(node2)
-                        graph.nodes[node2].append(node1)
+                        weight = manhattan_distance(node1, node2, distance_scales)
+                        graph.nodes[node1].append(node2, weight)
+                        graph.nodes[node2].append(node1, weight)
             
             if (node1.type == 'ee' or node2.type == 'ee'):
                     if (node1.check_condition_ee_sh_eh(node2)):
-                        graph.nodes[node1].append(node2)
-                        graph.nodes[node2].append(node1)
+                        weight = manhattan_distance(node1, node2, distance_scales)
+                        graph.nodes[node1].append(node2, weight)
+                        graph.nodes[node2].append(node1, weight)
     
 
     supernodes = []
@@ -82,8 +100,8 @@ def main():
         for node2 in graph.nodes:
             if (node2.type != 'supernode' and node2.building == supernode.building and node2.floor == supernode.floor):
                 if (node2.type != 'ea' and node2.type != 'sa'):
-                    graph.nodes[supernode].append(node2)
-                    graph.nodes[node2].append(supernode)
+                    graph.nodes[supernode].append((node2, 1)) # weighting is overwritten in graph class
+                    graph.nodes[node2].append((supernode, 1))
     
     for node in graph.nodes:
         if node.building == '1' or node.building == '3' or node.building == '10':
