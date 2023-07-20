@@ -1,0 +1,13 @@
+Flask
+pillow
+numpy
+poppler-utils
+opencv-python
+pdf2image
+IPython
+tesseract
+pytesseract
+svgpathtools
+cairosvg
+easyocr
+imutils
