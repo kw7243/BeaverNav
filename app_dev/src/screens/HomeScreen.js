@@ -14,7 +14,7 @@ const HomeScreen = () => {
 	const dispatch = useDispatch();
 
 	return (
-		<SafeAreaView style={tw`bg-white h-full`}>
+		<SafeAreaView style={styles.container}>
 			<View style={tw`p-5`}>
 				<Image 
 					style={{
@@ -48,6 +48,11 @@ const HomeScreen = () => {
 	)
 }
 
-export default HomeScreen
+export default HomeScreen;
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+	container: {
+		flex: 1,
+		backgroundColor: '#FCD6F9', // Replace with your desired pink shade color
+	},
+});
