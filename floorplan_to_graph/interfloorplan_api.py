@@ -8,6 +8,8 @@ import os
 from create_file_paths import *
 import time
 
+abstract_graph = "/Users/michael/Desktop/BeaverNav/floorplan_to_graph/backend_file_storage/abstract_graph.pickle"
+
 with open(abstract_graph, 'rb') as f:
     abstract_graph = pickle.load(f)
 

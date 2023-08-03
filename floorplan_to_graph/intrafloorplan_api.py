@@ -19,17 +19,19 @@ def main(start_location, end_location, floor_plan):
 
     # get location of start room as a pixel
     # get location of end room as a pixel
+    print(start_location)
 
     print("start", start_location, "end", end_location)
     # get scaling factor
     with open(scaling_factors_path) as f:
         scaling_factors = json.load(f)
     scaling_factor = scaling_factors[floor_plan + '.png']
+    print("hello")
     # print(scaling_factor)
     # scale locations
     # get graph
     # ffed into test_path_finding
-    new_filename, extra = path_finding_testing.test_path_finding(cropped_png_files_dir, floor_plan,
+    new_filename = path_finding_testing.test_path_finding(cropped_png_files_dir, floor_plan,
                                 pixel_graph, start_location, end_location, scaling_factor)
 
     return cv2.imread(new_filename)
