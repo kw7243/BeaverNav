@@ -13,7 +13,7 @@ const SearchBar = (props) => {
         <View>
             <TextInput
                 placeholder={props.placeholder}
-                style={tw`p-2 bg-gray-200 flex-none text-lg rounded-md`}
+                style={tw`p-2 bg-pink-200 flex-none text-lg rounded-md`}
                 // onChangeText={(text) => setStartLocation(text)}
                 onSubmitEditing={onSubmitEditing()}
             />

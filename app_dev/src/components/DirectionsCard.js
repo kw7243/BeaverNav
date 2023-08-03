@@ -6,6 +6,7 @@ import { Icon } from 'react-native-elements'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 
+
 /**
  * Proptypes
  * @param {FloorPlanQuery[]} floorPlanQueries
@@ -37,7 +38,13 @@ const DirectionsCard = (props) => {
 
     return (
         <View style={tw`flex-auto`}>
-            <View style={tw`flex py-3 px-5 bg-black bg-opacity-80`}>
+            <View 
+                    style={tw`flex py-3 px-5 bg-black bg-opacity-90`}
+                    onLayout={(event) => {
+                        const layout = event.nativeEvent.layout;
+                        // save layout.height somewhere accessible by DirectionsScreen
+                    }}
+                    >
                 <Text style={tw`text-center text-white font-bold text-xl`}> 
                     {props.index < props.floorPlanQueries.length && props.floorPlanQueries[props.index].text}
                 </Text>
@@ -51,7 +58,7 @@ const DirectionsCard = (props) => {
                     <Icon 
                         style={tw`p-2 bg-black rounded-full w-20 mt-4 mx-4`}
                         name="arrowleft" 
-                        color="white" 
+                        color="red" 
                         type="antdesign"
                     />
                 </TouchableOpacity>
@@ -79,7 +86,7 @@ const DirectionsCard = (props) => {
                         <Icon 
                             style={tw`p-2 bg-black rounded-full w-20 mt-4 mx-4`}
                             name="arrowright" 
-                            color="white" 
+                            color="red" 
                             type="antdesign"
                         />
                     </TouchableOpacity>

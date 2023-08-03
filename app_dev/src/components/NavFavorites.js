@@ -36,7 +36,7 @@ const NavFavorites = () => {
             style={tw`mr-4 rounded-full bg-gray-300 p-3`}
             name={icon}
             type="ionicon"
-            color="white"
+            color="red"
             size={18}
           />
           <View>

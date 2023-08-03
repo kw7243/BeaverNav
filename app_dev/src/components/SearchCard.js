@@ -17,12 +17,12 @@ const SearchCard = () => {
   const [endLocation, setEndLocation] = useState("");
 
   return (
-    <SafeAreaView style={tw`bg-white flex-1 border-t border-gray-200`}>
+    <SafeAreaView style={tw`bg-pink flex-1 border-t border-gray-200`}>
       <Text style={tw`text-center py-5 text-xl`}>Good morning, Kevin</Text>
         <View>
           <TextInput
             placeholder="Start location?"
-            style={tw`mx-5 p-2 bg-gray-200 flex-none text-lg rounded-md`}
+            style={tw`mx-5 p-2 bg-pink-200 flex-none text-lg rounded-md`}
             onChangeText={(text) => setStartLocation(text)}
             onChange={(e) => {
               // dispatch setOrigin ACTION to Redux slice
@@ -35,7 +35,7 @@ const SearchCard = () => {
           />
           <TextInput
             placeholder="Where to?"
-            style={tw`mx-5 my-5 p-2 bg-gray-200 flex-none text-lg rounded-md`}
+            style={tw`mx-5 my-5 p-2 bg-pink-200 flex-none text-lg rounded-md`}
             onChangeText={(text) => setEndLocation(text)}
             onChange={(e) => {
               // dispatch setOrigin ACTION to Redux slice
@@ -54,7 +54,7 @@ const SearchCard = () => {
             }
           }
         >
-          <Icon name="walking" type="font-awesome-5" color="white" size={16}/>
+          <Icon name="walking" type="font-awesome-5" color="pink" size={16}/>
           <Text style={tw`text-white text-center`}>Directions</Text>
         </TouchableOpacity>
       </View>
@@ -67,12 +67,12 @@ export default SearchCard
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "white",
+    backgroundColor: "pink",
     paddingTop: 20,
     flex: 0
   },
   textInput: {
-    backgroundColor: "#DDDDDF",
+    backgroundColor: "pink",
     borderRadius: 0,
     fontSize: 18
   },
