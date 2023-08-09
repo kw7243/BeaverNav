@@ -3,7 +3,7 @@ Import this file for any file paths
 """
 
 import os
-beavernav = os. getcwd() + '/'
+beavernav = os. getcwd() + '/floorplan_to_graph/'
 svg_originals_dir = beavernav + "backend_file_storage/svg_original_files"
 svg_doors_dots_removed_dir = beavernav + "backend_file_storage/doors_dots_removed_svg"
 svg_doors_dots_removed_dir_temp = beavernav + "backend_file_storage/doors_dots_removed_svg_temp"
