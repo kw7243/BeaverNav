@@ -1,12 +1,16 @@
 import Link from "next/link";
 import Image from "next/image";
 import logoImg from '../public/FindYourWay.png'
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { sendRoutingRequest, RouteResponse } from "../utilities/api";
 import { showNotification } from "@mantine/notifications";
 import { XCircleIcon } from "@heroicons/react/24/outline";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import { Carousel } from "react-responsive-carousel";
+
+
+const MULTIPLE_FLOORS_API = "http://127.0.0.1:5000/interfloorplan";
+const SINGLE_FLOOR_API = "http://127.0.0.1:5000/intrafloorplan";
 
 const navigation = [
     { name: 'Navigate', href: '/navigate' },
@@ -31,6 +35,73 @@ export default function Navigate() {
             setImages(imageURIs)
         }
     }
+
+    useEffect(() => {
+        const fetchFloorData = async () => {
+            try {
+            const response = await fetch(MULTIPLE_FLOORS_API, {
+                method: "POST",
+                headers: {
+                "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                floor_plan: "",
+                start_location: origin, // Using the input values
+                end_location: destination, // Using the input values
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch floor data");
+            }
+
+            const data = await response.json();
+            const updatedImages = [];
+
+            for (const path of data.path_list) {
+                const intraFloorData = {
+                floor_plan: path.floorplan,
+                start_location: path["start location"],
+                end_location: path["end location"],
+                };
+                const imageSource = await fetchFloorImage(intraFloorData);
+                updatedImages.push({
+                image_data: imageSource,
+                text: `Start: ${intraFloorData.start_location}, End: ${intraFloorData.end_location}`,
+                });
+            }
+
+            setImages(updatedImages);
+            } catch (error) {
+            console.error("Error fetching floor data:", error);
+            }
+        };
+
+        const fetchFloorImage = async (intraData) => {
+            try {
+            const response = await fetch(SINGLE_FLOOR_API, {
+                method: "POST",
+                headers: {
+                "Content-Type": "application/json",
+                },
+                body: JSON.stringify(intraData),
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch floor image");
+            }
+
+            const data = await response.json();
+            const source = data.image;
+            return source;
+            } catch (error) {
+            console.error("Error fetching floor image:", error);
+            }
+        };
+
+        fetchFloorData();
+        }, [origin, destination]);
+    
 
     return (
         <div className="isolate bg-white">
@@ -106,16 +177,12 @@ export default function Navigate() {
                 <div className="w-1 border-r border-gray-200" />
                 <div className="w-full">
                     <Carousel>
-                        {
-                            images.map(({ image_data: imageUri, text }) => {
-                                return (
-                                    <div key={imageUri}>
-                                        <img src={`http://45.33.64.67/route/image/?path=${imageUri}`} />
-                                        <p>{text}</p>
-                                    </div>
-                                )
-                            })
-                        }
+                        {images.map(({ image_data: imageUri, text }) => (
+                            <div key={imageUri}>
+                                <img src={imageUri} alt="Floor Plan" />
+                                <p>{text}</p>
+                            </div>
+                        ))}
                     </Carousel>
                 </div>
             </div>
