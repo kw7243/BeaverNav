@@ -60,15 +60,16 @@ export default function Navigate() {
 
             for (const path of data.path_list) {
                 const intraFloorData = {
-                floor_plan: path.floorplan,
-                start_location: path["start location"],
-                end_location: path["end location"],
+                    floor_plan: path.floorplan,
+                    start_location: path["start location"],
+                    end_location: path["end location"],
                 };
                 const imageSource = await fetchFloorImage(intraFloorData);
-                updatedImages.push({
-                image_data: imageSource,
-                text: `Start: ${intraFloorData.start_location}, End: ${intraFloorData.end_location}`,
-                });
+                    updatedImages.push({
+                        image_data: imageSource,
+                        text: `Start: ${intraFloorData.start_location}, End: ${intraFloorData.end_location}`,
+                    }
+                );
             }
 
             setImages(updatedImages);

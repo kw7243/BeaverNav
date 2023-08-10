@@ -5,6 +5,9 @@ from flask import Flask, jsonify, request
 from interfloorplan_api import main as inter_main
 from intrafloorplan_api import main as intra_main
 from PIL import Image
+
+from flask_cors import CORS
+
 import os
 import numpy as np
 import uuid
@@ -13,6 +16,7 @@ import base64
 import pickle
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for the entire app
 
 @app.route('/interfloorplan', methods=['POST'])
 def interfloorplan():
