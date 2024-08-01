@@ -44,12 +44,4 @@ More in-depth explanation can be found below.
 
 ## [**Demo**](assets/demo_vid.mov)
 
-<div>
-<iframe src="assets/demo_vid.mov" width="100%" height="600px"></iframe>
-</div>
-
 ## [**Project Presentation**](assets/AIM%20Labs%20Demo%202.pdf)
-
-<div>
-<iframe src="assets/AIM%20Labs%20Demo%202.pdf" width="100%" height="600px"></iframe>
-</div>
