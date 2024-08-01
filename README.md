@@ -44,4 +44,6 @@ More in-depth explanation can be found below.
 
 ## [**Demo**](assets/demo_vid.mov)
 
+<video src="assets/beaver_nav/demo_vid.mov" controls width="100%" height="400px"></video>
+
 ## [**Project Presentation**](assets/AIM%20Labs%20Demo%202.pdf)
