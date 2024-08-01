@@ -2,8 +2,7 @@
 
 ![Header Image](assets/header.png)
 
-**Description:** Dec 2022  
-
+**Dec 2022**
 **By Kevin Wen, Yajvan Ravan, Vasu Kaker, Michael Wong**
 
 ---
@@ -19,9 +18,11 @@ Indoor navigation for MIT’s campus: Enables users to navigate between rooms, p
 **Note this is still a work in progress & is not yet a live website**
 
 ![Navigation inside a building](assets/AIM%20Labs%20Demo%202-2.png)
+
 *Navigation inside a building*
 
 ![Navigation between buildings](assets/AIM%20Labs%20Demo%202.png)
+
 *Navigation between buildings*
 
 We built this using the following pipeline:
@@ -34,6 +35,7 @@ We built this using the following pipeline:
 6. Create an “abstracted graph” of MIT’s campus using elevators, staircases, and entry-exits between buildings.
 
 ![High-Level Graph](assets/AIM%20Labs%20Demo%202-3.png)
+
 *High-Level Graph*
 
 More in-depth explanation can be found below.
