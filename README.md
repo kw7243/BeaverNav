@@ -3,8 +3,8 @@
 ![Header Image](assets/beaver_nav/header.png)
 
 **Description:** Dec 2022  
-**Category:** Fun  
-**Importance:** 1  
+
+**By Kevin Wen, Yajvan Ravan, Vasu Kaker, Michael Wong**
 
 ---
 
