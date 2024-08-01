@@ -1,6 +1,6 @@
 # BeaverNav
 
-![Header Image](assets/beaver_nav/header.png)
+![Header Image](assets/header.png)
 
 **Description:** Dec 2022  
 
@@ -18,10 +18,10 @@ Indoor navigation for MIT’s campus: Enables users to navigate between rooms, p
 
 **Note this is still a work in progress & is not yet a live website**
 
-![Navigation inside a building](assets/beaver_nav/AIM%20Labs%20Demo%202-2.png)
+![Navigation inside a building](assets/AIM%20Labs%20Demo%202-2.png)
 *Navigation inside a building*
 
-![Navigation between buildings](assets/beaver_nav/AIM%20Labs%20Demo%202.png)
+![Navigation between buildings](assets/AIM%20Labs%20Demo%202.png)
 *Navigation between buildings*
 
 We built this using the following pipeline:
@@ -33,21 +33,21 @@ We built this using the following pipeline:
 5. Condense graph offline by running an additional all-pairs shortest paths algorithm (APSP) & use A* for online planning.
 6. Create an “abstracted graph” of MIT’s campus using elevators, staircases, and entry-exits between buildings.
 
-![High-Level Graph](assets/beaver_nav/AIM%20Labs%20Demo%202-3.png)
+![High-Level Graph](assets/AIM%20Labs%20Demo%202-3.png)
 *High-Level Graph*
 
 More in-depth explanation can be found below.
 
 ## [**Code**](https://github.com/kw7243/BeaverNav)
 
-## [**Demo**](assets/beaver_nav/demo_vid.mov)
+## [**Demo**](assets/demo_vid.mov)
 
 <div>
-<iframe src="assets/beaver_nav/demo_vid.mov" width="100%" height="600px"></iframe>
+<iframe src="assets/demo_vid.mov" width="100%" height="600px"></iframe>
 </div>
 
-## [**Project Presentation**](assets/beaver_nav/AIM%20Labs%20Demo%202.pdf)
+## [**Project Presentation**](assets/AIM%20Labs%20Demo%202.pdf)
 
 <div>
-<iframe src="assets/beaver_nav/AIM%20Labs%20Demo%202.pdf" width="100%" height="600px"></iframe>
+<iframe src="assets/AIM%20Labs%20Demo%202.pdf" width="100%" height="600px"></iframe>
 </div>
